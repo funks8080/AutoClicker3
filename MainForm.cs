@@ -40,6 +40,9 @@ namespace GlobalHookDemo
         private NumericUpDown numCount;
 	    private bool InfiniteLoop;
 	    private bool ResetClicks;
+        private TrackBar trackTimer;
+        private Label trackLabel1;
+        private Label trackLabel;
         List<int> Modifiers;
 
         //[DllImport("user32.dll", CharSet = CharSet.Auto, CallingConvention = CallingConvention.StdCall)]
@@ -54,13 +57,11 @@ namespace GlobalHookDemo
         private const int MOUSEEVENTF_RIGHTDOWN = 0x08;
         private const int MOUSEEVENTF_RIGHTUP = 0x10;
         const int INPUT_MOUSE = 0;
-	    private int intervalTime;
 
         public MainForm()
         {
             ctrl = false;
-            ClickCountPos = 0;
-            intervalTime = 1500;
+            ClickCountPos = 1000;
             Clicks = new List<Point>();
             recordClicks = false;
             RunProgram = false;
@@ -84,7 +85,11 @@ namespace GlobalHookDemo
             this.label1 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
             this.numCount = new System.Windows.Forms.NumericUpDown();
+            this.trackTimer = new System.Windows.Forms.TrackBar();
+            this.trackLabel1 = new System.Windows.Forms.Label();
+            this.trackLabel = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.numCount)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.trackTimer)).BeginInit();
             this.SuspendLayout();
             // 
             // textBox
@@ -94,12 +99,12 @@ namespace GlobalHookDemo
             | System.Windows.Forms.AnchorStyles.Right)));
             this.textBox.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.textBox.Font = new System.Drawing.Font("Courier New", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.World);
-            this.textBox.Location = new System.Drawing.Point(4, 106);
+            this.textBox.Location = new System.Drawing.Point(4, 142);
             this.textBox.Multiline = true;
             this.textBox.Name = "textBox";
             this.textBox.ReadOnly = true;
             this.textBox.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.textBox.Size = new System.Drawing.Size(322, 289);
+            this.textBox.Size = new System.Drawing.Size(322, 253);
             this.textBox.TabIndex = 3;
             // 
             // labelMousePosition
@@ -108,7 +113,7 @@ namespace GlobalHookDemo
             | System.Windows.Forms.AnchorStyles.Right)));
             this.labelMousePosition.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.labelMousePosition.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.labelMousePosition.Location = new System.Drawing.Point(4, 80);
+            this.labelMousePosition.Location = new System.Drawing.Point(4, 116);
             this.labelMousePosition.Name = "labelMousePosition";
             this.labelMousePosition.Size = new System.Drawing.Size(322, 23);
             this.labelMousePosition.TabIndex = 2;
@@ -118,7 +123,7 @@ namespace GlobalHookDemo
             // buttonStart
             // 
             this.buttonStart.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.buttonStart.Location = new System.Drawing.Point(119, 3);
+            this.buttonStart.Location = new System.Drawing.Point(137, 3);
             this.buttonStart.Name = "buttonStart";
             this.buttonStart.Size = new System.Drawing.Size(75, 23);
             this.buttonStart.TabIndex = 1;
@@ -143,7 +148,7 @@ namespace GlobalHookDemo
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(84, 42);
+            this.label1.Location = new System.Drawing.Point(84, 35);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(128, 13);
             this.label1.TabIndex = 5;
@@ -152,7 +157,7 @@ namespace GlobalHookDemo
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(113, 55);
+            this.label2.Location = new System.Drawing.Point(113, 48);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(67, 13);
             this.label2.TabIndex = 6;
@@ -160,7 +165,7 @@ namespace GlobalHookDemo
             // 
             // numCount
             // 
-            this.numCount.Location = new System.Drawing.Point(13, 45);
+            this.numCount.Location = new System.Drawing.Point(13, 38);
             this.numCount.Maximum = new decimal(new int[] {
             9999,
             0,
@@ -170,10 +175,43 @@ namespace GlobalHookDemo
             this.numCount.Size = new System.Drawing.Size(65, 20);
             this.numCount.TabIndex = 7;
             // 
+            // trackTimer
+            // 
+            this.trackTimer.Location = new System.Drawing.Point(13, 68);
+            this.trackTimer.Minimum = 2;
+            this.trackTimer.Name = "trackTimer";
+            this.trackTimer.Size = new System.Drawing.Size(199, 45);
+            this.trackTimer.TabIndex = 8;
+            this.trackTimer.TickStyle = System.Windows.Forms.TickStyle.Both;
+            this.trackTimer.Value = 2;
+            this.trackTimer.Scroll += new System.EventHandler(this.trackTimer_Scroll);
+            // 
+            // trackLabel1
+            // 
+            this.trackLabel1.AutoSize = true;
+            this.trackLabel1.Location = new System.Drawing.Point(218, 91);
+            this.trackLabel1.Name = "trackLabel1";
+            this.trackLabel1.Size = new System.Drawing.Size(74, 13);
+            this.trackLabel1.TabIndex = 9;
+            this.trackLabel1.Text = "Second Delay";
+            // 
+            // trackLabel
+            // 
+            this.trackLabel.AutoSize = true;
+            this.trackLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.trackLabel.Location = new System.Drawing.Point(249, 68);
+            this.trackLabel.Name = "trackLabel";
+            this.trackLabel.Size = new System.Drawing.Size(15, 16);
+            this.trackLabel.TabIndex = 10;
+            this.trackLabel.Text = "1";
+            // 
             // MainForm
             // 
             this.AutoScaleBaseSize = new System.Drawing.Size(5, 13);
             this.ClientSize = new System.Drawing.Size(328, 398);
+            this.Controls.Add(this.trackLabel);
+            this.Controls.Add(this.trackLabel1);
+            this.Controls.Add(this.trackTimer);
             this.Controls.Add(this.numCount);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.label1);
@@ -185,6 +223,7 @@ namespace GlobalHookDemo
             this.Text = "This application captures keystrokes";
             this.Load += new System.EventHandler(this.MainFormLoad);
             ((System.ComponentModel.ISupportInitialize)(this.numCount)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.trackTimer)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -365,6 +404,9 @@ namespace GlobalHookDemo
             RunProgram = !RunProgram;
             if (RunProgram && !timer1.Enabled)
             {
+                trackTimer.Enabled = false;
+                numCount.Enabled = false;
+                buttonRecord.Enabled = false;
                 ClickCountPos = 0;
 
                 if (Clicks.Count > 0 && ResetClicks)
@@ -393,12 +435,26 @@ namespace GlobalHookDemo
             }
             else
             {
-                buttonStart.Text = "Start";
                 timer1.Stop();
+                trackTimer.Enabled = true;
+                numCount.Enabled = true;
+                buttonRecord.Enabled = true;
+                buttonStart.Text = "Start";
                 LogWrite("Stopping Auto Clicker");
             }
         }
-       
-    }			
+
+        private void trackTimer_Scroll(object sender, EventArgs e)
+        {
+            var interval = GetInterval();
+            trackLabel.Text = (interval / 1000.0).ToString();
+            timer1.Interval = interval;
+        }
+
+	    private int GetInterval()
+	    {
+	        return (int) ((trackTimer.Value / 2.0) * 1000);
+	    }
+	}			
 }
 

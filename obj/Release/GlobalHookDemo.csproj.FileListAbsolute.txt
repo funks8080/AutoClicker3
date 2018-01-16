@@ -1,0 +1,6 @@
+D:\PersonalWorkspace\AutoClicker3\bin\Release\GlobalHookDemo.exe.config
+D:\PersonalWorkspace\AutoClicker3\bin\Release\GlobalHookDemo.exe
+D:\PersonalWorkspace\AutoClicker3\obj\Release\GlobalHookDemo.MainForm.resources
+D:\PersonalWorkspace\AutoClicker3\obj\Release\GlobalHookDemo.csproj.GenerateResource.Cache
+D:\PersonalWorkspace\AutoClicker3\obj\Release\GlobalHookDemo.csproj.CoreCompileInputs.cache
+D:\PersonalWorkspace\AutoClicker3\obj\Release\GlobalHookDemo.exe
