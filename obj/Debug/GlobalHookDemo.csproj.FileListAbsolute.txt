@@ -8,3 +8,13 @@ C:\Users\funks\Downloads\globalhook_src\obj\Debug\GlobalHookDemo.csproj.Generate
 C:\Users\funks\Downloads\globalhook_src\obj\Debug\GlobalHookDemo.csproj.CoreCompileInputs.cache
 C:\Users\funks\Downloads\globalhook_src\obj\Debug\GlobalHookDemo.exe
 C:\Users\funks\Downloads\globalhook_src\obj\Debug\GlobalHookDemo.pdb
+D:\PersonalWorkspace\AutoClicker3\bin\Debug\GlobalHookDemo.exe.config
+D:\PersonalWorkspace\AutoClicker3\bin\Debug\GlobalHookDemo.XML
+D:\PersonalWorkspace\AutoClicker3\bin\Debug\GlobalHookDemo.exe
+D:\PersonalWorkspace\AutoClicker3\bin\Debug\GlobalHookDemo.pdb
+D:\PersonalWorkspace\AutoClicker3\obj\Debug\GlobalHookDemo.csprojResolveAssemblyReference.cache
+D:\PersonalWorkspace\AutoClicker3\obj\Debug\GlobalHookDemo.MainForm.resources
+D:\PersonalWorkspace\AutoClicker3\obj\Debug\GlobalHookDemo.csproj.GenerateResource.Cache
+D:\PersonalWorkspace\AutoClicker3\obj\Debug\GlobalHookDemo.csproj.CoreCompileInputs.cache
+D:\PersonalWorkspace\AutoClicker3\obj\Debug\GlobalHookDemo.exe
+D:\PersonalWorkspace\AutoClicker3\obj\Debug\GlobalHookDemo.pdb
