@@ -316,7 +316,13 @@ namespace GlobalHookDemo
             {
                 ClickCountPos++;
                 if (ClickCountPos > Clicks.Count - 1)
+                {
                     ClickCountPos = 0;
+                    TotalCount--;
+                    if (!InfiniteLoop)
+                        numCount.Value = TotalCount;
+                }
+                    
             }
 
             DoMouseClick(CurrentPoint);
@@ -375,10 +381,6 @@ namespace GlobalHookDemo
             SendInput(1, ref i, Marshal.SizeOf(i));
 
             LogWrite("Clicked at X:" + point.X + "  Y:" + point.Y);
-            TotalCount--;
-            if (!InfiniteLoop)
-                numCount.Value--;
-
         }
 
         public int GetRandomOffset()
