@@ -26,6 +26,7 @@ namespace GlobalHookDemo
                 runProgram = value;
             }
         }
+        private bool LogInfo;
         private bool recordClicks;
         private List<Point> Clicks;
         private int ClickCountPos;
@@ -43,6 +44,7 @@ namespace GlobalHookDemo
         private TrackBar trackTimer;
         private Label trackLabel1;
         private Label trackLabel;
+        private CheckBox chkLog;
         List<int> Modifiers;
 
         //[DllImport("user32.dll", CharSet = CharSet.Auto, CallingConvention = CallingConvention.StdCall)]
@@ -60,6 +62,7 @@ namespace GlobalHookDemo
 
         public MainForm()
         {
+            LogInfo = true;
             ctrl = false;
             ClickCountPos = 1000;
             Clicks = new List<Point>();
@@ -88,6 +91,7 @@ namespace GlobalHookDemo
             this.trackTimer = new System.Windows.Forms.TrackBar();
             this.trackLabel1 = new System.Windows.Forms.Label();
             this.trackLabel = new System.Windows.Forms.Label();
+            this.chkLog = new System.Windows.Forms.CheckBox();
             ((System.ComponentModel.ISupportInitialize)(this.numCount)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.trackTimer)).BeginInit();
             this.SuspendLayout();
@@ -178,12 +182,13 @@ namespace GlobalHookDemo
             // trackTimer
             // 
             this.trackTimer.Location = new System.Drawing.Point(13, 68);
-            this.trackTimer.Minimum = 2;
+            this.trackTimer.Maximum = 50;
+            this.trackTimer.Minimum = 10;
             this.trackTimer.Name = "trackTimer";
             this.trackTimer.Size = new System.Drawing.Size(199, 45);
             this.trackTimer.TabIndex = 8;
             this.trackTimer.TickStyle = System.Windows.Forms.TickStyle.Both;
-            this.trackTimer.Value = 2;
+            this.trackTimer.Value = 10;
             this.trackTimer.Scroll += new System.EventHandler(this.trackTimer_Scroll);
             // 
             // trackLabel1
@@ -205,10 +210,24 @@ namespace GlobalHookDemo
             this.trackLabel.TabIndex = 10;
             this.trackLabel.Text = "1";
             // 
+            // chkLog
+            // 
+            this.chkLog.AutoSize = true;
+            this.chkLog.Checked = true;
+            this.chkLog.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.chkLog.Location = new System.Drawing.Point(234, 8);
+            this.chkLog.Name = "chkLog";
+            this.chkLog.Size = new System.Drawing.Size(79, 17);
+            this.chkLog.TabIndex = 11;
+            this.chkLog.Text = "Log Details";
+            this.chkLog.UseVisualStyleBackColor = true;
+            this.chkLog.CheckedChanged += new System.EventHandler(this.chkLog_CheckedChanged);
+            // 
             // MainForm
             // 
             this.AutoScaleBaseSize = new System.Drawing.Size(5, 13);
             this.ClientSize = new System.Drawing.Size(328, 398);
+            this.Controls.Add(this.chkLog);
             this.Controls.Add(this.trackLabel);
             this.Controls.Add(this.trackLabel1);
             this.Controls.Add(this.trackTimer);
@@ -305,14 +324,28 @@ namespace GlobalHookDemo
                 RunClicks();
                 ctrl = false;
             }
-			    
-		}
+            if (e.KeyCode == Keys.L && ctrl)
+            {
+                chkLog.Checked = !chkLog.Checked;
+            }
+            if(e.KeyCode == Keys.Add)
+            {
+                trackTimer.Value++;
+                UpdateTrack();
+            }
+            if (e.KeyCode == Keys.Subtract)
+            {
+                trackTimer.Value--;
+                UpdateTrack();
+            }
+
+        }
 
         private void timer1_Tick(object sender, EventArgs e)
         {
             //set cursor position to memorized location
             CurrentPoint = Clicks[ClickCountPos];
-            if(Clicks.Count > 1)
+            if(Clicks.Count >= 1)
             {
                 ClickCountPos++;
                 if (ClickCountPos > Clicks.Count - 1)
@@ -330,8 +363,12 @@ namespace GlobalHookDemo
 
         private void LogWrite(string txt)
 		{
-			textBox.AppendText(txt + Environment.NewLine);
-			textBox.SelectionStart = textBox.Text.Length;
+            if (LogInfo)
+            {
+                textBox.AppendText(txt + Environment.NewLine);
+                textBox.SelectionStart = textBox.Text.Length;
+            }
+			
 		}
 
         public struct MOUSEINPUT
@@ -448,15 +485,29 @@ namespace GlobalHookDemo
 
         private void trackTimer_Scroll(object sender, EventArgs e)
         {
-            var interval = GetInterval();
-            trackLabel.Text = (interval / 1000.0).ToString();
-            timer1.Interval = interval;
+            UpdateTrack();
         }
 
 	    private int GetInterval()
 	    {
-	        return (int) ((trackTimer.Value / 2.0) * 1000);
+	        return (int) ((trackTimer.Value / 10.0) * 1000);
 	    }
-	}			
+
+        private void chkLog_CheckedChanged(object sender, EventArgs e)
+        {
+            var checkBox = (CheckBox)sender;
+            if (checkBox.Checked)
+                LogInfo = true;
+            else
+                LogInfo = false;
+        }
+
+        private void UpdateTrack()
+        {
+            var interval = GetInterval();
+            trackLabel.Text = (interval / 1000.0).ToString();
+            timer1.Interval = interval;
+        }
+    }			
 }
 
