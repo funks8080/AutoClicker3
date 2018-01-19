@@ -10,4 +10,3 @@ C:\Users\funks\Downloads\globalhook_src\obj\Release\GlobalHookDemo.MainForm.reso
 C:\Users\funks\Downloads\globalhook_src\obj\Release\GlobalHookDemo.csproj.GenerateResource.Cache
 C:\Users\funks\Downloads\globalhook_src\obj\Release\GlobalHookDemo.csproj.CoreCompileInputs.cache
 C:\Users\funks\Downloads\globalhook_src\obj\Release\GlobalHookDemo.exe
-C:\Users\funks\Downloads\globalhook_src\obj\Release\GlobalHookDemo.csprojResolveAssemblyReference.cache

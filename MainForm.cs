@@ -26,12 +26,17 @@ namespace GlobalHookDemo
                 runProgram = value;
             }
         }
+        private bool Dropping;
+        private bool DropInverse;
         private bool LogInfo;
         private bool recordClicks;
         private List<Point> Clicks;
+        private List<Point> Inventory;
+        private int DropClickPos;
         private int ClickCountPos;
         private Point CurrentPoint;
-        private System.Windows.Forms.Timer timer1;
+        private System.Windows.Forms.Timer ClickTimer;
+        private System.Windows.Forms.Timer DropTimer;
         private Random random;
         private int randomNumber;
         private int TotalCount;
@@ -45,6 +50,9 @@ namespace GlobalHookDemo
         private Label trackLabel1;
         private Label trackLabel;
         private CheckBox chkLog;
+        private GroupBox groupBox1;
+        private GroupBox groupBox2;
+        private CheckBox chkDropInverse;
         List<int> Modifiers;
 
         //[DllImport("user32.dll", CharSet = CharSet.Auto, CallingConvention = CallingConvention.StdCall)]
@@ -52,6 +60,30 @@ namespace GlobalHookDemo
 
         [DllImport("User32.dll", SetLastError = true)]
         public static extern int SendInput(int nInputs, ref INPUT pInputs, int cbSize);
+
+        [DllImport("user32.dll")]
+        public static extern void keybd_event(byte bVk, byte bScan, uint dwFlags, uint dwExtraInfo);
+
+        const int VK_SHIFT = 0x10; //up key
+        const int VK_DOWN = 0x28;  //down key
+        const int VK_LEFT = 0x25;
+        const int VK_RIGHT = 0x27;
+        const uint KEYEVENTF_KEYUP = 0x0002;
+        const uint KEYEVENTF_EXTENDEDKEY = 0x0001;
+        int press()
+        {
+
+            //Press the key
+            keybd_event((byte)VK_SHIFT, 0, KEYEVENTF_EXTENDEDKEY | 0, 0);
+            return 0;
+
+        }
+        int release()
+        {
+            //Release the key
+            keybd_event((byte)VK_SHIFT, 0, KEYEVENTF_EXTENDEDKEY | KEYEVENTF_KEYUP, 0);
+            return 0;
+        }
 
         //Mouse actions
         private const int MOUSEEVENTF_LEFTDOWN = 0x02;
@@ -62,10 +94,14 @@ namespace GlobalHookDemo
 
         public MainForm()
         {
+            Dropping = false;
+            DropInverse = false;
             LogInfo = true;
             ctrl = false;
-            ClickCountPos = 1000;
+            DropClickPos = 0;
+            ClickCountPos = 0;
             Clicks = new List<Point>();
+            Inventory = GetInventory();
             recordClicks = false;
             RunProgram = false;
             random = new Random();
@@ -84,7 +120,8 @@ namespace GlobalHookDemo
             this.labelMousePosition = new System.Windows.Forms.Label();
             this.buttonStart = new System.Windows.Forms.Button();
             this.buttonRecord = new System.Windows.Forms.Button();
-            this.timer1 = new System.Windows.Forms.Timer(this.components);
+            this.ClickTimer = new System.Windows.Forms.Timer(this.components);
+            this.DropTimer = new System.Windows.Forms.Timer(this.components);
             this.label1 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
             this.numCount = new System.Windows.Forms.NumericUpDown();
@@ -92,8 +129,13 @@ namespace GlobalHookDemo
             this.trackLabel1 = new System.Windows.Forms.Label();
             this.trackLabel = new System.Windows.Forms.Label();
             this.chkLog = new System.Windows.Forms.CheckBox();
+            this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.groupBox2 = new System.Windows.Forms.GroupBox();
+            this.chkDropInverse = new System.Windows.Forms.CheckBox();
             ((System.ComponentModel.ISupportInitialize)(this.numCount)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.trackTimer)).BeginInit();
+            this.groupBox1.SuspendLayout();
+            this.groupBox2.SuspendLayout();
             this.SuspendLayout();
             // 
             // textBox
@@ -108,7 +150,7 @@ namespace GlobalHookDemo
             this.textBox.Name = "textBox";
             this.textBox.ReadOnly = true;
             this.textBox.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.textBox.Size = new System.Drawing.Size(322, 253);
+            this.textBox.Size = new System.Drawing.Size(308, 253);
             this.textBox.TabIndex = 3;
             // 
             // labelMousePosition
@@ -119,7 +161,7 @@ namespace GlobalHookDemo
             this.labelMousePosition.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.labelMousePosition.Location = new System.Drawing.Point(4, 116);
             this.labelMousePosition.Name = "labelMousePosition";
-            this.labelMousePosition.Size = new System.Drawing.Size(322, 23);
+            this.labelMousePosition.Size = new System.Drawing.Size(309, 23);
             this.labelMousePosition.TabIndex = 2;
             this.labelMousePosition.Text = "labelMousePosition";
             this.labelMousePosition.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
@@ -127,7 +169,7 @@ namespace GlobalHookDemo
             // buttonStart
             // 
             this.buttonStart.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.buttonStart.Location = new System.Drawing.Point(137, 3);
+            this.buttonStart.Location = new System.Drawing.Point(445, 363);
             this.buttonStart.Name = "buttonStart";
             this.buttonStart.Size = new System.Drawing.Size(75, 23);
             this.buttonStart.TabIndex = 1;
@@ -137,22 +179,27 @@ namespace GlobalHookDemo
             // buttonRecord
             // 
             this.buttonRecord.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.buttonRecord.Location = new System.Drawing.Point(4, 3);
+            this.buttonRecord.Location = new System.Drawing.Point(320, 363);
             this.buttonRecord.Name = "buttonRecord";
             this.buttonRecord.Size = new System.Drawing.Size(107, 23);
             this.buttonRecord.TabIndex = 0;
             this.buttonRecord.Text = "Record Clicks";
             this.buttonRecord.Click += new System.EventHandler(this.ButtonRecord);
             // 
-            // timer1
+            // ClickTimer
             // 
-            this.timer1.Interval = 1000;
-            this.timer1.Tick += new System.EventHandler(this.timer1_Tick);
+            this.ClickTimer.Interval = 1000;
+            this.ClickTimer.Tick += new System.EventHandler(this.ClickTimer_Tick);
+            // 
+            // DropTimer
+            // 
+            this.DropTimer.Interval = 200;
+            this.DropTimer.Tick += new System.EventHandler(this.DropTimer_Tick);
             // 
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(84, 35);
+            this.label1.Location = new System.Drawing.Point(85, 23);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(128, 13);
             this.label1.TabIndex = 5;
@@ -161,7 +208,7 @@ namespace GlobalHookDemo
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(113, 48);
+            this.label2.Location = new System.Drawing.Point(114, 36);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(67, 13);
             this.label2.TabIndex = 6;
@@ -169,7 +216,7 @@ namespace GlobalHookDemo
             // 
             // numCount
             // 
-            this.numCount.Location = new System.Drawing.Point(13, 38);
+            this.numCount.Location = new System.Drawing.Point(10, 20);
             this.numCount.Maximum = new decimal(new int[] {
             9999,
             0,
@@ -181,7 +228,7 @@ namespace GlobalHookDemo
             // 
             // trackTimer
             // 
-            this.trackTimer.Location = new System.Drawing.Point(13, 68);
+            this.trackTimer.Location = new System.Drawing.Point(6, 59);
             this.trackTimer.Maximum = 50;
             this.trackTimer.Minimum = 10;
             this.trackTimer.Name = "trackTimer";
@@ -215,7 +262,7 @@ namespace GlobalHookDemo
             this.chkLog.AutoSize = true;
             this.chkLog.Checked = true;
             this.chkLog.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.chkLog.Location = new System.Drawing.Point(234, 8);
+            this.chkLog.Location = new System.Drawing.Point(229, 28);
             this.chkLog.Name = "chkLog";
             this.chkLog.Size = new System.Drawing.Size(79, 17);
             this.chkLog.TabIndex = 11;
@@ -223,26 +270,62 @@ namespace GlobalHookDemo
             this.chkLog.UseVisualStyleBackColor = true;
             this.chkLog.CheckedChanged += new System.EventHandler(this.chkLog_CheckedChanged);
             // 
+            // groupBox1
+            // 
+            this.groupBox1.Controls.Add(this.chkLog);
+            this.groupBox1.Controls.Add(this.numCount);
+            this.groupBox1.Controls.Add(this.trackTimer);
+            this.groupBox1.Location = new System.Drawing.Point(4, 3);
+            this.groupBox1.Name = "groupBox1";
+            this.groupBox1.Size = new System.Drawing.Size(309, 110);
+            this.groupBox1.TabIndex = 12;
+            this.groupBox1.TabStop = false;
+            this.groupBox1.Text = "Settings";
+            // 
+            // groupBox2
+            // 
+            this.groupBox2.Controls.Add(this.chkDropInverse);
+            this.groupBox2.Location = new System.Drawing.Point(320, 13);
+            this.groupBox2.Name = "groupBox2";
+            this.groupBox2.Size = new System.Drawing.Size(200, 330);
+            this.groupBox2.TabIndex = 13;
+            this.groupBox2.TabStop = false;
+            this.groupBox2.Text = "Quick Buttons";
+            // 
+            // chkDropInverse
+            // 
+            this.chkDropInverse.AutoSize = true;
+            this.chkDropInverse.Location = new System.Drawing.Point(7, 18);
+            this.chkDropInverse.Name = "chkDropInverse";
+            this.chkDropInverse.Size = new System.Drawing.Size(97, 17);
+            this.chkDropInverse.TabIndex = 0;
+            this.chkDropInverse.Text = "Drop From Top";
+            this.chkDropInverse.UseVisualStyleBackColor = true;
+            this.chkDropInverse.CheckedChanged += new System.EventHandler(this.chkDropInverse_CheckedChanged);
+            // 
             // MainForm
             // 
             this.AutoScaleBaseSize = new System.Drawing.Size(5, 13);
-            this.ClientSize = new System.Drawing.Size(328, 398);
-            this.Controls.Add(this.chkLog);
+            this.ClientSize = new System.Drawing.Size(560, 398);
+            this.Controls.Add(this.groupBox2);
             this.Controls.Add(this.trackLabel);
             this.Controls.Add(this.trackLabel1);
-            this.Controls.Add(this.trackTimer);
-            this.Controls.Add(this.numCount);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.textBox);
             this.Controls.Add(this.labelMousePosition);
             this.Controls.Add(this.buttonStart);
             this.Controls.Add(this.buttonRecord);
+            this.Controls.Add(this.groupBox1);
             this.Name = "MainForm";
             this.Text = "This application captures keystrokes";
             this.Load += new System.EventHandler(this.MainFormLoad);
             ((System.ComponentModel.ISupportInitialize)(this.numCount)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.trackTimer)).EndInit();
+            this.groupBox1.ResumeLayout(false);
+            this.groupBox1.PerformLayout();
+            this.groupBox2.ResumeLayout(false);
+            this.groupBox2.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -308,11 +391,16 @@ namespace GlobalHookDemo
 		{
 		    if (e.KeyCode == Keys.LControlKey)
 		        ctrl = false;
+            if (e.KeyCode == Keys.LShiftKey || e.KeyCode == Keys.RShiftKey)
+            {
+                DropTimer.Stop();
+                Dropping = false;
+            }
         }
 		
 		public void MyKeyPress(object sender, KeyPressEventArgs e)
 		{
-		    //Nada
+            //LogWrite(e.KeyChar.GetType()..ToString());
         }
 		
 		public void MyKeyDown(object sender, KeyEventArgs e)
@@ -338,14 +426,33 @@ namespace GlobalHookDemo
                 trackTimer.Value--;
                 UpdateTrack();
             }
+            if (e.KeyCode == Keys.LShiftKey || e.KeyCode == Keys.RShiftKey)
+            {
+                if (!Dropping)
+                {
+                    Dropping = true;
+                    DropInventory();
+                    //foreach(var point in Inventory)
+                    //{
+                    //    LogWrite("X:" + point.X + " Y:" + point.Y);
+                    //}
+                }
+            }
 
         }
 
-        private void timer1_Tick(object sender, EventArgs e)
+        private void ClickTimer_Tick(object sender, EventArgs e)
         {
             //set cursor position to memorized location
             CurrentPoint = Clicks[ClickCountPos];
-            if(Clicks.Count >= 1)
+
+            if (TotalCount <= 0 && !InfiniteLoop)
+            {
+                RunClicks();
+                return;
+            }
+
+            if (Clicks.Count >= 1)
             {
                 ClickCountPos++;
                 if (ClickCountPos > Clicks.Count - 1)
@@ -357,6 +464,27 @@ namespace GlobalHookDemo
                 }
                     
             }
+
+            CurrentPoint.X += GetRandomOffset();
+            CurrentPoint.Y += GetRandomOffset();
+
+            DoMouseClick(CurrentPoint);
+        }
+
+        private void DropTimer_Tick(object sender, EventArgs e)
+        {
+            if ((DropClickPos >= Inventory.Count  && !DropInverse ) || (DropClickPos <= 0 && DropInverse))
+            {
+                DropTimer.Stop();
+                return;
+            }
+
+            //set cursor position to memorized location
+            CurrentPoint = Inventory[DropClickPos];
+            if (DropInverse)
+                DropClickPos--;
+            else
+                DropClickPos++;
 
             DoMouseClick(CurrentPoint);
         }
@@ -389,19 +517,10 @@ namespace GlobalHookDemo
 
         public void DoMouseClick(Point point)
         {
-
-            if(TotalCount <= 0 && !InfiniteLoop)
-            {
-                RunClicks();
-                return;
-            }
-            //mouse_event(MOUSEEVENTF_LEFTDOWN | MOUSEEVENTF_LEFTUP, X, Y, 0, 0);
-
-            point.X += GetRandomOffset();
-            point.Y += GetRandomOffset();
+            
             //set cursor position to memorized location
             Cursor.Position = point;
-            Thread.Sleep(400);
+            Thread.Sleep(100);
             //set up the INPUT struct and fill it for the mouse down
             INPUT i = new INPUT();
             i.type = INPUT_MOUSE;
@@ -441,7 +560,7 @@ namespace GlobalHookDemo
             }
 
             RunProgram = !RunProgram;
-            if (RunProgram && !timer1.Enabled)
+            if (RunProgram && !ClickTimer.Enabled)
             {
                 trackTimer.Enabled = false;
                 numCount.Enabled = false;
@@ -469,12 +588,12 @@ namespace GlobalHookDemo
                 }
                 LogWrite("------------");
                 LogWrite("Starting Auto Clicker");
-                timer1.Start();
+                ClickTimer.Start();
                 Thread.Sleep(3000);
             }
             else
             {
-                timer1.Stop();
+                ClickTimer.Stop();
                 trackTimer.Enabled = true;
                 numCount.Enabled = true;
                 buttonRecord.Enabled = true;
@@ -506,7 +625,52 @@ namespace GlobalHookDemo
         {
             var interval = GetInterval();
             trackLabel.Text = (interval / 1000.0).ToString();
-            timer1.Interval = interval;
+            ClickTimer.Interval = interval;
+        }
+
+        private void chkDropInverse_CheckedChanged(object sender, EventArgs e)
+        {
+            var checkBox = (CheckBox)sender;
+            if (checkBox.Checked)
+                DropInverse = true;
+            else
+                DropInverse = false;
+        }
+
+        private List<Point> GetInventory()
+        {
+            var inventory = new List<Point>();
+            var width = Screen.PrimaryScreen.Bounds.Width;
+            var height = Screen.PrimaryScreen.Bounds.Height;
+
+            var xStartOffsetPercent = 0.02; //9.5%
+            var yStartOffsetPercent = 0.095; //2%
+            var xOffsetPercent = 0.0215; // 2.15%
+            var yOffsetPercent = 0.035; // 3.5%
+            var xOffsetValue = width * xOffsetPercent; // 2.15%
+            var yOffsetValue = height * yOffsetPercent; // 3.5%
+            var xStartValue = width * (1 - xStartOffsetPercent);
+            var yStartValue = height * (1 - yStartOffsetPercent);
+
+            for (int r = 0; r < 7; r++)
+            {
+                for(int c = 0; c < 4; c++)
+                {
+                    var x = (int)(xStartValue - xOffsetValue * c);
+                    var y = (int)(yStartValue - yOffsetValue * r);
+                    inventory.Add(new Point(x,y));
+                }
+            }
+            return inventory;
+        }
+
+        private void DropInventory()
+        {
+            if (DropInverse)
+                DropClickPos = 27;
+            else
+                DropClickPos = 0;
+            DropTimer.Start();
         }
     }			
 }
