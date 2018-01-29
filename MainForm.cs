@@ -2,13 +2,15 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
+using System.IO;
+using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using gma.System.Windows;
 
-namespace GlobalHookDemo 
+namespace AutoClicker 
 {
 	class MainForm : System.Windows.Forms.Form
 	{
@@ -27,32 +29,35 @@ namespace GlobalHookDemo
 			}
 		}
 
-        private bool HideButtons;
-        private int RandomTimeoutCount;
-        private bool UseRandomTimeouts;
-        private int ClickOffset;
+	    private static string FilePath = "c:\\AppData\\AutoClicker\\Inventory.txt";
+		private bool InfiniteLoop;
+		private bool ResetClicks;
+		private bool TimedOut;
+		private bool HideButtons;
+		private bool Ctrl;
 		private bool SetupInventory;
-		private TrackBar ActiveSlider;
-		private Label ActiveLabel;
-		private Stopwatch ClickStopwatch;
+		private bool UseRandomTimeouts;
 		private bool Dropping;
 		private bool DropInverse;
 		private bool LogInfo;
-		private bool recordClicks;
-		private List<Click> Clicks;
-		private List<Point> Inventory;
+		private bool RecordClicks;
+		private int RandomTimeoutCount;
+		private int ClickOffset;
 		private int DropClickPos;
 		private int ClickCountPos;
+		private int TotalCount;
+		private TrackBar ActiveSlider;
+		private Stopwatch ClickStopwatch;
+		private List<Click> Clicks;
+		private List<Point> Inventory;
 		private Point CurrentPoint;
 		private System.Windows.Forms.Timer ClickTimer;
 		private System.Windows.Forms.Timer DropTimer;
-		private Random random;
-		private int TotalCount;
-		private bool ctrl;
+		private Random RandomGenerate;
+
+		private Label ActiveLabel;
 		private Label label1;
 		private Label label2;
-		private bool InfiniteLoop;
-		private bool ResetClicks;
 		private Label trackLabel1;
 		private Label lblClickSeconds;
 		private GroupBox groupBox2;
@@ -69,23 +74,25 @@ namespace GlobalHookDemo
 		private Label label6;
 		private Label label3;
 		private Button btnSetupInventory;
-        private Button btnSingleClickInv;
-        private Label lblClickOffsetNumber;
-        private Label label7;
-        private Label lblClickOffset;
-        private TrackBar sliderClickOffset;
-        private CheckBox chkTimeOut;
-        private Button btnHide;
-        List<int> Modifiers;
-
-		//[DllImport("user32.dll", CharSet = CharSet.Auto, CallingConvention = CallingConvention.StdCall)]
-		//public static extern void mouse_event(uint dwFlags, uint dx, uint dy, uint cButtons, uint dwExtraInfo);
+		private Button btnSingleClickInv;
+		private Label lblClickOffsetNumber;
+		private Label label7;
+		private Label lblClickOffset;
+		private TrackBar sliderClickOffset;
+		private CheckBox chkTimeOut;
+		private Button btnHide;
+		private ContextMenuStrip contextMenuStrip1;
+		private MenuStrip menuStrip1;
+		private ToolStripMenuItem fileToolStripMenuItem;
+		private ToolStripMenuItem startToolStripMenuItem;
+		private ToolStripMenuItem stopToolStripMenuItem;
+		private ToolStripMenuItem saveInventoryToolStripMenuItem;
+		private ToolStripMenuItem loadInventoryToolStripMenuItem;
+        private ToolStripMenuItem toggleLoggingToolStripMenuItem;
+        private GroupBox groupBox1;
 
 		[DllImport("User32.dll", SetLastError = true)]
 		public static extern int SendInput(int nInputs, ref INPUT pInputs, int cbSize);
-
-		[DllImport("user32.dll")]
-		public static extern void keybd_event(byte bVk, byte bScan, uint dwFlags, uint dwExtraInfo);
 
 		const int VK_SHIFT = 0x10; //up key
 		const int VK_DOWN = 0x28;  //down key
@@ -93,20 +100,6 @@ namespace GlobalHookDemo
 		const int VK_RIGHT = 0x27;
 		const uint KEYEVENTF_KEYUP = 0x0002;
 		const uint KEYEVENTF_EXTENDEDKEY = 0x0001;
-		int press()
-		{
-
-			//Press the key
-			keybd_event((byte)VK_SHIFT, 0, KEYEVENTF_EXTENDEDKEY | 0, 0);
-			return 0;
-
-		}
-		int release()
-		{
-			//Release the key
-			keybd_event((byte)VK_SHIFT, 0, KEYEVENTF_EXTENDEDKEY | KEYEVENTF_KEYUP, 0);
-			return 0;
-		}
 
 		//Mouse actions
 		private const int MOUSEEVENTF_LEFTDOWN = 0x02;
@@ -117,37 +110,41 @@ namespace GlobalHookDemo
 
 		public MainForm()
 		{
-            HideButtons = false;
-            RandomTimeoutCount = 0;
-            UseRandomTimeouts = false;
-            ClickOffset = 3;
+			TimedOut = false;
+			HideButtons = false;
+			RandomTimeoutCount = 0;
+			UseRandomTimeouts = false;
+			ClickOffset = 3;
 			SetupInventory = false;
 			ClickStopwatch = new Stopwatch();
 			Dropping = false;
 			DropInverse = false;
 			LogInfo = true;
-			ctrl = false;
+			Ctrl = false;
 			DropClickPos = 0;
 			ClickCountPos = 0;
 			Clicks = new List<Click>();
-			Inventory = GetInventory();
-			recordClicks = false;
+			Inventory = new List<Point>();
+			RecordClicks = false;
 			RunProgram = false;
-			random = new Random();
+			RandomGenerate = new Random();
 			TotalCount = 0;
-			Modifiers = new List<int> { -5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 5 };
 			InfiniteLoop = false;
 			ResetClicks = true;
 			InitializeComponent();
 			sliderCycles.Enabled = false;
 			ActiveLabel = lblClickSeconds;
 			ActiveSlider = sliderClicks;
+		    stopToolStripMenuItem.Enabled = false;
+		    LoadInventory();
+
 		}
 	
 		// THIS METHOD IS MAINTAINED BY THE FORM DESIGNER
 		// DO NOT EDIT IT MANUALLY! YOUR CHANGES ARE LIKELY TO BE LOST
 		void InitializeComponent() {
             this.components = new System.ComponentModel.Container();
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
             this.textBox = new System.Windows.Forms.TextBox();
             this.labelMousePosition = new System.Windows.Forms.Label();
             this.buttonStart = new System.Windows.Forms.Button();
@@ -159,32 +156,43 @@ namespace GlobalHookDemo
             this.trackLabel1 = new System.Windows.Forms.Label();
             this.lblClickSeconds = new System.Windows.Forms.Label();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
-            this.chkTimeOut = new System.Windows.Forms.CheckBox();
-            this.btnSingleClickInv = new System.Windows.Forms.Button();
-            this.btnSetupInventory = new System.Windows.Forms.Button();
+            this.btnHide = new System.Windows.Forms.Button();
             this.groupBox3 = new System.Windows.Forms.GroupBox();
             this.lblClickOffsetNumber = new System.Windows.Forms.Label();
+            this.chkTimeOut = new System.Windows.Forms.CheckBox();
             this.label7 = new System.Windows.Forms.Label();
             this.lblClickOffset = new System.Windows.Forms.Label();
             this.sliderClickOffset = new System.Windows.Forms.TrackBar();
             this.label6 = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
+            this.numCount = new System.Windows.Forms.NumericUpDown();
             this.radioCycles = new System.Windows.Forms.RadioButton();
             this.radioClicks = new System.Windows.Forms.RadioButton();
             this.lblCycleSeconds = new System.Windows.Forms.Label();
             this.sliderCycles = new System.Windows.Forms.TrackBar();
             this.label5 = new System.Windows.Forms.Label();
             this.sliderClicks = new System.Windows.Forms.TrackBar();
+            this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.chkDropInverse = new System.Windows.Forms.CheckBox();
-            this.numCount = new System.Windows.Forms.NumericUpDown();
+            this.btnSetupInventory = new System.Windows.Forms.Button();
+            this.btnSingleClickInv = new System.Windows.Forms.Button();
             this.chkLog = new System.Windows.Forms.CheckBox();
-            this.btnHide = new System.Windows.Forms.Button();
+            this.contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.menuStrip1 = new System.Windows.Forms.MenuStrip();
+            this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.startToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.stopToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.saveInventoryToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.loadInventoryToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toggleLoggingToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.groupBox2.SuspendLayout();
             this.groupBox3.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.sliderClickOffset)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numCount)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.sliderCycles)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.sliderClicks)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numCount)).BeginInit();
+            this.groupBox1.SuspendLayout();
+            this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
             // textBox
@@ -194,12 +202,12 @@ namespace GlobalHookDemo
             | System.Windows.Forms.AnchorStyles.Right)));
             this.textBox.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.textBox.Font = new System.Drawing.Font("Courier New", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.World);
-            this.textBox.Location = new System.Drawing.Point(4, 39);
+            this.textBox.Location = new System.Drawing.Point(4, 50);
             this.textBox.Multiline = true;
             this.textBox.Name = "textBox";
             this.textBox.ReadOnly = true;
             this.textBox.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.textBox.Size = new System.Drawing.Size(310, 534);
+            this.textBox.Size = new System.Drawing.Size(310, 523);
             this.textBox.TabIndex = 3;
             // 
             // labelMousePosition
@@ -208,7 +216,7 @@ namespace GlobalHookDemo
             | System.Windows.Forms.AnchorStyles.Right)));
             this.labelMousePosition.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.labelMousePosition.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.labelMousePosition.Location = new System.Drawing.Point(4, 13);
+            this.labelMousePosition.Location = new System.Drawing.Point(4, 24);
             this.labelMousePosition.Name = "labelMousePosition";
             this.labelMousePosition.Size = new System.Drawing.Size(205, 23);
             this.labelMousePosition.TabIndex = 2;
@@ -248,16 +256,17 @@ namespace GlobalHookDemo
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(78, 47);
+            this.label1.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label1.Location = new System.Drawing.Point(9, 19);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(128, 13);
+            this.label1.Size = new System.Drawing.Size(186, 16);
             this.label1.TabIndex = 5;
             this.label1.Text = "Number of times to repeat";
             // 
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(107, 62);
+            this.label2.Location = new System.Drawing.Point(200, 21);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(67, 13);
             this.label2.TabIndex = 6;
@@ -266,7 +275,7 @@ namespace GlobalHookDemo
             // trackLabel1
             // 
             this.trackLabel1.AutoSize = true;
-            this.trackLabel1.Location = new System.Drawing.Point(299, 69);
+            this.trackLabel1.Location = new System.Drawing.Point(299, 114);
             this.trackLabel1.Name = "trackLabel1";
             this.trackLabel1.Size = new System.Drawing.Size(74, 13);
             this.trackLabel1.TabIndex = 9;
@@ -276,7 +285,7 @@ namespace GlobalHookDemo
             // 
             this.lblClickSeconds.AutoSize = true;
             this.lblClickSeconds.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblClickSeconds.Location = new System.Drawing.Point(327, 46);
+            this.lblClickSeconds.Location = new System.Drawing.Point(327, 91);
             this.lblClickSeconds.Name = "lblClickSeconds";
             this.lblClickSeconds.Size = new System.Drawing.Size(15, 16);
             this.lblClickSeconds.TabIndex = 10;
@@ -285,61 +294,38 @@ namespace GlobalHookDemo
             // groupBox2
             // 
             this.groupBox2.Controls.Add(this.btnHide);
-            this.groupBox2.Controls.Add(this.chkTimeOut);
-            this.groupBox2.Controls.Add(this.btnSingleClickInv);
-            this.groupBox2.Controls.Add(this.btnSetupInventory);
             this.groupBox2.Controls.Add(this.groupBox3);
-            this.groupBox2.Controls.Add(this.chkDropInverse);
-            this.groupBox2.Controls.Add(this.numCount);
-            this.groupBox2.Controls.Add(this.label1);
-            this.groupBox2.Controls.Add(this.label2);
-            this.groupBox2.Location = new System.Drawing.Point(320, 13);
+            this.groupBox2.Controls.Add(this.groupBox1);
+            this.groupBox2.Location = new System.Drawing.Point(320, 24);
             this.groupBox2.Name = "groupBox2";
-            this.groupBox2.Size = new System.Drawing.Size(395, 522);
+            this.groupBox2.Size = new System.Drawing.Size(395, 511);
             this.groupBox2.TabIndex = 13;
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "Settings";
             // 
-            // chkTimeOut
+            // btnHide
             // 
-            this.chkTimeOut.AutoSize = true;
-            this.chkTimeOut.Location = new System.Drawing.Point(7, 378);
-            this.chkTimeOut.Name = "chkTimeOut";
-            this.chkTimeOut.Size = new System.Drawing.Size(125, 17);
-            this.chkTimeOut.TabIndex = 14;
-            this.chkTimeOut.Text = "Use random timeouts";
-            this.chkTimeOut.UseVisualStyleBackColor = true;
-            this.chkTimeOut.CheckedChanged += new System.EventHandler(this.chkTimeOut_CheckedChanged);
-            // 
-            // btnSingleClickInv
-            // 
-            this.btnSingleClickInv.Location = new System.Drawing.Point(243, 36);
-            this.btnSingleClickInv.Name = "btnSingleClickInv";
-            this.btnSingleClickInv.Size = new System.Drawing.Size(137, 23);
-            this.btnSingleClickInv.TabIndex = 13;
-            this.btnSingleClickInv.Text = "Single Click Inv";
-            this.btnSingleClickInv.UseVisualStyleBackColor = true;
-            this.btnSingleClickInv.Click += new System.EventHandler(this.btnSingleClickInv_Click);
-            // 
-            // btnSetupInventory
-            // 
-            this.btnSetupInventory.Location = new System.Drawing.Point(243, 13);
-            this.btnSetupInventory.Name = "btnSetupInventory";
-            this.btnSetupInventory.Size = new System.Drawing.Size(137, 23);
-            this.btnSetupInventory.TabIndex = 12;
-            this.btnSetupInventory.Text = "Setup Inventory";
-            this.btnSetupInventory.UseVisualStyleBackColor = true;
-            this.btnSetupInventory.Click += new System.EventHandler(this.btnSetupInventory_Click);
+            this.btnHide.Location = new System.Drawing.Point(253, 456);
+            this.btnHide.Name = "btnHide";
+            this.btnHide.Size = new System.Drawing.Size(136, 23);
+            this.btnHide.TabIndex = 15;
+            this.btnHide.Text = "Hide Buttons";
+            this.btnHide.UseVisualStyleBackColor = true;
+            this.btnHide.Click += new System.EventHandler(this.btnHide_Click);
             // 
             // groupBox3
             // 
             this.groupBox3.Controls.Add(this.lblClickOffsetNumber);
+            this.groupBox3.Controls.Add(this.chkTimeOut);
             this.groupBox3.Controls.Add(this.label7);
             this.groupBox3.Controls.Add(this.lblClickOffset);
             this.groupBox3.Controls.Add(this.sliderClickOffset);
             this.groupBox3.Controls.Add(this.label6);
             this.groupBox3.Controls.Add(this.label3);
+            this.groupBox3.Controls.Add(this.numCount);
+            this.groupBox3.Controls.Add(this.label1);
             this.groupBox3.Controls.Add(this.radioCycles);
+            this.groupBox3.Controls.Add(this.label2);
             this.groupBox3.Controls.Add(this.radioClicks);
             this.groupBox3.Controls.Add(this.lblCycleSeconds);
             this.groupBox3.Controls.Add(this.sliderCycles);
@@ -349,7 +335,7 @@ namespace GlobalHookDemo
             this.groupBox3.Controls.Add(this.trackLabel1);
             this.groupBox3.Location = new System.Drawing.Point(7, 87);
             this.groupBox3.Name = "groupBox3";
-            this.groupBox3.Size = new System.Drawing.Size(382, 284);
+            this.groupBox3.Size = new System.Drawing.Size(382, 330);
             this.groupBox3.TabIndex = 8;
             this.groupBox3.TabStop = false;
             this.groupBox3.Text = "Clicks";
@@ -358,16 +344,27 @@ namespace GlobalHookDemo
             // 
             this.lblClickOffsetNumber.AutoSize = true;
             this.lblClickOffsetNumber.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblClickOffsetNumber.Location = new System.Drawing.Point(327, 205);
+            this.lblClickOffsetNumber.Location = new System.Drawing.Point(327, 233);
             this.lblClickOffsetNumber.Name = "lblClickOffsetNumber";
             this.lblClickOffsetNumber.Size = new System.Drawing.Size(15, 16);
             this.lblClickOffsetNumber.TabIndex = 23;
             this.lblClickOffsetNumber.Text = "3";
             // 
+            // chkTimeOut
+            // 
+            this.chkTimeOut.AutoSize = true;
+            this.chkTimeOut.Location = new System.Drawing.Point(12, 300);
+            this.chkTimeOut.Name = "chkTimeOut";
+            this.chkTimeOut.Size = new System.Drawing.Size(125, 17);
+            this.chkTimeOut.TabIndex = 14;
+            this.chkTimeOut.Text = "Use random timeouts";
+            this.chkTimeOut.UseVisualStyleBackColor = true;
+            this.chkTimeOut.CheckedChanged += new System.EventHandler(this.chkTimeOut_CheckedChanged);
+            // 
             // label7
             // 
             this.label7.AutoSize = true;
-            this.label7.Location = new System.Drawing.Point(319, 230);
+            this.label7.Location = new System.Drawing.Point(319, 258);
             this.label7.Name = "label7";
             this.label7.Size = new System.Drawing.Size(34, 13);
             this.label7.TabIndex = 22;
@@ -377,7 +374,7 @@ namespace GlobalHookDemo
             // 
             this.lblClickOffset.AutoSize = true;
             this.lblClickOffset.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblClickOffset.Location = new System.Drawing.Point(26, 186);
+            this.lblClickOffset.Location = new System.Drawing.Point(26, 214);
             this.lblClickOffset.Name = "lblClickOffset";
             this.lblClickOffset.Size = new System.Drawing.Size(86, 16);
             this.lblClickOffset.TabIndex = 21;
@@ -386,7 +383,7 @@ namespace GlobalHookDemo
             // sliderClickOffset
             // 
             this.sliderClickOffset.LargeChange = 1;
-            this.sliderClickOffset.Location = new System.Drawing.Point(12, 205);
+            this.sliderClickOffset.Location = new System.Drawing.Point(12, 233);
             this.sliderClickOffset.Minimum = 1;
             this.sliderClickOffset.Name = "sliderClickOffset";
             this.sliderClickOffset.Size = new System.Drawing.Size(286, 45);
@@ -398,7 +395,7 @@ namespace GlobalHookDemo
             // label6
             // 
             this.label6.AutoSize = true;
-            this.label6.Location = new System.Drawing.Point(185, 99);
+            this.label6.Location = new System.Drawing.Point(185, 144);
             this.label6.Name = "label6";
             this.label6.Size = new System.Drawing.Size(82, 13);
             this.label6.TabIndex = 19;
@@ -407,17 +404,29 @@ namespace GlobalHookDemo
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(185, 23);
+            this.label3.Location = new System.Drawing.Point(185, 68);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(87, 13);
             this.label3.TabIndex = 18;
             this.label3.Text = "(Static click time)";
             // 
+            // numCount
+            // 
+            this.numCount.Location = new System.Drawing.Point(12, 38);
+            this.numCount.Maximum = new decimal(new int[] {
+            9999,
+            0,
+            0,
+            0});
+            this.numCount.Name = "numCount";
+            this.numCount.Size = new System.Drawing.Size(65, 20);
+            this.numCount.TabIndex = 7;
+            // 
             // radioCycles
             // 
             this.radioCycles.AutoSize = true;
             this.radioCycles.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.radioCycles.Location = new System.Drawing.Point(12, 95);
+            this.radioCycles.Location = new System.Drawing.Point(12, 140);
             this.radioCycles.Name = "radioCycles";
             this.radioCycles.Size = new System.Drawing.Size(172, 20);
             this.radioCycles.TabIndex = 17;
@@ -430,7 +439,7 @@ namespace GlobalHookDemo
             this.radioClicks.AutoSize = true;
             this.radioClicks.Checked = true;
             this.radioClicks.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.radioClicks.Location = new System.Drawing.Point(12, 19);
+            this.radioClicks.Location = new System.Drawing.Point(12, 64);
             this.radioClicks.Name = "radioClicks";
             this.radioClicks.Size = new System.Drawing.Size(167, 20);
             this.radioClicks.TabIndex = 16;
@@ -443,7 +452,7 @@ namespace GlobalHookDemo
             // 
             this.lblCycleSeconds.AutoSize = true;
             this.lblCycleSeconds.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblCycleSeconds.Location = new System.Drawing.Point(329, 124);
+            this.lblCycleSeconds.Location = new System.Drawing.Point(329, 169);
             this.lblCycleSeconds.Name = "lblCycleSeconds";
             this.lblCycleSeconds.Size = new System.Drawing.Size(15, 16);
             this.lblCycleSeconds.TabIndex = 14;
@@ -451,7 +460,7 @@ namespace GlobalHookDemo
             // 
             // sliderCycles
             // 
-            this.sliderCycles.Location = new System.Drawing.Point(12, 121);
+            this.sliderCycles.Location = new System.Drawing.Point(12, 166);
             this.sliderCycles.Maximum = 100;
             this.sliderCycles.Minimum = 1;
             this.sliderCycles.Name = "sliderCycles";
@@ -465,7 +474,7 @@ namespace GlobalHookDemo
             // label5
             // 
             this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(301, 147);
+            this.label5.Location = new System.Drawing.Point(301, 192);
             this.label5.Name = "label5";
             this.label5.Size = new System.Drawing.Size(74, 13);
             this.label5.TabIndex = 13;
@@ -473,7 +482,7 @@ namespace GlobalHookDemo
             // 
             // sliderClicks
             // 
-            this.sliderClicks.Location = new System.Drawing.Point(12, 43);
+            this.sliderClicks.Location = new System.Drawing.Point(12, 88);
             this.sliderClicks.Maximum = 100;
             this.sliderClicks.Minimum = 1;
             this.sliderClicks.Name = "sliderClicks";
@@ -484,10 +493,22 @@ namespace GlobalHookDemo
             this.sliderClicks.Value = 10;
             this.sliderClicks.Scroll += new System.EventHandler(this.sliderClicks_Scroll);
             // 
+            // groupBox1
+            // 
+            this.groupBox1.Controls.Add(this.chkDropInverse);
+            this.groupBox1.Controls.Add(this.btnSetupInventory);
+            this.groupBox1.Controls.Add(this.btnSingleClickInv);
+            this.groupBox1.Location = new System.Drawing.Point(7, 13);
+            this.groupBox1.Name = "groupBox1";
+            this.groupBox1.Size = new System.Drawing.Size(382, 68);
+            this.groupBox1.TabIndex = 16;
+            this.groupBox1.TabStop = false;
+            this.groupBox1.Text = "Inventory";
+            // 
             // chkDropInverse
             // 
             this.chkDropInverse.AutoSize = true;
-            this.chkDropInverse.Location = new System.Drawing.Point(7, 19);
+            this.chkDropInverse.Location = new System.Drawing.Point(12, 19);
             this.chkDropInverse.Name = "chkDropInverse";
             this.chkDropInverse.Size = new System.Drawing.Size(97, 17);
             this.chkDropInverse.TabIndex = 0;
@@ -495,24 +516,32 @@ namespace GlobalHookDemo
             this.chkDropInverse.UseVisualStyleBackColor = true;
             this.chkDropInverse.CheckedChanged += new System.EventHandler(this.chkDropInverse_CheckedChanged);
             // 
-            // numCount
+            // btnSetupInventory
             // 
-            this.numCount.Location = new System.Drawing.Point(7, 49);
-            this.numCount.Maximum = new decimal(new int[] {
-            9999,
-            0,
-            0,
-            0});
-            this.numCount.Name = "numCount";
-            this.numCount.Size = new System.Drawing.Size(65, 20);
-            this.numCount.TabIndex = 7;
+            this.btnSetupInventory.Location = new System.Drawing.Point(236, 13);
+            this.btnSetupInventory.Name = "btnSetupInventory";
+            this.btnSetupInventory.Size = new System.Drawing.Size(137, 23);
+            this.btnSetupInventory.TabIndex = 12;
+            this.btnSetupInventory.Text = "Setup Inventory";
+            this.btnSetupInventory.UseVisualStyleBackColor = true;
+            this.btnSetupInventory.Click += new System.EventHandler(this.btnSetupInventory_Click);
+            // 
+            // btnSingleClickInv
+            // 
+            this.btnSingleClickInv.Location = new System.Drawing.Point(236, 39);
+            this.btnSingleClickInv.Name = "btnSingleClickInv";
+            this.btnSingleClickInv.Size = new System.Drawing.Size(137, 23);
+            this.btnSingleClickInv.TabIndex = 13;
+            this.btnSingleClickInv.Text = "Single Click Inv";
+            this.btnSingleClickInv.UseVisualStyleBackColor = true;
+            this.btnSingleClickInv.Click += new System.EventHandler(this.btnSingleClickInv_Click);
             // 
             // chkLog
             // 
             this.chkLog.AutoSize = true;
             this.chkLog.Checked = true;
             this.chkLog.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.chkLog.Location = new System.Drawing.Point(215, 16);
+            this.chkLog.Location = new System.Drawing.Point(215, 28);
             this.chkLog.Name = "chkLog";
             this.chkLog.Size = new System.Drawing.Size(79, 17);
             this.chkLog.TabIndex = 11;
@@ -520,37 +549,100 @@ namespace GlobalHookDemo
             this.chkLog.UseVisualStyleBackColor = true;
             this.chkLog.CheckedChanged += new System.EventHandler(this.chkLog_CheckedChanged);
             // 
-            // btnHide
+            // contextMenuStrip1
             // 
-            this.btnHide.Location = new System.Drawing.Point(243, 378);
-            this.btnHide.Name = "btnHide";
-            this.btnHide.Size = new System.Drawing.Size(136, 23);
-            this.btnHide.TabIndex = 15;
-            this.btnHide.Text = "Hide Buttons";
-            this.btnHide.UseVisualStyleBackColor = true;
-            this.btnHide.Click += new System.EventHandler(this.btnHide_Click);
+            this.contextMenuStrip1.Name = "contextMenuStrip1";
+            this.contextMenuStrip1.Size = new System.Drawing.Size(61, 4);
+            // 
+            // menuStrip1
+            // 
+            this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.fileToolStripMenuItem});
+            this.menuStrip1.Location = new System.Drawing.Point(0, 0);
+            this.menuStrip1.Name = "menuStrip1";
+            this.menuStrip1.Size = new System.Drawing.Size(727, 24);
+            this.menuStrip1.TabIndex = 15;
+            this.menuStrip1.Text = "menuStrip1";
+            // 
+            // fileToolStripMenuItem
+            // 
+            this.fileToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.startToolStripMenuItem,
+            this.stopToolStripMenuItem,
+            this.saveInventoryToolStripMenuItem,
+            this.loadInventoryToolStripMenuItem,
+            this.toggleLoggingToolStripMenuItem});
+            this.fileToolStripMenuItem.Name = "fileToolStripMenuItem";
+            this.fileToolStripMenuItem.Size = new System.Drawing.Size(37, 20);
+            this.fileToolStripMenuItem.Text = "File";
+            // 
+            // startToolStripMenuItem
+            // 
+            this.startToolStripMenuItem.AutoToolTip = true;
+            this.startToolStripMenuItem.Name = "startToolStripMenuItem";
+            this.startToolStripMenuItem.ShortcutKeyDisplayString = "Ctrl + 1";
+            this.startToolStripMenuItem.Size = new System.Drawing.Size(204, 22);
+            this.startToolStripMenuItem.Text = "Start";
+            this.startToolStripMenuItem.ToolTipText = "Ctrl + 1";
+            this.startToolStripMenuItem.Click += new System.EventHandler(this.startToolStripMenuItem_Click);
+            // 
+            // stopToolStripMenuItem
+            // 
+            this.stopToolStripMenuItem.Name = "stopToolStripMenuItem";
+            this.stopToolStripMenuItem.ShortcutKeyDisplayString = "Ctrl + 1";
+            this.stopToolStripMenuItem.Size = new System.Drawing.Size(204, 22);
+            this.stopToolStripMenuItem.Text = "Stop";
+            this.stopToolStripMenuItem.ToolTipText = "Ctrl + 1";
+            this.stopToolStripMenuItem.Click += new System.EventHandler(this.stopToolStripMenuItem_Click);
+            // 
+            // saveInventoryToolStripMenuItem
+            // 
+            this.saveInventoryToolStripMenuItem.Name = "saveInventoryToolStripMenuItem";
+            this.saveInventoryToolStripMenuItem.Size = new System.Drawing.Size(204, 22);
+            this.saveInventoryToolStripMenuItem.Text = "Save Inventory";
+            this.saveInventoryToolStripMenuItem.Click += new System.EventHandler(this.saveInventoryToolStripMenuItem_Click);
+            // 
+            // loadInventoryToolStripMenuItem
+            // 
+            this.loadInventoryToolStripMenuItem.Name = "loadInventoryToolStripMenuItem";
+            this.loadInventoryToolStripMenuItem.Size = new System.Drawing.Size(204, 22);
+            this.loadInventoryToolStripMenuItem.Text = "Load Inventory";
+            this.loadInventoryToolStripMenuItem.Click += new System.EventHandler(this.loadInventoryToolStripMenuItem_Click);
+            // 
+            // toggleLoggingToolStripMenuItem
+            // 
+            this.toggleLoggingToolStripMenuItem.Name = "toggleLoggingToolStripMenuItem";
+            this.toggleLoggingToolStripMenuItem.ShortcutKeyDisplayString = "Ctrl + L";
+            this.toggleLoggingToolStripMenuItem.Size = new System.Drawing.Size(204, 22);
+            this.toggleLoggingToolStripMenuItem.Text = "Toggle Logging";
+            this.toggleLoggingToolStripMenuItem.ToolTipText = "Ctrl + L";
             // 
             // MainForm
             // 
             this.AutoScaleBaseSize = new System.Drawing.Size(5, 13);
             this.ClientSize = new System.Drawing.Size(727, 576);
+            this.Controls.Add(this.menuStrip1);
             this.Controls.Add(this.groupBox2);
             this.Controls.Add(this.textBox);
             this.Controls.Add(this.chkLog);
             this.Controls.Add(this.labelMousePosition);
             this.Controls.Add(this.buttonStart);
             this.Controls.Add(this.buttonRecord);
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "MainForm";
-            this.Text = "This application captures keystrokes";
+            this.Text = "Auto Clicker";
             this.Load += new System.EventHandler(this.MainFormLoad);
             this.groupBox2.ResumeLayout(false);
-            this.groupBox2.PerformLayout();
             this.groupBox3.ResumeLayout(false);
             this.groupBox3.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.sliderClickOffset)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numCount)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.sliderCycles)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.sliderClicks)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numCount)).EndInit();
+            this.groupBox1.ResumeLayout(false);
+            this.groupBox1.PerformLayout();
+            this.menuStrip1.ResumeLayout(false);
+            this.menuStrip1.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -564,7 +656,7 @@ namespace GlobalHookDemo
 
 		void ButtonRecord(object sender, System.EventArgs e)
 		{
-			if (recordClicks)
+			if (RecordClicks)
 			{
 				buttonRecord.Text = "Record Clicks";
 				ClickStopwatch.Stop();
@@ -577,7 +669,7 @@ namespace GlobalHookDemo
 				ClickStopwatch.Reset();
 			}
 
-			recordClicks = !recordClicks;
+			RecordClicks = !RecordClicks;
 			ResetClicks = true;
 
 		}
@@ -606,7 +698,7 @@ namespace GlobalHookDemo
 			labelMousePosition.Text = String.Format("x={0}  y={1} wheel={2}", e.X, e.Y, e.Delta);
 			if (e.Clicks > 0)
 			{
-				if (recordClicks)
+				if (RecordClicks)
 				{
 					ClickStopwatch.Stop();
 					if (Clicks.Count > 0)
@@ -636,7 +728,7 @@ namespace GlobalHookDemo
 		public void MyKeyUp(object sender, KeyEventArgs e)
 		{
 			if (e.KeyCode == Keys.LControlKey)
-				ctrl = false;
+				Ctrl = false;
 			if (e.KeyCode == Keys.LShiftKey || e.KeyCode == Keys.RShiftKey)
 			{
 				DropTimer.Stop();
@@ -652,13 +744,13 @@ namespace GlobalHookDemo
 		public void MyKeyDown(object sender, KeyEventArgs e)
 		{
 			if (e.KeyCode == Keys.LControlKey)
-				ctrl = true;
-			if (e.KeyCode == Keys.D1 && ctrl)
+				Ctrl = true;
+			if (e.KeyCode == Keys.D1 && Ctrl)
 			{
 				RunClicks();
-				ctrl = false;
+				Ctrl = false;
 			}
-			if (e.KeyCode == Keys.L && ctrl)
+			if (e.KeyCode == Keys.L && Ctrl)
 			{
 				chkLog.Checked = !chkLog.Checked;
 			}
@@ -674,16 +766,12 @@ namespace GlobalHookDemo
 				ActiveSlider.Value--;
 				UpdateTrack();
 			}
-			if (ctrl && (e.KeyCode == Keys.LShiftKey || e.KeyCode == Keys.RShiftKey))
+			if (Ctrl && (e.KeyCode == Keys.LShiftKey || e.KeyCode == Keys.RShiftKey))
 			{
 				if (!Dropping)
 				{
 					Dropping = true;
 					DropInventory();
-					//foreach(var point in Inventory)
-					//{
-					//    LogWrite("X:" + point.X + " Y:" + point.Y);
-					//}
 				}
 			}
 
@@ -691,12 +779,20 @@ namespace GlobalHookDemo
 
 		private void ClickTimer_Tick(object sender, EventArgs e)
 		{
+			LogWrite("RandomTimeoutCount: " + RandomTimeoutCount);
+			LogWrite("Current ClickTimerInterval: " + ClickTimer.Interval);
 			//set cursor position to memorized location
 			Click currentClick = Clicks[ClickCountPos];
 			CurrentPoint = currentClick.ClickPoint;
 			var mouseButton = currentClick.ClickType;
 			if(radioCycles.Checked)
 				ClickTimer.Interval = (int)currentClick.DelayAfterClick;
+			else if (TimedOut)
+			{
+				TimedOut = !TimedOut;
+				ClickTimer.Interval = GetInterval();
+
+			}
 
 			if (TotalCount <= 0 && !InfiniteLoop)
 			{
@@ -711,22 +807,25 @@ namespace GlobalHookDemo
 				{
 					if (radioCycles.Checked)
 						ClickTimer.Interval = GetInterval();
-                    if (UseRandomTimeouts)
-                    {
-                        RandomTimeoutCount--;
-                        if(RandomTimeoutCount <=0)
-                        {
-                            RandomTimeoutCount = random.Next(75, 125);
-                            ClickTimer.Interval = GetRandomTimeout();
-                        }
-                    }
+					if (UseRandomTimeouts)
+					{
+						RandomTimeoutCount--;
+						if(RandomTimeoutCount <=0)
+						{
+							RandomTimeoutCount = GetRandomTimeoutCount();
+							ClickTimer.Interval = GetRandomTimeout();
+							LogWrite("SettingRandomTimeoutCount: " + RandomTimeoutCount);
+							LogWrite("Setting ClickTimerInterval Long Delay: " + ClickTimer.Interval);
+							TimedOut = true;
+						}
+					}
 
 					ClickCountPos = 0;
 					if (!InfiniteLoop)
-                    {
-                        numCount.Value = TotalCount;
-                        TotalCount--;
-                    }
+					{
+						numCount.Value = TotalCount;
+						TotalCount--;
+					}
 						
 				}
 					
@@ -775,12 +874,12 @@ namespace GlobalHookDemo
 			i.mi.dwFlags = mouseButton == 0 ? MOUSEEVENTF_LEFTUP : MOUSEEVENTF_RIGHTUP;
 			SendInput(1, ref i, Marshal.SizeOf(i));
 
-			LogWrite("Clicked at X:" + point.X + "  Y:" + point.Y);
+			//LogWrite("Clicked at X:" + point.X + "  Y:" + point.Y);
 		}
 
 		public int GetRandomOffset()
 		{
-			return random.Next(0, ClickOffset * 2) - ClickOffset;
+			return RandomGenerate.Next(0, ClickOffset * 2) - ClickOffset;
 		}
 
 		public void RunClicks()
@@ -791,10 +890,10 @@ namespace GlobalHookDemo
 			else
 				InfiniteLoop = false;
 
-			if (recordClicks)
+			if (RecordClicks)
 			{
 				buttonRecord.Text = "Record Clicks";
-				recordClicks = !recordClicks;
+				RecordClicks = !RecordClicks;
 				ClickStopwatch.Stop();
 			}
 
@@ -819,14 +918,8 @@ namespace GlobalHookDemo
 					Clicks.Clear();
 					return;
 				}
+
 				buttonStart.Text = "Stop";
-				LogWrite("------------");
-				foreach (var click in Clicks)
-				{
-					LogWrite("X:" + click.ClickPoint.X + "  Y:" + click.ClickPoint.Y);
-				}
-				LogWrite("------------");
-				LogWrite("Starting Auto Clicker");
 				ClickTimer.Start();
 				Thread.Sleep(3000);
 			}
@@ -915,39 +1008,19 @@ namespace GlobalHookDemo
 
 		private void DropInventory()
 		{
+			if (Inventory.Count < 1)
+			{
+				MessageBox.Show("Need to setup inventory first.");
+				return;
+			}
+
 			if (DropInverse)
-				DropClickPos = 27;
+				DropClickPos = Inventory.Count - 1;
 			else
 				DropClickPos = 0;
 			DropTimer.Start();
 		}
 
-		private List<Point> GetInventory()
-		{
-			var inventory = new List<Point>();
-			var width = Screen.PrimaryScreen.Bounds.Width;
-			var height = Screen.PrimaryScreen.Bounds.Height;
-
-			var xStartOffsetPercent = 0.02; //9.5%
-			var yStartOffsetPercent = 0.095; //2%
-			var xOffsetPercent = 0.0215; // 2.15%
-			var yOffsetPercent = 0.035; // 3.5%
-			var xOffsetValue = width * xOffsetPercent; // 2.15%
-			var yOffsetValue = height * yOffsetPercent; // 3.5%
-			var xStartValue = width * (1 - xStartOffsetPercent);
-			var yStartValue = height * (1 - yStartOffsetPercent);
-
-			for (int r = 0; r < 7; r++)
-			{
-				for (int c = 0; c < 4; c++)
-				{
-					var x = (int)(xStartValue - xOffsetValue * c);
-					var y = (int)(yStartValue - yOffsetValue * r);
-					inventory.Add(new Point(x, y));
-				}
-			}
-			return inventory;
-		}
 		private void DropTimer_Tick(object sender, EventArgs e)
 		{
 			if ((DropClickPos >= Inventory.Count && !DropInverse) || (DropClickPos <= 0 && DropInverse))
@@ -990,66 +1063,136 @@ namespace GlobalHookDemo
 			chkDropInverse.Enabled = false;
 			radioClicks.Enabled = false;
 			radioCycles.Enabled = false;
-            btnSetupInventory.Enabled = false;
-            btnSingleClickInv.Enabled = false;
+			btnSetupInventory.Enabled = false;
+			btnSingleClickInv.Enabled = false;
 		}
 
-        private void EnableAll()
+		private void EnableAll()
+		{
+			buttonStart.Enabled = true;
+			//buttonRecord.Enabled = true;
+			chkLog.Enabled = true;
+			chkDropInverse.Enabled = true;
+			radioClicks.Enabled = true;
+			radioCycles.Enabled = true;
+			btnSetupInventory.Enabled = true;
+			btnSingleClickInv.Enabled = true;
+		}
+
+		private void btnSingleClickInv_Click(object sender, EventArgs e)
+		{
+			DropInventory();
+		}
+
+		private void sliderClickOffset_Scroll(object sender, EventArgs e)
+		{
+			TrackBar slider = (TrackBar)sender;
+			lblClickOffsetNumber.Text = slider.Value.ToString();
+			ClickOffset = slider.Value;
+		}
+
+		private void chkTimeOut_CheckedChanged(object sender, EventArgs e)
+		{
+			CheckBox chkBox = (CheckBox)sender;
+			if (chkBox.Checked)
+			{
+				UseRandomTimeouts = true;
+				RandomTimeoutCount = GetRandomTimeoutCount();
+			}
+				
+			else
+				UseRandomTimeouts = false;
+		}
+
+		private int GetRandomTimeoutCount()
+		{
+			return RandomGenerate.Next(75, 125);
+		}
+		private int GetRandomTimeout()
+		{
+			return RandomGenerate.Next(10000, 20000);
+		}
+
+		private void btnHide_Click(object sender, EventArgs e)
+		{
+			HideButtons = !HideButtons;
+			if (HideButtons)
+			{
+				btnHide.Text = "Hiding...";
+				DisableAll();
+			}
+			else
+			{
+				btnHide.Text = "Hide Buttons";
+				EnableAll();
+			}
+		}
+
+		private void startToolStripMenuItem_Click(object sender, EventArgs e)
+		{
+		    startToolStripMenuItem.Enabled = false;
+		    stopToolStripMenuItem.Enabled = true;
+
+            RunClicks();
+		}
+
+        private void stopToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            buttonStart.Enabled = true;
-            //buttonRecord.Enabled = true;
-            chkLog.Enabled = true;
-            chkDropInverse.Enabled = true;
-            radioClicks.Enabled = true;
-            radioCycles.Enabled = true;
-            btnSetupInventory.Enabled = true;
-            btnSingleClickInv.Enabled = true;
+            stopToolStripMenuItem.Enabled = false;
+            startToolStripMenuItem.Enabled = true;
+            RunClicks();
         }
 
-        private void btnSingleClickInv_Click(object sender, EventArgs e)
+        private void saveInventoryToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            DropInventory();
-        }
-
-        private void sliderClickOffset_Scroll(object sender, EventArgs e)
-        {
-            TrackBar slider = (TrackBar)sender;
-            lblClickOffsetNumber.Text = slider.Value.ToString();
-            ClickOffset = slider.Value;
-        }
-
-        private void chkTimeOut_CheckedChanged(object sender, EventArgs e)
-        {
-            CheckBox chkBox = (CheckBox)sender;
-            if (chkBox.Checked)
+            using (System.IO.StreamWriter file =
+                new System.IO.StreamWriter(FilePath, false))
             {
-                UseRandomTimeouts = true;
-                RandomTimeoutCount = random.Next(75, 125);
-            }
+                foreach (var point in Inventory)
+                {
+                    file.WriteLine(String.Format("{0}:{1}", point.X, point.Y));
+                }
                 
-            else
-                UseRandomTimeouts = false;
-        }
-
-        private int GetRandomTimeout()
-        {
-            return random.Next(10000, 20000);
-        }
-
-        private void btnHide_Click(object sender, EventArgs e)
-        {
-            HideButtons = !HideButtons;
-            if (HideButtons)
-            {
-                btnHide.Text = "Hiding...";
-                DisableAll();
-            }
-            else
-            {
-                btnHide.Text = "Hide Buttons";
-                EnableAll();
             }
         }
+
+        private void loadInventoryToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            LoadInventory();
+        }
+
+	    private void LoadInventory()
+	    {
+	        if (File.Exists(FilePath))
+	        {
+	            Inventory.Clear();
+
+	            string line;
+	            List<int> points;
+
+	            using (System.IO.StreamReader file =
+	                new System.IO.StreamReader(FilePath, false))
+	            {
+	                while ((line = file.ReadLine()) != null)
+	                {
+	                    points = line.Split(':').Select(int.Parse).ToList();
+	                    if (points.Count != 2)
+	                        continue;
+	                    Inventory.Add(new Point(points[0], points[1]));
+	                }
+	            }
+	        }
+	        else
+	        {
+	            (new FileInfo(FilePath)).Directory.Create();
+
+                using (System.IO.StreamWriter file =
+	                new System.IO.StreamWriter(FilePath, false))
+	            {
+	                file.Write("");
+	            }
+	        }
+	    }
     }			
 }
 

@@ -1,0 +1,14 @@
+D:\PersonalWorkspace\AutoClicker3\bin\Debug\AutoClicker.exe.config
+D:\PersonalWorkspace\AutoClicker3\bin\Debug\AutoClicker.XML
+D:\PersonalWorkspace\AutoClicker3\bin\Debug\AutoClicker.exe
+D:\PersonalWorkspace\AutoClicker3\bin\Debug\AutoClicker.pdb
+D:\PersonalWorkspace\AutoClicker3\obj\Debug\AutoClicker.MainForm.resources
+D:\PersonalWorkspace\AutoClicker3\obj\Debug\AutoClicker.csproj.GenerateResource.Cache
+D:\PersonalWorkspace\AutoClicker3\obj\Debug\AutoClicker.csproj.CoreCompileInputs.cache
+D:\PersonalWorkspace\AutoClicker3\obj\Debug\AutoClicker.exe
+D:\PersonalWorkspace\AutoClicker3\obj\Debug\AutoClicker.pdb
+D:\PersonalWorkspace\AutoClicker3\bin\Debug\AutoClicker.exe.manifest
+D:\PersonalWorkspace\AutoClicker3\bin\Debug\AutoClicker.application
+D:\PersonalWorkspace\AutoClicker3\obj\Debug\AutoClicker.csprojResolveAssemblyReference.cache
+D:\PersonalWorkspace\AutoClicker3\obj\Debug\AutoClicker.exe.manifest
+D:\PersonalWorkspace\AutoClicker3\obj\Debug\AutoClicker.application

@@ -1,0 +1,10 @@
+D:\PersonalWorkspace\AutoClicker3\bin\Release\AutoClicker.exe.config
+D:\PersonalWorkspace\AutoClicker3\bin\Release\AutoClicker.exe.manifest
+D:\PersonalWorkspace\AutoClicker3\bin\Release\AutoClicker.application
+D:\PersonalWorkspace\AutoClicker3\bin\Release\AutoClicker.exe
+D:\PersonalWorkspace\AutoClicker3\obj\Release\AutoClicker.MainForm.resources
+D:\PersonalWorkspace\AutoClicker3\obj\Release\AutoClicker.csproj.GenerateResource.Cache
+D:\PersonalWorkspace\AutoClicker3\obj\Release\AutoClicker.csproj.CoreCompileInputs.cache
+D:\PersonalWorkspace\AutoClicker3\obj\Release\AutoClicker.exe.manifest
+D:\PersonalWorkspace\AutoClicker3\obj\Release\AutoClicker.application
+D:\PersonalWorkspace\AutoClicker3\obj\Release\AutoClicker.exe
