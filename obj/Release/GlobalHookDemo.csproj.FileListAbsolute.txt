@@ -11,3 +11,4 @@ C:\Users\funks\Downloads\globalhook_src\obj\Release\GlobalHookDemo.csproj.Genera
 C:\Users\funks\Downloads\globalhook_src\obj\Release\GlobalHookDemo.csproj.CoreCompileInputs.cache
 C:\Users\funks\Downloads\globalhook_src\obj\Release\GlobalHookDemo.exe
 D:\PersonalWorkspace\AutoClicker3\obj\Release\GlobalHookDemo.csprojResolveAssemblyReference.cache
+C:\Users\funks\Downloads\globalhook_src\obj\Release\GlobalHookDemo.csprojResolveAssemblyReference.cache

@@ -11,6 +11,7 @@ C:\Users\funks\Downloads\globalhook_src\bin\Debug\GlobalHookDemo.exe.config
 C:\Users\funks\Downloads\globalhook_src\bin\Debug\GlobalHookDemo.XML
 C:\Users\funks\Downloads\globalhook_src\bin\Debug\GlobalHookDemo.exe
 C:\Users\funks\Downloads\globalhook_src\bin\Debug\GlobalHookDemo.pdb
+C:\Users\funks\Downloads\globalhook_src\obj\Debug\GlobalHookDemo.csprojResolveAssemblyReference.cache
 C:\Users\funks\Downloads\globalhook_src\obj\Debug\GlobalHookDemo.MainForm.resources
 C:\Users\funks\Downloads\globalhook_src\obj\Debug\GlobalHookDemo.csproj.GenerateResource.Cache
 C:\Users\funks\Downloads\globalhook_src\obj\Debug\GlobalHookDemo.csproj.CoreCompileInputs.cache
