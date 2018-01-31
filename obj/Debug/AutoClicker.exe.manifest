@@ -3,7 +3,7 @@
   <asmv1:assemblyIdentity name="AutoClicker.exe" version="2.0.0.1" publicKeyToken="0000000000000000" language="neutral" processorArchitecture="msil" type="win32" />
   <application />
   <entryPoint>
-    <assemblyIdentity name="AutoClicker" version="1.0.6603.30195" language="neutral" processorArchitecture="msil" />
+    <assemblyIdentity name="AutoClicker" version="1.0.6605.28496" language="neutral" processorArchitecture="msil" />
     <commandLine file="AutoClicker.exe" parameters="" />
   </entryPoint>
   <trustInfo>
@@ -43,13 +43,13 @@
   </dependency>
   <dependency>
     <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="AutoClicker.exe" size="144336">
-      <assemblyIdentity name="AutoClicker" version="1.0.6603.30195" language="neutral" processorArchitecture="msil" />
+      <assemblyIdentity name="AutoClicker" version="1.0.6605.28496" language="neutral" processorArchitecture="msil" />
       <hash>
         <dsig:Transforms>
           <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
         </dsig:Transforms>
         <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
-        <dsig:DigestValue>RPkosmHqH+F1n2aKOxZC7lbDf23dCXU9ac+wkT7Aw0c=</dsig:DigestValue>
+        <dsig:DigestValue>089T5g48mSWFMDA2M2m31lcQQuDfVGUsbt3SToSyRrs=</dsig:DigestValue>
       </hash>
     </dependentAssembly>
   </dependency>

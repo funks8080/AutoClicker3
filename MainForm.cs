@@ -29,7 +29,9 @@ namespace AutoClicker
 			}
 		}
 
-	    private static string FilePath = "c:\\AppData\\AutoClicker\\Inventory.txt";
+	    private int TotalInventoryClickCount;
+	    private int CurrentInventoryClickCount;
+        private static string FilePath = "c:\\AppData\\AutoClicker\\Inventory.txt";
 		private bool InfiniteLoop;
 		private bool ResetClicks;
 		private bool TimedOut;
@@ -89,6 +91,11 @@ namespace AutoClicker
 		private ToolStripMenuItem saveInventoryToolStripMenuItem;
 		private ToolStripMenuItem loadInventoryToolStripMenuItem;
         private ToolStripMenuItem toggleLoggingToolStripMenuItem;
+        private Label lblTotalInventory;
+        private Label label8;
+        private Label label4;
+        private NumericUpDown numInventoryCount;
+        private Button btnDropInventory;
         private GroupBox groupBox1;
 
 		[DllImport("User32.dll", SetLastError = true)]
@@ -110,7 +117,9 @@ namespace AutoClicker
 
 		public MainForm()
 		{
-			TimedOut = false;
+		    TotalInventoryClickCount = 0;
+		    CurrentInventoryClickCount = 0;
+            TimedOut = false;
 			HideButtons = false;
 			RandomTimeoutCount = 0;
 			UseRandomTimeouts = false;
@@ -173,6 +182,11 @@ namespace AutoClicker
             this.label5 = new System.Windows.Forms.Label();
             this.sliderClicks = new System.Windows.Forms.TrackBar();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.lblTotalInventory = new System.Windows.Forms.Label();
+            this.label8 = new System.Windows.Forms.Label();
+            this.label4 = new System.Windows.Forms.Label();
+            this.numInventoryCount = new System.Windows.Forms.NumericUpDown();
+            this.btnDropInventory = new System.Windows.Forms.Button();
             this.chkDropInverse = new System.Windows.Forms.CheckBox();
             this.btnSetupInventory = new System.Windows.Forms.Button();
             this.btnSingleClickInv = new System.Windows.Forms.Button();
@@ -192,6 +206,7 @@ namespace AutoClicker
             ((System.ComponentModel.ISupportInitialize)(this.sliderCycles)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.sliderClicks)).BeginInit();
             this.groupBox1.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.numInventoryCount)).BeginInit();
             this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -305,7 +320,7 @@ namespace AutoClicker
             // 
             // btnHide
             // 
-            this.btnHide.Location = new System.Drawing.Point(253, 456);
+            this.btnHide.Location = new System.Drawing.Point(253, 469);
             this.btnHide.Name = "btnHide";
             this.btnHide.Size = new System.Drawing.Size(136, 23);
             this.btnHide.TabIndex = 15;
@@ -333,9 +348,9 @@ namespace AutoClicker
             this.groupBox3.Controls.Add(this.lblClickSeconds);
             this.groupBox3.Controls.Add(this.sliderClicks);
             this.groupBox3.Controls.Add(this.trackLabel1);
-            this.groupBox3.Location = new System.Drawing.Point(7, 87);
+            this.groupBox3.Location = new System.Drawing.Point(6, 120);
             this.groupBox3.Name = "groupBox3";
-            this.groupBox3.Size = new System.Drawing.Size(382, 330);
+            this.groupBox3.Size = new System.Drawing.Size(383, 330);
             this.groupBox3.TabIndex = 8;
             this.groupBox3.TabStop = false;
             this.groupBox3.Text = "Clicks";
@@ -495,15 +510,73 @@ namespace AutoClicker
             // 
             // groupBox1
             // 
+            this.groupBox1.Controls.Add(this.lblTotalInventory);
+            this.groupBox1.Controls.Add(this.label8);
+            this.groupBox1.Controls.Add(this.label4);
+            this.groupBox1.Controls.Add(this.numInventoryCount);
+            this.groupBox1.Controls.Add(this.btnDropInventory);
             this.groupBox1.Controls.Add(this.chkDropInverse);
             this.groupBox1.Controls.Add(this.btnSetupInventory);
             this.groupBox1.Controls.Add(this.btnSingleClickInv);
             this.groupBox1.Location = new System.Drawing.Point(7, 13);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(382, 68);
+            this.groupBox1.Size = new System.Drawing.Size(382, 101);
             this.groupBox1.TabIndex = 16;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Inventory";
+            // 
+            // lblTotalInventory
+            // 
+            this.lblTotalInventory.AutoSize = true;
+            this.lblTotalInventory.Font = new System.Drawing.Font("Microsoft Sans Serif", 11.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblTotalInventory.Location = new System.Drawing.Point(96, 64);
+            this.lblTotalInventory.Name = "lblTotalInventory";
+            this.lblTotalInventory.Size = new System.Drawing.Size(17, 18);
+            this.lblTotalInventory.TabIndex = 26;
+            this.lblTotalInventory.Text = "0";
+            // 
+            // label8
+            // 
+            this.label8.AutoSize = true;
+            this.label8.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label8.Location = new System.Drawing.Point(82, 63);
+            this.label8.Name = "label8";
+            this.label8.Size = new System.Drawing.Size(14, 20);
+            this.label8.TabIndex = 25;
+            this.label8.Text = "/";
+            // 
+            // label4
+            // 
+            this.label4.AutoSize = true;
+            this.label4.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label4.Location = new System.Drawing.Point(9, 45);
+            this.label4.Name = "label4";
+            this.label4.Size = new System.Drawing.Size(156, 16);
+            this.label4.TabIndex = 24;
+            this.label4.Text = "Number of inv to click";
+            // 
+            // numInventoryCount
+            // 
+            this.numInventoryCount.Location = new System.Drawing.Point(12, 64);
+            this.numInventoryCount.Maximum = new decimal(new int[] {
+            9999,
+            0,
+            0,
+            0});
+            this.numInventoryCount.Name = "numInventoryCount";
+            this.numInventoryCount.Size = new System.Drawing.Size(64, 20);
+            this.numInventoryCount.TabIndex = 24;
+            this.numInventoryCount.ValueChanged += new System.EventHandler(this.numInventoryCount_ValueChanged);
+            // 
+            // btnDropInventory
+            // 
+            this.btnDropInventory.Location = new System.Drawing.Point(236, 72);
+            this.btnDropInventory.Name = "btnDropInventory";
+            this.btnDropInventory.Size = new System.Drawing.Size(137, 23);
+            this.btnDropInventory.TabIndex = 14;
+            this.btnDropInventory.Text = "Drop Inventory";
+            this.btnDropInventory.UseVisualStyleBackColor = true;
+            this.btnDropInventory.Click += new System.EventHandler(this.btnDropInventory_Click);
             // 
             // chkDropInverse
             // 
@@ -528,7 +601,7 @@ namespace AutoClicker
             // 
             // btnSingleClickInv
             // 
-            this.btnSingleClickInv.Location = new System.Drawing.Point(236, 39);
+            this.btnSingleClickInv.Location = new System.Drawing.Point(236, 42);
             this.btnSingleClickInv.Name = "btnSingleClickInv";
             this.btnSingleClickInv.Size = new System.Drawing.Size(137, 23);
             this.btnSingleClickInv.TabIndex = 13;
@@ -641,6 +714,7 @@ namespace AutoClicker
             ((System.ComponentModel.ISupportInitialize)(this.sliderClicks)).EndInit();
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.numInventoryCount)).EndInit();
             this.menuStrip1.ResumeLayout(false);
             this.menuStrip1.PerformLayout();
             this.ResumeLayout(false);
@@ -1014,7 +1088,10 @@ namespace AutoClicker
 				return;
 			}
 
-			if (DropInverse)
+		    TotalInventoryClickCount = (int)numInventoryCount.Value;
+
+
+            if (DropInverse)
 				DropClickPos = Inventory.Count - 1;
 			else
 				DropClickPos = 0;
@@ -1023,14 +1100,16 @@ namespace AutoClicker
 
 		private void DropTimer_Tick(object sender, EventArgs e)
 		{
-			if ((DropClickPos >= Inventory.Count && !DropInverse) || (DropClickPos <= 0 && DropInverse))
+			if (DropClickPos >= Inventory.Count || DropClickPos < 0 || CurrentInventoryClickCount >= TotalInventoryClickCount)
 			{
 				DropTimer.Stop();
-				return;
+			    CurrentInventoryClickCount = 0;
+                return;
 			}
 
-			//set cursor position to memorized location
-			CurrentPoint = Inventory[DropClickPos];
+		    CurrentInventoryClickCount++;
+            //set cursor position to memorized location
+            CurrentPoint = Inventory[DropClickPos];
 			if (DropInverse)
 				DropClickPos--;
 			else
@@ -1045,6 +1124,8 @@ namespace AutoClicker
 			{
 				btnSetupInventory.Text = "Setup Inventory";
 				Inventory.RemoveAt(Inventory.Count - 1);
+			    lblTotalInventory.Text = Inventory.Count.ToString();
+			    numInventoryCount.Value = Inventory.Count;
 			}
 			else
 			{
@@ -1181,7 +1262,10 @@ namespace AutoClicker
 	                    Inventory.Add(new Point(points[0], points[1]));
 	                }
 	            }
-	        }
+
+	            lblTotalInventory.Text = Inventory.Count.ToString();
+	            numInventoryCount.Value = Inventory.Count;
+            }
 	        else
 	        {
 	            (new FileInfo(FilePath)).Directory.Create();
@@ -1193,6 +1277,21 @@ namespace AutoClicker
 	            }
 	        }
 	    }
+        
+        private void btnDropInventory_Click(object sender, EventArgs e)
+        {
+            DropInventory();
+        }
+
+        private void numInventoryCount_ValueChanged(object sender, EventArgs e)
+        {
+            NumericUpDown counter = (NumericUpDown) sender;
+            if ((int) counter.Value > Inventory.Count)
+            {
+                counter.Value = Inventory.Count;
+                return;
+            }
+        }
     }			
 }
 

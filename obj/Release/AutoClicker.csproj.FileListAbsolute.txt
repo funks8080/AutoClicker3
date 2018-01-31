@@ -8,3 +8,4 @@ D:\PersonalWorkspace\AutoClicker3\obj\Release\AutoClicker.csproj.CoreCompileInpu
 D:\PersonalWorkspace\AutoClicker3\obj\Release\AutoClicker.exe.manifest
 D:\PersonalWorkspace\AutoClicker3\obj\Release\AutoClicker.application
 D:\PersonalWorkspace\AutoClicker3\obj\Release\AutoClicker.exe
+D:\PersonalWorkspace\AutoClicker3\obj\Release\AutoClicker.csprojResolveAssemblyReference.cache
