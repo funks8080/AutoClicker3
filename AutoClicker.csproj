@@ -131,16 +131,26 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Click.cs" />
+    <Compile Include="ImageFinder\MainScreen.cs" />
     <Compile Include="Keyboard.cs" />
     <Compile Include="MainForm.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="Mouse\Mouse.cs" />
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
     <Compile Include="UserActivityHook.cs">
       <SubType>Code</SubType>
     </Compile>
     <EmbeddedResource Include="MainForm.resx">
       <DependentUpon>MainForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
@@ -160,7 +170,32 @@
     <None Include="AutoClicker_TemporaryKey.pfx" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="ImageFinder\" />
+    <Content Include="Images\Ores\Adamantite_rock.png" />
+    <Content Include="Images\Ores\Clay_rock.png" />
+    <Content Include="Images\Ores\Coal_rock.png" />
+    <Content Include="Images\Ores\Copper_rock.png" />
+    <Content Include="Images\Ores\Gem_rock.png" />
+    <Content Include="Images\Ores\Gold_rock.png" />
+    <Content Include="Images\Ores\Granite_rock.png" />
+    <Content Include="Images\Ores\Iron_rock.png" />
+    <Content Include="Images\Ores\Mithril_rock.png" />
+    <Content Include="Images\Ores\Runite_rock.png" />
+    <Content Include="Images\Ores\Silver_rock.png" />
+    <Content Include="Images\Ores\Tin_rock.png" />
+    <Content Include="Images\Trees\Achey_Tree.png" />
+    <Content Include="Images\Trees\Arctic_Pine.png" />
+    <Content Include="Images\Trees\Hollow_tree.png" />
+    <Content Include="Images\Trees\Magic_tree.png" />
+    <Content Include="Images\Trees\Mahogany_tree.png" />
+    <Content Include="Images\Trees\Maple_tree.png" />
+    <Content Include="Images\Trees\Oak_tree.png" />
+    <Content Include="Images\Trees\Redwood_tree.png" />
+    <Content Include="Images\Trees\Sulliuscep.png" />
+    <Content Include="Images\Trees\Teak_tree.png" />
+    <Content Include="Images\Trees\Tree.png" />
+    <Content Include="Images\Trees\Willow_tree.png" />
+    <Content Include="Images\Trees\Yew_tree.png" />
+    <None Include="Resources\Clay_rock.png" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

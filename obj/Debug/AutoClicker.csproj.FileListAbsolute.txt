@@ -9,6 +9,7 @@ D:\PersonalWorkspace\AutoClicker3\obj\Debug\AutoClicker.exe
 D:\PersonalWorkspace\AutoClicker3\obj\Debug\AutoClicker.pdb
 D:\PersonalWorkspace\AutoClicker3\bin\Debug\AutoClicker.exe.manifest
 D:\PersonalWorkspace\AutoClicker3\bin\Debug\AutoClicker.application
-D:\PersonalWorkspace\AutoClicker3\obj\Debug\AutoClicker.csprojResolveAssemblyReference.cache
 D:\PersonalWorkspace\AutoClicker3\obj\Debug\AutoClicker.exe.manifest
 D:\PersonalWorkspace\AutoClicker3\obj\Debug\AutoClicker.application
+D:\PersonalWorkspace\AutoClicker3\obj\Debug\AutoClicker.csprojResolveAssemblyReference.cache
+D:\PersonalWorkspace\AutoClicker3\obj\Debug\AutoClicker.Properties.Resources.resources
