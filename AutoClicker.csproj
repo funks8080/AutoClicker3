@@ -132,7 +132,8 @@
     </Compile>
     <Compile Include="Click.cs" />
     <Compile Include="ImageFinder\MainScreen.cs" />
-    <Compile Include="Keyboard.cs" />
+    <Compile Include="Keyboard\Keyboard.cs" />
+    <Compile Include="Keyboard\MyKeyboard.cs" />
     <Compile Include="MainForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -197,6 +198,7 @@
     <Content Include="Images\Trees\Yew_tree.png" />
     <None Include="Resources\Clay_rock.png" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PreBuildEvent>

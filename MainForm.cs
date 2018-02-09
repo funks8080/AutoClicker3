@@ -1627,6 +1627,7 @@ namespace AutoClicker
 		{
 			LogWrite("Clicked at X:" + point.X + "  Y:" + point.Y);
 			Mouse.Mouse.MoveTo(point.X, point.Y);
+            Thread.Sleep(300);
 			switch (mouseButton)
 			{
 				case 0:
@@ -1671,7 +1672,7 @@ namespace AutoClicker
 			ClickCountPos = 0;
 			buttonStart.Text = "Stop";
 			RunProgram = true;
-
+		    ClickTimer.Interval = GetInterval();
 			ClickTimer.Start();
 			LogWrite("Starting Auto Clicker");
 			Thread.Sleep(3000);
