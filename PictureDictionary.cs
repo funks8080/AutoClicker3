@@ -1,33 +1,36 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Reflection;
 
 namespace AutoClicker
 {
-    public sealed class PictureDictionary
+    public class PictureDictionary
     {
-        public Dictionary<string, string> Dictionary = new Dictionary<string, string>
+        public static Dictionary<string, Bitmap> Dictionary = new Dictionary<string, Bitmap>
         {
-            { "CopperRock", "c:\\AppData\\AutoClicker\\Images\\Mining\\Swatches\\CopperSwatch.png" },
-            { "TinRock", "c:\\AppData\\AutoClicker\\Images\\Mining\\Swatches\\CopperSwatch.png" },
-            { "ClayRock", "c:\\AppData\\AutoClicker\\Images\\Mining\\Swatches\\CopperSwatch.png" },
-            { "IronRock", "c:\\AppData\\AutoClicker\\Images\\Mining\\Swatches\\CopperSwatch.png" },
-            { "SilverRock", "c:\\AppData\\AutoClicker\\Images\\Mining\\Swatches\\CopperSwatch.png" },
-            { "CoalrRock", "c:\\AppData\\AutoClicker\\Images\\Mining\\Swatches\\CopperSwatch.png" },
-            { "GoldRock", "c:\\AppData\\AutoClicker\\Images\\Mining\\Swatches\\CopperSwatch.png" },
-            { "GemRock", "c:\\AppData\\AutoClicker\\Images\\Mining\\Swatches\\CopperSwatch.png" },
-            { "MithrilRock", "c:\\AppData\\AutoClicker\\Images\\Mining\\Swatches\\CopperSwatch.png" },
-            { "AdamantiteRock", "c:\\AppData\\AutoClicker\\Images\\Mining\\Swatches\\CopperSwatch.png" },
-            { "RuneRock", "c:\\AppData\\AutoClicker\\Images\\Mining\\Swatches\\CopperSwatch.png" },
-            { "RegularTree", "c:\\AppData\\AutoClicker\\Images\\Woodcutting\\Swatches\\CopperSwatch.png" },
-            { "OakTree", "c:\\AppData\\AutoClicker\\Images\\Woodcutting\\Swatches\\CopperSwatch.png" },
-            { "WillowTree", "c:\\AppData\\AutoClicker\\Images\\Woodcutting\\Swatches\\CopperSwatch.png" },
-            { "MapleTree", "c:\\AppData\\AutoClicker\\Images\\Woodcutting\\Swatches\\CopperSwatch.png" },
-            { "YewTree", "c:\\AppData\\AutoClicker\\Images\\Woodcutting\\Swatches\\CopperSwatch.png" },
-            { "MagicTree", "c:\\AppData\\AutoClicker\\Images\\Woodcutting\\Swatches\\CopperSwatch.png" }
+            { "radioCopperRock", (Bitmap)Image.FromFile("Images/Mining/Swatches/CopperSwatch.png") },
+            { "radioTinRock", (Bitmap)Image.FromFile("Images/Mining/Swatches/CopperSwatch.png") },
+            { "radioClayRock", (Bitmap)Image.FromFile("Images/Mining/Swatches/CopperSwatch.png") },
+            { "radioIronRock", (Bitmap)Image.FromFile("Images/Mining/Swatches/CopperSwatch.png") },
+            { "radioSilverRock", (Bitmap)Image.FromFile("Images/Mining/Swatches/CopperSwatch.png") },
+            { "radioCoalRock", (Bitmap)Image.FromFile("Images/Mining/Swatches/CopperSwatch.png") },
+            { "radioGoldRock", (Bitmap)Image.FromFile("Images/Mining/Swatches/CopperSwatch.png") },
+            { "radioGemRock", (Bitmap)Image.FromFile("Images/Mining/Swatches/CopperSwatch.png") },
+            { "radioMithrilRock", (Bitmap)Image.FromFile("Images/Mining/Swatches/CopperSwatch.png") },
+            { "radioAdamantiteRock", (Bitmap)Image.FromFile("Images/Mining/Swatches/CopperSwatch.png") },
+            { "radioRuneRock", (Bitmap)Image.FromFile("Images/Mining/Swatches/CopperSwatch.png") },
+            { "radioRegularTree", (Bitmap)Image.FromFile("Images/Woodcutting/Swatches/TreeSwatch.png") },
+            { "radioOakTree", (Bitmap)Image.FromFile("Images/Woodcutting/Swatches/OakSwatch.png") },
+            { "radioWillowTree", (Bitmap)Image.FromFile("Images/Woodcutting/Swatches/WillowSwatch.png") },
+            { "radioMapleTree", (Bitmap)Image.FromFile("Images/Woodcutting/Swatches/MapleSwatch.png") },
+            { "radioYewTree", (Bitmap)Image.FromFile("Images/Woodcutting/Swatches/YewSwatch.png") },
+            { "radioMagicTree", (Bitmap)Image.FromFile("Images/Woodcutting/Swatches/MagicSwatch.png") },
+            { "radiwoMagicTree", Properties.Resources.YewSwatch},
         };
     }
 }

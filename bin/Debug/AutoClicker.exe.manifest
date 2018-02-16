@@ -3,7 +3,7 @@
   <asmv1:assemblyIdentity name="AutoClicker.exe" version="2.0.0.1" publicKeyToken="0000000000000000" language="neutral" processorArchitecture="msil" type="win32" />
   <application />
   <entryPoint>
-    <assemblyIdentity name="AutoClicker" version="1.0.6619.24986" language="neutral" processorArchitecture="msil" />
+    <assemblyIdentity name="AutoClicker" version="1.0.6621.1072" language="neutral" processorArchitecture="msil" />
     <commandLine file="AutoClicker.exe" parameters="" />
   </entryPoint>
   <trustInfo>
@@ -42,14 +42,14 @@
     </dependentAssembly>
   </dependency>
   <dependency>
-    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="AutoClicker.exe" size="713680">
-      <assemblyIdentity name="AutoClicker" version="1.0.6619.24986" language="neutral" processorArchitecture="msil" />
+    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="AutoClicker.exe" size="1557456">
+      <assemblyIdentity name="AutoClicker" version="1.0.6621.1072" language="neutral" processorArchitecture="msil" />
       <hash>
         <dsig:Transforms>
           <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
         </dsig:Transforms>
         <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
-        <dsig:DigestValue>OW+4F48rng1u+qTQks3mJxFjqY/xqR3gQjFU93u4dyQ=</dsig:DigestValue>
+        <dsig:DigestValue>u28miserB9jpqybyT4ATPABgdHx6X20nzAGt0beXp4I=</dsig:DigestValue>
       </hash>
     </dependentAssembly>
   </dependency>
@@ -60,231 +60,6 @@
       </dsig:Transforms>
       <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
       <dsig:DigestValue>l/VPfNqUVNQIPyQECM0xWlTJm+DXcPOne6oYsApBDIo=</dsig:DigestValue>
-    </hash>
-  </file>
-  <file name="Images\Ores\Adamantite_rock.png" size="20201">
-    <hash>
-      <dsig:Transforms>
-        <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
-      </dsig:Transforms>
-      <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
-      <dsig:DigestValue>zH4HTzTAGKDlgqwlSvVOsh7YX1JkzfUVekSJ42XsfOk=</dsig:DigestValue>
-    </hash>
-  </file>
-  <file name="Images\Ores\Clay_rock.png" size="22303">
-    <hash>
-      <dsig:Transforms>
-        <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
-      </dsig:Transforms>
-      <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
-      <dsig:DigestValue>1Cpjh4Uum21CGj9A9I/7/r5J6x9Dl0FPD2MqRuflwzM=</dsig:DigestValue>
-    </hash>
-  </file>
-  <file name="Images\Ores\Coal_rock.png" size="13484">
-    <hash>
-      <dsig:Transforms>
-        <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
-      </dsig:Transforms>
-      <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
-      <dsig:DigestValue>16qKQKAKF94/7JrA92viOyc7yQYtJyij6lqpZYMc2D0=</dsig:DigestValue>
-    </hash>
-  </file>
-  <file name="Images\Ores\Copper_rock.png" size="21447">
-    <hash>
-      <dsig:Transforms>
-        <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
-      </dsig:Transforms>
-      <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
-      <dsig:DigestValue>JN9eo4WMcRdnv+BHZC3l5rpBXOiXT+AZSsMCA8xRLFA=</dsig:DigestValue>
-    </hash>
-  </file>
-  <file name="Images\Ores\Gem_rock.png" size="21996">
-    <hash>
-      <dsig:Transforms>
-        <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
-      </dsig:Transforms>
-      <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
-      <dsig:DigestValue>F6SKhqLTk85cyZjMKZQpj75APNOhX6HfxYXCYOMWle0=</dsig:DigestValue>
-    </hash>
-  </file>
-  <file name="Images\Ores\Gold_rock.png" size="23802">
-    <hash>
-      <dsig:Transforms>
-        <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
-      </dsig:Transforms>
-      <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
-      <dsig:DigestValue>9KRrgc9DTQkhJy0N6Nr9ShzSZr/GEyd6l7KsMxD1hok=</dsig:DigestValue>
-    </hash>
-  </file>
-  <file name="Images\Ores\Granite_rock.png" size="23645">
-    <hash>
-      <dsig:Transforms>
-        <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
-      </dsig:Transforms>
-      <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
-      <dsig:DigestValue>eHQpb5JCHU0ct3iE7RuOByMUczOIwma54DL9g+6Zouc=</dsig:DigestValue>
-    </hash>
-  </file>
-  <file name="Images\Ores\Iron_rock.png" size="17787">
-    <hash>
-      <dsig:Transforms>
-        <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
-      </dsig:Transforms>
-      <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
-      <dsig:DigestValue>FDjAYcscEPKy0Xc07ACxkBV54f4G2uN55KFKkjhbTck=</dsig:DigestValue>
-    </hash>
-  </file>
-  <file name="Images\Ores\Mithril_rock.png" size="28182">
-    <hash>
-      <dsig:Transforms>
-        <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
-      </dsig:Transforms>
-      <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
-      <dsig:DigestValue>9XxBFIACoNIEk9GzlNOMgfskh/M/yZWjRJSfNT6xjPQ=</dsig:DigestValue>
-    </hash>
-  </file>
-  <file name="Images\Ores\Runite_rock.png" size="31363">
-    <hash>
-      <dsig:Transforms>
-        <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
-      </dsig:Transforms>
-      <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
-      <dsig:DigestValue>7PiBKaN7eLyfkFOcnLnT0BPqlHqXZDQviLvw9IAUsWw=</dsig:DigestValue>
-    </hash>
-  </file>
-  <file name="Images\Ores\Silver_rock.png" size="19817">
-    <hash>
-      <dsig:Transforms>
-        <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
-      </dsig:Transforms>
-      <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
-      <dsig:DigestValue>kOOTXm7zOeAnM2c/1cvRh9wcfSGUlahXGSxxqSv/Gds=</dsig:DigestValue>
-    </hash>
-  </file>
-  <file name="Images\Ores\Tin_rock.png" size="21576">
-    <hash>
-      <dsig:Transforms>
-        <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
-      </dsig:Transforms>
-      <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
-      <dsig:DigestValue>m+DEYEfW7ETrgaOSZzfai2xVSrZ4ehec0zTTKjYoMA0=</dsig:DigestValue>
-    </hash>
-  </file>
-  <file name="Images\Trees\Achey_Tree.png" size="32843">
-    <hash>
-      <dsig:Transforms>
-        <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
-      </dsig:Transforms>
-      <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
-      <dsig:DigestValue>9oCRiC0z3NePJ2WUe7RPYL+XqP2fx5wd1u/xloZJNjc=</dsig:DigestValue>
-    </hash>
-  </file>
-  <file name="Images\Trees\Arctic_Pine.png" size="14544">
-    <hash>
-      <dsig:Transforms>
-        <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
-      </dsig:Transforms>
-      <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
-      <dsig:DigestValue>ESgk4a55pvx5aljoxQfOxHic1fLR+vsIJKMI/eto8is=</dsig:DigestValue>
-    </hash>
-  </file>
-  <file name="Images\Trees\Hollow_tree.png" size="38295">
-    <hash>
-      <dsig:Transforms>
-        <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
-      </dsig:Transforms>
-      <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
-      <dsig:DigestValue>4XD/0egFdYptUeWwHMvQlugUqm8MUbMHv7Qg/vLJBWs=</dsig:DigestValue>
-    </hash>
-  </file>
-  <file name="Images\Trees\Magic_tree.png" size="42932">
-    <hash>
-      <dsig:Transforms>
-        <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
-      </dsig:Transforms>
-      <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
-      <dsig:DigestValue>K8/6IlOIkRL7O5nXDIuZMiqPFEnygannEVf86N7zP0U=</dsig:DigestValue>
-    </hash>
-  </file>
-  <file name="Images\Trees\Mahogany_tree.png" size="55580">
-    <hash>
-      <dsig:Transforms>
-        <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
-      </dsig:Transforms>
-      <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
-      <dsig:DigestValue>oI2cwLSOCrXB4yl3nCf2eGVDapEb6FKdj2gFZLg2PGM=</dsig:DigestValue>
-    </hash>
-  </file>
-  <file name="Images\Trees\Maple_tree.png" size="37881">
-    <hash>
-      <dsig:Transforms>
-        <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
-      </dsig:Transforms>
-      <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
-      <dsig:DigestValue>oTctp87rb1rVBAWFEoXEiUpVUflYo5WsUS6ZtSdNpGE=</dsig:DigestValue>
-    </hash>
-  </file>
-  <file name="Images\Trees\Oak_tree.png" size="48393">
-    <hash>
-      <dsig:Transforms>
-        <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
-      </dsig:Transforms>
-      <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
-      <dsig:DigestValue>Mnw3aQfnw9KuKFvd1HE2oDsuKqAodLaJ1IgLh2LbjUc=</dsig:DigestValue>
-    </hash>
-  </file>
-  <file name="Images\Trees\Redwood_tree.png" size="45357">
-    <hash>
-      <dsig:Transforms>
-        <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
-      </dsig:Transforms>
-      <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
-      <dsig:DigestValue>eb/ybkzvsQDQeNHycY7FyH5XqdbinLx3r+lisuTFOuY=</dsig:DigestValue>
-    </hash>
-  </file>
-  <file name="Images\Trees\Sulliuscep.png" size="24215">
-    <hash>
-      <dsig:Transforms>
-        <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
-      </dsig:Transforms>
-      <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
-      <dsig:DigestValue>GhuSbnxqLsYekDAyagbr0bvnA7vpoeQ8y3urdjhzJ7I=</dsig:DigestValue>
-    </hash>
-  </file>
-  <file name="Images\Trees\Teak_tree.png" size="26228">
-    <hash>
-      <dsig:Transforms>
-        <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
-      </dsig:Transforms>
-      <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
-      <dsig:DigestValue>JUmEyW+eC2YGpYVqGBevAICU7vJtId4h+7NI7+phgxY=</dsig:DigestValue>
-    </hash>
-  </file>
-  <file name="Images\Trees\Tree.png" size="37200">
-    <hash>
-      <dsig:Transforms>
-        <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
-      </dsig:Transforms>
-      <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
-      <dsig:DigestValue>48hBs5sYK1kNmW1jX9TWvLLHdgEBCIObfmIYDGzIx7k=</dsig:DigestValue>
-    </hash>
-  </file>
-  <file name="Images\Trees\Willow_tree.png" size="48704">
-    <hash>
-      <dsig:Transforms>
-        <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
-      </dsig:Transforms>
-      <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
-      <dsig:DigestValue>DXVUjALWRHYLvegLSQZfjf+UTkYSSxmrbWhuNL91Tfo=</dsig:DigestValue>
-    </hash>
-  </file>
-  <file name="Images\Trees\Yew_tree.png" size="42529">
-    <hash>
-      <dsig:Transforms>
-        <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
-      </dsig:Transforms>
-      <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
-      <dsig:DigestValue>kMcVtnOlFOCEWkXL9SJ1Z4JZTBbis6AbXJKMrr5Ba0g=</dsig:DigestValue>
     </hash>
   </file>
 </asmv1:assembly>

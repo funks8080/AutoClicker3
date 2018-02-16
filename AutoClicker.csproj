@@ -144,6 +144,11 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
+    <Compile Include="Properties\Woodcutting.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Woodcutting.resx</DependentUpon>
+    </Compile>
     <Compile Include="UserActivityHook.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -153,6 +158,10 @@
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Properties\Woodcutting.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Woodcutting.Designer.cs</LastGenOutput>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
@@ -172,34 +181,110 @@
     <None Include="AutoClicker_TemporaryKey.pfx" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Images\Ores\Adamantite_rock.png" />
-    <Content Include="Images\Ores\Clay_rock.png" />
-    <Content Include="Images\Ores\Coal_rock.png" />
-    <Content Include="Images\Ores\Copper_rock.png" />
-    <Content Include="Images\Ores\Gem_rock.png" />
-    <Content Include="Images\Ores\Gold_rock.png" />
-    <Content Include="Images\Ores\Granite_rock.png" />
-    <Content Include="Images\Ores\Iron_rock.png" />
-    <Content Include="Images\Ores\Mithril_rock.png" />
-    <Content Include="Images\Ores\Runite_rock.png" />
-    <Content Include="Images\Ores\Silver_rock.png" />
-    <Content Include="Images\Ores\Tin_rock.png" />
-    <Content Include="Images\Trees\Achey_Tree.png" />
-    <Content Include="Images\Trees\Arctic_Pine.png" />
-    <Content Include="Images\Trees\Hollow_tree.png" />
-    <Content Include="Images\Trees\Magic_tree.png" />
-    <Content Include="Images\Trees\Mahogany_tree.png" />
-    <Content Include="Images\Trees\Maple_tree.png" />
-    <Content Include="Images\Trees\Oak_tree.png" />
-    <Content Include="Images\Trees\Redwood_tree.png" />
-    <Content Include="Images\Trees\Sulliuscep.png" />
-    <Content Include="Images\Trees\Teak_tree.png" />
-    <Content Include="Images\Trees\Tree.png" />
-    <Content Include="Images\Trees\Willow_tree.png" />
-    <Content Include="Images\Trees\Yew_tree.png" />
-    <None Include="Resources\Clay_rock.png" />
+    <EmbeddedResource Include="Images\Mining\Ores\Adamantite_rock.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Images\Mining\Ores\Clay_rock.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Images\Mining\Ores\Coal_rock.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Images\Mining\Ores\Copper_rock.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Images\Mining\Ores\Gem_rock.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Images\Mining\Ores\Gold_rock.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Images\Mining\Ores\Granite_rock.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Images\Mining\Ores\Iron_rock.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Images\Mining\Ores\Mithril_rock.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Images\Mining\Ores\Runite_rock.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Images\Mining\Ores\Silver_rock.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Images\Mining\Ores\Tin_rock.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Images\Mining\Swatches\CopperSwatch.PNG">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Images\Woodcutting\Swatches\MagicSwatch.PNG">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Images\Woodcutting\Swatches\MapleSwatch.PNG">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Images\Woodcutting\Swatches\OakSwatch.PNG">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Images\Woodcutting\Swatches\TreeSwatch.PNG">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Images\Woodcutting\Swatches\WillowSwatch.PNG">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Images\Woodcutting\Swatches\YewSwatch.PNG">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Images\Woodcutting\Trees\Achey_Tree.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Images\Woodcutting\Trees\Arctic_Pine.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Images\Woodcutting\Trees\Hollow_tree.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Images\Woodcutting\Trees\Magic_tree.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Images\Woodcutting\Trees\Mahogany_tree.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Images\Woodcutting\Trees\Maple_tree.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Images\Woodcutting\Trees\Oak_tree.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Images\Woodcutting\Trees\Redwood_tree.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Images\Woodcutting\Trees\Sulliuscep.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Images\Woodcutting\Trees\Teak_tree.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Images\Woodcutting\Trees\Tree.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Images\Woodcutting\Trees\Willow_tree.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Images\Woodcutting\Trees\Yew_tree.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
   </ItemGroup>
   <ItemGroup />
+  <ItemGroup>
+    <None Include="Resources\YewSwatch.PNG" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Oak_tree.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PreBuildEvent>

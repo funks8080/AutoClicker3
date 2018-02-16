@@ -63,9 +63,19 @@ namespace AutoClicker.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap Clay_rock {
+        internal static System.Drawing.Bitmap Oak_tree {
             get {
-                object obj = ResourceManager.GetObject("Clay_rock", resourceCulture);
+                object obj = ResourceManager.GetObject("Oak_tree", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap YewSwatch {
+            get {
+                object obj = ResourceManager.GetObject("YewSwatch", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
