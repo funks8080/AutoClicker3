@@ -1,9 +1,9 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <asmv1:assembly xsi:schemaLocation="urn:schemas-microsoft-com:asm.v1 assembly.adaptive.xsd" manifestVersion="1.0" xmlns:asmv1="urn:schemas-microsoft-com:asm.v1" xmlns="urn:schemas-microsoft-com:asm.v2" xmlns:asmv2="urn:schemas-microsoft-com:asm.v2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:co.v1="urn:schemas-microsoft-com:clickonce.v1" xmlns:asmv3="urn:schemas-microsoft-com:asm.v3" xmlns:dsig="http://www.w3.org/2000/09/xmldsig#" xmlns:co.v2="urn:schemas-microsoft-com:clickonce.v2">
-  <asmv1:assemblyIdentity name="AutoClicker.exe" version="2.0.0.1" publicKeyToken="0000000000000000" language="neutral" processorArchitecture="msil" type="win32" />
+  <asmv1:assemblyIdentity name="AutoClicker.exe" version="2.0.0.2" publicKeyToken="0000000000000000" language="neutral" processorArchitecture="x86" type="win32" />
   <application />
   <entryPoint>
-    <assemblyIdentity name="AutoClicker" version="1.0.6621.1072" language="neutral" processorArchitecture="msil" />
+    <assemblyIdentity name="AutoClicker" version="1.0.7049.1794" language="neutral" processorArchitecture="x86" />
     <commandLine file="AutoClicker.exe" parameters="" />
   </entryPoint>
   <trustInfo>
@@ -42,24 +42,198 @@
     </dependentAssembly>
   </dependency>
   <dependency>
-    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="AutoClicker.exe" size="1557456">
-      <assemblyIdentity name="AutoClicker" version="1.0.6621.1072" language="neutral" processorArchitecture="msil" />
+    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="AutoClicker.exe" size="1568768">
+      <assemblyIdentity name="AutoClicker" version="1.0.7049.1794" language="neutral" processorArchitecture="x86" />
       <hash>
         <dsig:Transforms>
           <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
         </dsig:Transforms>
         <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
-        <dsig:DigestValue>u28miserB9jpqybyT4ATPABgdHx6X20nzAGt0beXp4I=</dsig:DigestValue>
+        <dsig:DigestValue>eP5P7dYNau4o8qvMrHjz8ykdPS1ZNti4ThK7tDgHufo=</dsig:DigestValue>
       </hash>
     </dependentAssembly>
   </dependency>
-  <file name="AutoClicker.exe.config" size="163">
+  <dependency>
+    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="tessnet2_32.dll" size="1455104">
+      <assemblyIdentity name="tessnet2_32" version="2.0.4.0" publicKeyToken="1550524B5BA07E29" language="neutral" processorArchitecture="x86" />
+      <hash>
+        <dsig:Transforms>
+          <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
+        </dsig:Transforms>
+        <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
+        <dsig:DigestValue>nEZAx+dDvUXIQFO3ptqm1Wiovg+AypMc4FgfYPozbco=</dsig:DigestValue>
+      </hash>
+    </dependentAssembly>
+  </dependency>
+  <file name="AutoClicker.exe.config" size="257">
     <hash>
       <dsig:Transforms>
         <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
       </dsig:Transforms>
       <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
-      <dsig:DigestValue>l/VPfNqUVNQIPyQECM0xWlTJm+DXcPOne6oYsApBDIo=</dsig:DigestValue>
+      <dsig:DigestValue>0bTP4mW3cyzgf546hhfPTvj3Kf7AnaLoqtHlD9mdlA4=</dsig:DigestValue>
+    </hash>
+  </file>
+  <file name="Content\tessdata\eng.DangAmbigs" size="392">
+    <hash>
+      <dsig:Transforms>
+        <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
+      </dsig:Transforms>
+      <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
+      <dsig:DigestValue>shFO5zQTGmx/hjZYIHCzHZ5fR0f3xiOOFxKIUgav85w=</dsig:DigestValue>
+    </hash>
+  </file>
+  <file name="Content\tessdata\eng.freq-dawg" size="672">
+    <hash>
+      <dsig:Transforms>
+        <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
+      </dsig:Transforms>
+      <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
+      <dsig:DigestValue>HQglOr9IJAKn5oOkJ0+Gkps1K37dXE9G2eSXnq0S8P8=</dsig:DigestValue>
+    </hash>
+  </file>
+  <file name="Content\tessdata\eng.inttemp" size="862544">
+    <hash>
+      <dsig:Transforms>
+        <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
+      </dsig:Transforms>
+      <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
+      <dsig:DigestValue>cZjh3G0eoKAbo62WekJoOHZT+5AVzTuQSCbsigFQJnI=</dsig:DigestValue>
+    </hash>
+  </file>
+  <file name="Content\tessdata\eng.normproto" size="39862">
+    <hash>
+      <dsig:Transforms>
+        <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
+      </dsig:Transforms>
+      <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
+      <dsig:DigestValue>iQGq66+29gqQ6T69rKCxaTGCDoGM5PwatHmGaL67UFo=</dsig:DigestValue>
+    </hash>
+  </file>
+  <file name="Content\tessdata\eng.pffmtable" size="590">
+    <hash>
+      <dsig:Transforms>
+        <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
+      </dsig:Transforms>
+      <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
+      <dsig:DigestValue>OfbEV0vwZZPlts7RFW62zVHJuvr9ksFLos9eQT7PBCw=</dsig:DigestValue>
+    </hash>
+  </file>
+  <file name="Content\tessdata\eng.unicharset" size="480">
+    <hash>
+      <dsig:Transforms>
+        <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
+      </dsig:Transforms>
+      <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
+      <dsig:DigestValue>4cpAc6WnSgTnJmcdsOfZndN8PpELYr4nBUyrlj7hllA=</dsig:DigestValue>
+    </hash>
+  </file>
+  <file name="Content\tessdata\eng.user-words" size="7289">
+    <hash>
+      <dsig:Transforms>
+        <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
+      </dsig:Transforms>
+      <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
+      <dsig:DigestValue>iOzMxi/WGi4vGV8UREnq4AcZ0IUPoKxOBlKwaaxB1iI=</dsig:DigestValue>
+    </hash>
+  </file>
+  <file name="Content\tessdata\eng.word-dawg" size="809728">
+    <hash>
+      <dsig:Transforms>
+        <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
+      </dsig:Transforms>
+      <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
+      <dsig:DigestValue>03qPHtoNZXIa26GybYUdcP71CsPIUOgEMP1yD0TKN8c=</dsig:DigestValue>
+    </hash>
+  </file>
+  <file name="Images\Empty_Inv_Space.PNG" size="289">
+    <hash>
+      <dsig:Transforms>
+        <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
+      </dsig:Transforms>
+      <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
+      <dsig:DigestValue>pk8kGPU5+Sf0JDQYmsenocC24y5riLtEGYGlquGKQIk=</dsig:DigestValue>
+    </hash>
+  </file>
+  <file name="Images\Pick_Pocket.png" size="368">
+    <hash>
+      <dsig:Transforms>
+        <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
+      </dsig:Transforms>
+      <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
+      <dsig:DigestValue>ewpFQKUsGBKyPPlx93QENKoxSb5N8RllZKw+XESADM4=</dsig:DigestValue>
+    </hash>
+  </file>
+  <file name="Images\tanner.png" size="674">
+    <hash>
+      <dsig:Transforms>
+        <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
+      </dsig:Transforms>
+      <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
+      <dsig:DigestValue>8bJIgY/svlFvmi/AYbKW0kxXgR27G/+qqSRFue4ukGk=</dsig:DigestValue>
+    </hash>
+  </file>
+  <file name="Images\Tanner_1.png" size="275">
+    <hash>
+      <dsig:Transforms>
+        <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
+      </dsig:Transforms>
+      <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
+      <dsig:DigestValue>TnUU4/HnV6+SHgKDFjDml/9/E+lgfTtzjWVfbKBnU6c=</dsig:DigestValue>
+    </hash>
+  </file>
+  <file name="Images\Tanner_2.png" size="522">
+    <hash>
+      <dsig:Transforms>
+        <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
+      </dsig:Transforms>
+      <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
+      <dsig:DigestValue>ZGqYjqoxHABCa88vbnrDvwNVLGUuo92C5fAWYHiOj2U=</dsig:DigestValue>
+    </hash>
+  </file>
+  <file name="Images\Tanner_3.png" size="502">
+    <hash>
+      <dsig:Transforms>
+        <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
+      </dsig:Transforms>
+      <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
+      <dsig:DigestValue>yzcID9BBRCMSIGkgnKcGPWqas5pHmaxKJ1XN6SmJk2U=</dsig:DigestValue>
+    </hash>
+  </file>
+  <file name="Images\Tanner_4.png" size="217">
+    <hash>
+      <dsig:Transforms>
+        <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
+      </dsig:Transforms>
+      <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
+      <dsig:DigestValue>xfz43/8tk3ESu0K8AtC6b65N8BSQz97XRynN9ACCsXY=</dsig:DigestValue>
+    </hash>
+  </file>
+  <file name="Images\tanner_head.png" size="200">
+    <hash>
+      <dsig:Transforms>
+        <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
+      </dsig:Transforms>
+      <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
+      <dsig:DigestValue>ue0w+mIH+CZw0/P1yheXpPV9w5E+Ti0PUUrTOXQ+K8s=</dsig:DigestValue>
+    </hash>
+  </file>
+  <file name="Images\Tanner_Head1.png" size="184">
+    <hash>
+      <dsig:Transforms>
+        <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
+      </dsig:Transforms>
+      <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
+      <dsig:DigestValue>4g1sMtVyn7gancmpSgCGw/8vit+6x7JovYq/TNzx4vs=</dsig:DigestValue>
+    </hash>
+  </file>
+  <file name="Images\Woodcut.png" size="370">
+    <hash>
+      <dsig:Transforms>
+        <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
+      </dsig:Transforms>
+      <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
+      <dsig:DigestValue>1qVTisl9eICQJZ+/8eQgddy2+rskz9BIhTKV8ymIHqM=</dsig:DigestValue>
     </hash>
   </file>
 </asmv1:assembly>

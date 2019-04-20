@@ -4,6 +4,22 @@
         <name>AutoClicker</name>
     </assembly>
     <members>
+        <member name="T:AutoClicker.Properties.Potions">
+            <summary>
+              A strongly-typed resource class, for looking up localized strings, etc.
+            </summary>
+        </member>
+        <member name="P:AutoClicker.Properties.Potions.ResourceManager">
+            <summary>
+              Returns the cached ResourceManager instance used by this class.
+            </summary>
+        </member>
+        <member name="P:AutoClicker.Properties.Potions.Culture">
+            <summary>
+              Overrides the current thread's CurrentUICulture property for all
+              resource lookups using this strongly typed resource class.
+            </summary>
+        </member>
         <member name="T:AutoClicker.Properties.Resources">
             <summary>
               A strongly-typed resource class, for looking up localized strings, etc.
@@ -20,7 +36,77 @@
               resource lookups using this strongly typed resource class.
             </summary>
         </member>
+        <member name="P:AutoClicker.Properties.Resources.Absorb_1">
+            <summary>
+              Looks up a localized resource of type System.Drawing.Bitmap.
+            </summary>
+        </member>
+        <member name="P:AutoClicker.Properties.Resources.Absorb_2">
+            <summary>
+              Looks up a localized resource of type System.Drawing.Bitmap.
+            </summary>
+        </member>
+        <member name="P:AutoClicker.Properties.Resources.Absorb_3">
+            <summary>
+              Looks up a localized resource of type System.Drawing.Bitmap.
+            </summary>
+        </member>
+        <member name="P:AutoClicker.Properties.Resources.Absorb_4">
+            <summary>
+              Looks up a localized resource of type System.Drawing.Bitmap.
+            </summary>
+        </member>
+        <member name="P:AutoClicker.Properties.Resources.Empty_Inv_Space">
+            <summary>
+              Looks up a localized resource of type System.Drawing.Bitmap.
+            </summary>
+        </member>
         <member name="P:AutoClicker.Properties.Resources.Oak_tree">
+            <summary>
+              Looks up a localized resource of type System.Drawing.Bitmap.
+            </summary>
+        </member>
+        <member name="P:AutoClicker.Properties.Resources.Pick_Pocket">
+            <summary>
+              Looks up a localized resource of type System.Drawing.Bitmap.
+            </summary>
+        </member>
+        <member name="P:AutoClicker.Properties.Resources.tanner">
+            <summary>
+              Looks up a localized resource of type System.Drawing.Bitmap.
+            </summary>
+        </member>
+        <member name="P:AutoClicker.Properties.Resources.Tanner_1">
+            <summary>
+              Looks up a localized resource of type System.Drawing.Bitmap.
+            </summary>
+        </member>
+        <member name="P:AutoClicker.Properties.Resources.Tanner_2">
+            <summary>
+              Looks up a localized resource of type System.Drawing.Bitmap.
+            </summary>
+        </member>
+        <member name="P:AutoClicker.Properties.Resources.Tanner_3">
+            <summary>
+              Looks up a localized resource of type System.Drawing.Bitmap.
+            </summary>
+        </member>
+        <member name="P:AutoClicker.Properties.Resources.Tanner_4">
+            <summary>
+              Looks up a localized resource of type System.Drawing.Bitmap.
+            </summary>
+        </member>
+        <member name="P:AutoClicker.Properties.Resources.tanner_head">
+            <summary>
+              Looks up a localized resource of type System.Drawing.Bitmap.
+            </summary>
+        </member>
+        <member name="P:AutoClicker.Properties.Resources.Tanner_Head1">
+            <summary>
+              Looks up a localized resource of type System.Drawing.Bitmap.
+            </summary>
+        </member>
+        <member name="P:AutoClicker.Properties.Resources.Woodcut">
             <summary>
               Looks up a localized resource of type System.Drawing.Bitmap.
             </summary>

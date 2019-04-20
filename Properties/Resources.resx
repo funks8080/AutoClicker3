@@ -118,10 +118,52 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
+  <data name="Absorb_1" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\images\absorb_1.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Absorb_2" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\images\absorb_2.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Absorb_3" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\images\absorb_3.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Absorb_4" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\images\absorb_4.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
   <data name="Oak_tree" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\Oak_tree.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
+  <data name="tanner" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\images\tanner.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Tanner_1" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\images\tanner_1.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Tanner_2" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\images\tanner_2.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Tanner_3" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\images\tanner_3.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Tanner_4" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\images\tanner_4.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="tanner_head" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\images\tanner_head.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Tanner_Head1" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\images\tanner_head1.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
   <data name="YewSwatch" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\YewSwatch.PNG;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Pick_Pocket" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\images\pick_pocket.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Woodcut" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\images\woodcut.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Empty_Inv_Space" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\images\empty_inv_space.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
 </root>

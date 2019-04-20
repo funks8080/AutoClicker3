@@ -29,6 +29,8 @@
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <OldToolsVersion>2.0</OldToolsVersion>
     <TargetFrameworkProfile />
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
     <PublishUrl>c:\deploy\autoclicker\</PublishUrl>
     <Install>true</Install>
     <InstallFrom>Web</InstallFrom>
@@ -71,6 +73,7 @@
     <ErrorReport>prompt</ErrorReport>
     <UseVSHostingProcess>false</UseVSHostingProcess>
     <Prefer32Bit>false</Prefer32Bit>
+    <PlatformTarget>x86</PlatformTarget>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <OutputPath>bin\Release\</OutputPath>
@@ -107,7 +110,7 @@
     <GenerateManifests>true</GenerateManifests>
   </PropertyGroup>
   <PropertyGroup>
-    <SignManifests>true</SignManifests>
+    <SignManifests>false</SignManifests>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System">
@@ -125,6 +128,9 @@
     <Reference Include="System.Xml">
       <Name>System.XML</Name>
     </Reference>
+    <Reference Include="tessnet2_32, Version=2.0.4.0, Culture=neutral, PublicKeyToken=1550524b5ba07e29, processorArchitecture=x86">
+      <HintPath>packages\NuGet.Tessnet2.1.1.1\lib\net45\tessnet2_32.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AssemblyInfo.cs">
@@ -138,7 +144,13 @@
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="Mouse\Mouse.cs" />
+    <Compile Include="Ocr.cs" />
     <Compile Include="PictureDictionary.cs" />
+    <Compile Include="Properties\Potions.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Potions.resx</DependentUpon>
+    </Compile>
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -154,6 +166,10 @@
     </Compile>
     <EmbeddedResource Include="MainForm.resx">
       <DependentUpon>MainForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Properties\Potions.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Potions.Designer.cs</LastGenOutput>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
@@ -179,6 +195,15 @@
   <ItemGroup>
     <None Include="app.config" />
     <None Include="AutoClicker_TemporaryKey.pfx" />
+    <None Include="tessdata\desired_characters" />
+    <None Include="tessdata\eng.numbers" />
+    <None Include="tessdata\eng.punc" />
+    <None Include="tessdata\eng.training_text" />
+    <None Include="tessdata\eng.training_text.bigram_freqs" />
+    <None Include="tessdata\eng.training_text.unigram_freqs" />
+    <None Include="tessdata\eng.unicharambigs" />
+    <None Include="tessdata\eng.word.bigrams" />
+    <None Include="tessdata\eng.wordlist" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Images\Mining\Ores\Adamantite_rock.png">
@@ -278,12 +303,43 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </EmbeddedResource>
   </ItemGroup>
-  <ItemGroup />
   <ItemGroup>
+    <Resource Include="Images\Absorb_1.png" />
+    <Resource Include="Images\Absorb_2.png" />
+    <Resource Include="Images\Absorb_3.png" />
+    <Resource Include="Images\Absorb_4.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Content\tessdata\eng.DangAmbigs" />
+    <Content Include="Content\tessdata\eng.freq-dawg" />
+    <Content Include="Content\tessdata\eng.inttemp" />
+    <Content Include="Content\tessdata\eng.normproto" />
+    <Content Include="Content\tessdata\eng.pffmtable" />
+    <Content Include="Content\tessdata\eng.unicharset" />
+    <Content Include="Content\tessdata\eng.user-words" />
+    <Content Include="Content\tessdata\eng.word-dawg" />
+    <Content Include="Images\Empty_Inv_Space.PNG" />
+    <Content Include="Images\Woodcut.png" />
+    <None Include="packages.config">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="Resources\YewSwatch.PNG" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\Oak_tree.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Absorb_1.png.bmp" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Images\Pick_Pocket.png" />
+    <Content Include="Images\tanner.png" />
+    <Content Include="Images\Tanner_1.png" />
+    <Content Include="Images\Tanner_2.png" />
+    <Content Include="Images\Tanner_3.png" />
+    <Content Include="Images\Tanner_4.png" />
+    <Content Include="Images\tanner_head.png" />
+    <Content Include="Images\Tanner_Head1.png" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
@@ -292,4 +348,14 @@
     <PostBuildEvent>
     </PostBuildEvent>
   </PropertyGroup>
+  <Import Project="packages\MSBuild.NugetContentRestore.0.1.6\build\net40\MSBuild.NugetContentRestore.targets" Condition="Exists('packages\MSBuild.NugetContentRestore.0.1.6\build\net40\MSBuild.NugetContentRestore.targets')" />
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('packages\MSBuild.NugetContentRestore.0.1.6\build\net40\MSBuild.NugetContentRestore.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\MSBuild.NugetContentRestore.0.1.6\build\net40\MSBuild.NugetContentRestore.targets'))" />
+  </Target>
+  <Target Name="BeforeBuild">
+    <NugetContentRestoreTask SolutionDir="$(SolutionDir)" ProjectDir="$(ProjectDir)" />
+  </Target>
 </Project>

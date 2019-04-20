@@ -24,24 +24,75 @@ namespace AutoClicker.ImageFinder
             return (Bitmap)Image.FromFile(image);
         }
 
-        public static Point FindImage(Bitmap image, decimal colorRange)
+        public static Point FindImage(Point topLeft, Point bottomRight, Bitmap image, decimal colorRange)
         {
             var screenShot = CaptureScreen();
-            var corner = GetCorner(10, image);
-            var size = (int)Math.Sqrt(corner.Length);
+            var corner = GetImageColors(image);
             var imagePoint = new Point();
 
             var foundMatch = false;
 
-            for (int r = 0; r < screenShot.Height - size; r++)
+            for (int r = topLeft.Y; r < bottomRight.Y - image.Height; r++)
             {
-                for (int c = 0; c < screenShot.Width - size; c++)
+                for (int c = topLeft.X; c < bottomRight.X - image.Width; c++)
                 {
                     if (r == 553 && c == 1281)
                     {
                         var test = 1;
                     }
                     foundMatch = CompareCorner(screenShot, corner, colorRange, screenShotX: c, screenShotY: r);
+                    if (foundMatch)
+                    {
+                        imagePoint.X = c;
+                        imagePoint.Y = r;
+                        break;
+                    }
+                }
+                if (foundMatch)
+                    break;
+            }
+            corner = null;
+            screenShot = null;
+            return imagePoint;
+        }
+
+        public static Point FindInInventory(Bitmap image, Bitmap screenshot, decimal colorRange)
+        {
+            var corner = GetImageColors(image);
+            var imagePoint = new Point();
+
+            var foundMatch = false;
+
+            for (int r = 735; r < 990 - image.Width; r++)
+            {
+                for (int c = 1720; c < 1900 - image.Height; c++)
+                {
+                    foundMatch = CompareCorner(screenshot, corner, colorRange, screenShotX: c, screenShotY: r);
+                    if (foundMatch)
+                    {
+                        imagePoint.X = c;
+                        imagePoint.Y = r;
+                        break;
+                    }
+                }
+                if (foundMatch)
+                    break;
+            }
+
+            return imagePoint;
+        }
+        public static Point FindTanner(Bitmap image, Bitmap screenshot, decimal colorRange)
+        {
+            var corner = GetImageColors(image);
+            var imagePoint = new Point();
+
+            var foundMatch = false;
+
+            for (int r = 150; r < 600; r++)
+            {
+                for (int c = 725; c < 1150; c++)
+                {
+                    foundMatch = CompareCorner(screenshot, corner, colorRange, screenShotX: c, screenShotY: r);
                     if (foundMatch)
                     {
                         imagePoint.X = c;
@@ -71,12 +122,28 @@ namespace AutoClicker.ImageFinder
             return corner;
         }
 
+        public static Color[,] GetImageColors(Bitmap image)
+        {
+            var x = image.Width;
+            var y = image.Height;
+            var corner = new Color[x, y];
+
+            for (int r = 0; r < y; r++)
+            {
+                for (int c = 0; c < x; c++)
+                {
+                    corner[c, r] = image.GetPixel(c, r);
+                }
+            }
+
+            return corner;
+        }
+
         public static bool CompareCorner(Bitmap screenShot, Color[,] corner, decimal colorRange, int screenShotX, int screenShotY)
         {
-            var size = (int) Math.Sqrt(corner.Length);
-            for (int r = 0; r < size; r++)
+            for (int r = 0; r < corner.GetLength(1) - 1; r++)
             {
-                for (int c = 0; c < size; c++)
+                for (int c = 0; c < corner.GetLength(0) - 1; c++)
                 {
                     if (PixelCompare(screenShot.GetPixel(screenShotX + c, screenShotY + r) , corner[c, r], colorRange ))
                         continue;
