@@ -25,15 +25,15 @@
     </FileUpgradeFlags>
     <UpgradeBackupLocation>
     </UpgradeBackupLocation>
-    <IsWebBootstrapper>true</IsWebBootstrapper>
-    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+    <IsWebBootstrapper>false</IsWebBootstrapper>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <OldToolsVersion>2.0</OldToolsVersion>
     <TargetFrameworkProfile />
     <NuGetPackageImportStamp>
     </NuGetPackageImportStamp>
-    <PublishUrl>c:\deploy\autoclicker\</PublishUrl>
+    <PublishUrl>\\FUNK-LAPTOP-PC\Access\Publish\</PublishUrl>
     <Install>true</Install>
-    <InstallFrom>Web</InstallFrom>
+    <InstallFrom>Unc</InstallFrom>
     <UpdateEnabled>true</UpdateEnabled>
     <UpdateMode>Foreground</UpdateMode>
     <UpdateInterval>7</UpdateInterval>
@@ -41,10 +41,9 @@
     <UpdatePeriodically>false</UpdatePeriodically>
     <UpdateRequired>false</UpdateRequired>
     <MapFileExtensions>true</MapFileExtensions>
-    <InstallUrl>https://autoclicker.azurewebsites.net/</InstallUrl>
     <CreateWebPageOnPublish>true</CreateWebPageOnPublish>
     <WebPage>publish.htm</WebPage>
-    <ApplicationRevision>2</ApplicationRevision>
+    <ApplicationRevision>4</ApplicationRevision>
     <ApplicationVersion>2.0.0.%2a</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <PublishWizardCompleted>true</PublishWizardCompleted>
@@ -62,8 +61,7 @@
     <DebugSymbols>true</DebugSymbols>
     <FileAlignment>4096</FileAlignment>
     <NoStdLib>false</NoStdLib>
-    <NoWarn>
-    </NoWarn>
+    <NoWarn>1591</NoWarn>
     <Optimize>false</Optimize>
     <RegisterForComInterop>false</RegisterForComInterop>
     <RemoveIntegerChecks>false</RemoveIntegerChecks>
@@ -76,7 +74,7 @@
     <PlatformTarget>x86</PlatformTarget>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <OutputPath>bin\Release\</OutputPath>
+    <OutputPath>bin\Debug\</OutputPath>
     <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
     <BaseAddress>285212672</BaseAddress>
     <CheckForOverflowUnderflow>false</CheckForOverflowUnderflow>
@@ -138,6 +136,7 @@
     </Compile>
     <Compile Include="Click.cs" />
     <Compile Include="ImageFinder\MainScreen.cs" />
+    <Compile Include="IReport.cs" />
     <Compile Include="Keyboard\Keyboard.cs" />
     <Compile Include="Keyboard\MyKeyboard.cs" />
     <Compile Include="MainForm.cs">
@@ -161,6 +160,7 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Woodcutting.resx</DependentUpon>
     </Compile>
+    <Compile Include="RunParams.cs" />
     <Compile Include="UserActivityHook.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -318,6 +318,48 @@
     <Content Include="Content\tessdata\eng.unicharset" />
     <Content Include="Content\tessdata\eng.user-words" />
     <Content Include="Content\tessdata\eng.word-dawg" />
+    <None Include="Resources\100Energy.PNG" />
+    <None Include="Resources\EmptyInvNew.PNG" />
+    <None Include="Resources\BrokenBag.png" />
+    <None Include="Resources\BankCloseButton.PNG" />
+    <None Include="Resources\HealthHeart2.png" />
+    <None Include="Resources\HealthHeart.png" />
+    <None Include="Resources\Gold28.PNG" />
+    <None Include="Resources\Gold27.PNG" />
+    <None Include="Resources\Gold26.PNG" />
+    <None Include="Resources\Gold25.PNG" />
+    <None Include="Resources\Gold24.PNG" />
+    <None Include="Resources\Gold23.PNG" />
+    <None Include="Resources\Gold22.PNG" />
+    <None Include="Resources\Gold21.PNG" />
+    <None Include="Resources\Gold20.PNG" />
+    <None Include="Resources\WCOK.PNG" />
+    <None Include="Resources\Woodcut2.png" />
+    <None Include="Resources\Woodcut1.png" />
+    <None Include="Resources\Shrimp2.png" />
+    <None Include="Resources\Shrimp1.png" />
+    <None Include="Resources\Range_4.png" />
+    <None Include="Resources\Range_3.png" />
+    <None Include="Resources\Range_2.png" />
+    <None Include="Resources\Range_1.png" />
+    <None Include="Resources\BarbFish13.png" />
+    <None Include="Resources\BarbFish12.png" />
+    <None Include="Resources\EmptyInvSpace.PNG" />
+    <None Include="Resources\NotFishing.PNG" />
+    <None Include="Resources\Fishing.PNG" />
+    <None Include="Resources\BarbFish11.png" />
+    <None Include="Resources\BarbFish.png" />
+    <None Include="Resources\Over_4.png" />
+    <None Include="Resources\Over_3.png" />
+    <None Include="Resources\Over_2.png" />
+    <None Include="Resources\Over_1.png" />
+    <None Include="Resources\Capture.PNG" />
+    <None Include="Resources\Test4.PNG" />
+    <None Include="Resources\Test23.png" />
+    <None Include="Resources\Test2.PNG" />
+    <None Include="Resources\Test.png" />
+    <None Include="Resources\Agility.png" />
+    <Resource Include="Images\Agility.png" />
     <Content Include="Images\Empty_Inv_Space.PNG" />
     <Content Include="Images\Woodcut.png" />
     <None Include="packages.config">

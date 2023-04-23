@@ -166,4 +166,127 @@
   <data name="Empty_Inv_Space" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\images\empty_inv_space.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
+  <data name="Agility" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Agility.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Test" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Test.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Test2" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Test2.PNG;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Test23" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Test23.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Test4" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Test4.PNG;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Capture" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Capture.PNG;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="BarbFish" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\BarbFish.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="BarbFish11" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\BarbFish11.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="BarbFish12" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\BarbFish12.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="BarbFish13" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\BarbFish13.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="EmptyInvSpace" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\EmptyInvSpace.PNG;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Fishing" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Fishing.PNG;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="NotFishing" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\NotFishing.PNG;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Over_1" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Over_1.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Over_2" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Over_2.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Over_3" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Over_3.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Over_4" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Over_4.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Range_1" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Range_1.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Range_2" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Range_2.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Range_3" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Range_3.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Range_4" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Range_4.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Shrimp1" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Shrimp1.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Shrimp2" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Shrimp2.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="WCOK" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\WCOK.PNG;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Woodcut1" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Woodcut1.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Woodcut2" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Woodcut2.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Gold20" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Gold20.PNG;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Gold21" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Gold21.PNG;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Gold22" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Gold22.PNG;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Gold23" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Gold23.PNG;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Gold24" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Gold24.PNG;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Gold25" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Gold25.PNG;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Gold26" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Gold26.PNG;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Gold27" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Gold27.PNG;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Gold28" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Gold28.PNG;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="HealthHeart" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\HealthHeart.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="HealthHeart2" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\HealthHeart2.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="BankCloseButton" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\BankCloseButton.PNG;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="BrokenBag" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\BrokenBag.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="EmptyInvNew" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\EmptyInvNew.PNG;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="_100Energy" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\100Energy.PNG;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
 </root>
