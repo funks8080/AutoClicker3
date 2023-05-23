@@ -123,6 +123,16 @@ namespace AutoClicker.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap Bank_All {
+            get {
+                object obj = ResourceManager.GetObject("Bank_All", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap BankCloseButton {
             get {
                 object obj = ResourceManager.GetObject("BankCloseButton", resourceCulture);

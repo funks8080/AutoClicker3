@@ -9,10 +9,14 @@ namespace AutoClicker
     public class RunParams<T>
     {
         public IProgress<T> ReportProgress { get; set; }
-        public bool Timeouts { get; set; }
+        public Timeouts Timeouts { get; set; }
+        //public bool Timeouts { get; set; }
         public int RunLimit { get; set; }
-        public int TimeoutLow { get; set; }
-        public int TimeoutHigh { get; set; }
+
+        public List<Click> ClickList { get; set; }
+
+        public ScreenshotInfo ScreenshotInfo { get; set; }
+        public int ClickOffset { get; set; }
 
     }
 }

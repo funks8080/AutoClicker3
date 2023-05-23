@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
@@ -13,6 +13,16 @@ using gma.System.Windows;
 using AutoClicker.Mouse;
 using tessnet2;
 using System.ComponentModel;
+using System.Diagnostics.Eventing.Reader;
+using System.Data.SqlClient;
+using static System.Net.Mime.MediaTypeNames;
+using System.Runtime.Remoting.Contexts;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement.Window;
+using System.Drawing.Imaging;
+using System.Runtime.CompilerServices;
+using System.Text.RegularExpressions;
+using System.Text;
+using System.Xml.Serialization;
 
 namespace AutoClicker 
 {
@@ -22,17 +32,36 @@ namespace AutoClicker
         //private Tesseract ocr = new Tesseract();
         private System.ComponentModel.IContainer components = null;
         private Button buttonRecord;
-        private Button buttonStart;
+        private Button btn_Start;
         private Label labelMousePosition;
         private TextBox textBox;
         private bool RunProgram;
         private int EatFailCount;
         private int EatFailCountMax = 10;
         private bool logClicks = true;
+        private Color SearchColor;
+        private Color SearchColor2;
+        private Color MonsterHealth = Color.FromArgb(4, 136, 52);
+        private Point TopLeft;
+        private Point BottomRight;
+        private Point InvTopLeft;
+        private Point InvBottomRight;
+        private int Absorb_offsetX;
+        private int Absorb_offsetY;
+        private decimal ColorRange;
+        private int SelectedMonitor = 2;
+        private int RandomTimeoutStart;
+        private int RandomTimeoutEnd;
+        private int PixelSkip = 10;
+        private int TimeoutLengthMin;
+        private int TimeoutLengthMax;
+        private bool FindingColor;
 
         private int TotalInventoryClickCount;
         private int CurrentInventoryClickCount;
         private static string FilePath = "c:\\AppData\\AutoClicker\\Inventory.txt";
+        private static string AppFolder = @"c:\AppData\AutoClicker\";
+        private string OpenFile;
         private bool agilOn = false;
         private bool FishOn = false;
         private bool AutoShootOn = false;
@@ -45,6 +74,7 @@ namespace AutoClicker
         private bool Ctrl;
         private bool SetupInventory;
         private bool UseRandomTimeouts;
+        private bool EndTimeoutsOnly;
         private bool DropInverse;
         private bool LogInfo;
         private bool RecordClicks;
@@ -53,13 +83,14 @@ namespace AutoClicker
         private bool Woodcutting;
         private bool SettingAlchPoint;
         private int RandomTimeoutCount;
+        private int TimeoutPos;
         private int ClickOffset;
         private int DropClickPos;
         private int ClickCountPos;
         private int IterationCount;
         private TrackBar ActiveSlider;
         private Stopwatch ClickStopwatch;
-        private List<Click> Clicks;
+        private BindingList<Click> Clicks;
         private List<Point> Inventory;
         private System.Windows.Forms.Timer DrinkTimer;
         private System.Windows.Forms.Timer PrayerTimer;
@@ -73,10 +104,7 @@ namespace AutoClicker
         private System.Windows.Forms.Timer InvFullTimer;
         private System.Windows.Forms.Timer AgilityTimer;
         private System.Windows.Forms.Timer BarbFishTimer;
-        private System.Windows.Forms.Timer AutoShootTimer;
-        private System.Windows.Forms.Timer WoodCutTimer2;
         private System.Windows.Forms.Timer RuneCraftTimer;
-        private System.Windows.Forms.Timer RapidClickTimer;
         private Random RandomGenerate;
 
         private Label ActiveLabel;
@@ -119,60 +147,126 @@ namespace AutoClicker
         private NumericUpDown numInventoryCount;
         private Button btnDropInventory;
         private GroupBox groupBox1;
-        private Button button1;
-        private TabControl TabController;
-        private TabPage WoodCut;
-        private TabPage Mining;
-        private TableLayoutPanel tableWoodCut;
-        private RadioButton radioOakTree;
-        private RadioButton radioRegularTree;
-        private RadioButton radioWillowTree;
-        private RadioButton radioYewTree;
-        private RadioButton radioMapleTree;
-        private RadioButton radioMagicTree;
-        private PictureBox pictureBox8;
-        private PictureBox pictureBox9;
-        private PictureBox pictureBox10;
-        private PictureBox pictureBox11;
-        private PictureBox pictureBox12;
-        private PictureBox pictureBox13;
-        private Button btnWoodcut;
-        private Button btnMining;
+        private Button btn_Find_Image;
         private Label lblColorRange;
-        private Button btnNightmare;
-        private Button btnTan;
-        private TabPage Buttons;
-        private Button btnPickPocket;
-        private Button btnWoodcut2;
-        private Button btnSeersAgil;
-        private System.ComponentModel.BackgroundWorker workerSeersAgility;
-        private System.ComponentModel.BackgroundWorker workerCanifisAgility;
-        private Button btnBarbFish;
+        private BackgroundWorker workerSeersAgility;
+        private BackgroundWorker workerCanifisAgility;
         private BackgroundWorker workerBarbFish;
-        private Button btnRC;
-        private Button btnWC2;
-        private Button btnCanAgi;
-        private Label label9;
-        private NumericUpDown maxRandom;
-        private NumericUpDown minRandom;
         private CheckBox chkClicks;
-        private Button btnAutoShoot;
-        private BackgroundWorker workerRC;
-        private Button btnMine;
-        private BackgroundWorker workerMining;
-        private Button button2;
-        private Label label10;
-        private Button btnStartAlch;
-        private Button btnSetAlch;
+        private BackgroundWorker worker_RC;
+        private BackgroundWorker worker_Mining;
+        private BackgroundWorker worker_Gem_Mining;
+        private BackgroundWorker worker_Auto_Attack;
+        private BackgroundWorker worker_Woodcut;
         private TrackBar sliderColorRange;
         private BackgroundWorker workerAlch;
+        private CheckBox chk_End_Timeout_Only;
+        private TabPage ClickTab;
+        private TabPage Buttons;
+        private Button btn_Find_Color;
+        private GroupBox groupBox7;
+        private Label label19;
+        private Label label20;
+        private Label label21;
+        private TextBox txt_Color_B_2;
+        private TextBox txt_Color_G_2;
+        private TextBox txt_Color_R_2;
+        private Label label18;
+        private Button btn_Monitor_3;
+        private Button btn_Monitor_2;
+        private Button btn_Monitor_1;
+        private Button btn_Gem_Mine;
+        private GroupBox groupBox6;
+        private TextBox txt_Inv_Bot_Y;
+        private TextBox txt_Inv_Bot_X;
+        private TextBox txt_Inv_Top_Y;
+        private Label label15;
+        private Label label17;
+        private TextBox txt_Inv_Top_X;
+        private GroupBox groupBox5;
+        private TextBox txt_Screen_Bot_Y;
+        private TextBox txt_Screen_Bot_X;
+        private TextBox txt_Screen_Top_Y;
+        private Label label14;
+        private Label label16;
+        private TextBox txt_Screen_Top_X;
+        private GroupBox groupBox4;
+        private Label label13;
+        private Label label12;
+        private Label label11;
+        private TextBox txt_Color_B;
+        private TextBox txt_Color_G;
+        private TextBox txt_Color_R;
+        private Button btnStartAlch;
+        private Button btnSetAlch;
+        private Button btn_Mine;
+        private Button btn_Auto_Attack;
+        private Button btnCanAgi;
+        private Button btn_Woodcut;
+        private Button btnRC;
+        private Button btnBarbFish;
+        private Button btnSeersAgil;
+        private Button btnPickPocket;
+        private Button btnNightmare;
+        private TabControl TabController;
+        private DataGridView dg_Clicks;
+        private Button btn_Add_Click;
+        private DataGridViewTextBoxColumn Click_Sequence;
+        private DataGridViewTextBoxColumn Click_Delay;
+        private DataGridViewTextBoxColumn Click_Type;
+        private DataGridViewTextBoxColumn Click_X;
+        private DataGridViewTextBoxColumn Click_Y;
+        private DataGridViewTextBoxColumn Click_Offset;
+        private DataGridViewTextBoxColumn Click_Color;
+        private DataGridViewTextBoxColumn Click_Image;
+        private BackgroundWorker worker_Normal_Clicks;
+        private Label label10;
+        private TextBox txt_Pixel_Skip;
+        private RadioButton radio_Long_Timeouts;
+        private RadioButton radio_Short_Timeouts;
+        private Label label25;
+        private TextBox txt_Long_Timeout_Max;
+        private TextBox txt_Long_Timeout_Min;
+        private Label label24;
+        private TextBox txt_Short_Timeout_Max;
+        private TextBox txt_Short_Timeout_Min;
+        private Label label23;
+        private Label label22;
+        private GroupBox groupBox8;
+        private Label label26;
+        private TextBox txt_Timeout_Cycle_Min;
+        private TextBox txt_Timeout_Cycle_Max;
+        private Label label9;
+        private ToolStripMenuItem clicksToolStripMenuItem;
+        private ToolStripMenuItem saveToolStripMenuItem;
+        private ToolStripMenuItem saveAsToolStripMenuItem;
+        private ToolStripMenuItem loadToolStripMenuItem;
+        private Button btn_Move_Click_Down;
+        private Button btn_Move_Click_Up;
+        private GroupBox groupBox9;
+        private Label label30;
+        private TextBox txt_Find_Color_A;
+        private Label label27;
+        private Label label28;
+        private Label label29;
+        private TextBox txt_Find_Color_B;
+        private TextBox txt_Find_Color_G;
+        private TextBox txt_Find_Color_R;
+        private Label label32;
+        private TextBox txt_Color_A_2;
+        private Label label31;
+        private TextBox txt_Color_A;
         private Point AlchPoint;
 
+        Func<string, string> CurrentFunction;
+        BackgroundWorker CurrentWorker;
 
         public MainForm()
         {
             try
             {
+                RandomTimeoutStart = 5000;
+                RandomTimeoutEnd = 30000;
                 TotalInventoryClickCount = 0;
                 CurrentInventoryClickCount = 0;
                 TimedOut = false;
@@ -187,7 +281,7 @@ namespace AutoClicker
                 Ctrl = false;
                 DropClickPos = 0;
                 ClickCountPos = 0;
-                Clicks = new List<Click>();
+                Clicks = new BindingList<Click>();
                 Inventory = new List<Point>();
                 RecordClicks = false;
                 RunProgram = false;
@@ -195,6 +289,11 @@ namespace AutoClicker
                 IterationCount = 0;
                 InfiniteLoop = false;
                 InitializeComponent();
+                this.btn_Start.Click += new System.EventHandler((sender, e) => ButtonStart(sender, e, null));
+                this.btn_Gem_Mine.Click += new System.EventHandler((sender, e) => ButtonStart(sender, e, worker_Gem_Mining));
+                this.btn_Mine.Click += new System.EventHandler((sender, e) => ButtonStart(sender, e, worker_Mining));
+                this.btn_Auto_Attack.Click += new System.EventHandler((sender, e) => ButtonStart(sender, e, worker_Auto_Attack));
+                this.btn_Woodcut.Click += new System.EventHandler((sender, e) => ButtonStart(sender, e, worker_Woodcut));
                 sliderCycles.Enabled = false;
                 ActiveLabel = lblClickSeconds;
                 ActiveSlider = sliderClicks;
@@ -206,13 +305,23 @@ namespace AutoClicker
                 AlchPoint = new Point();
                 SettingAlchPoint = false;
                 //ocr.Init(@"E:\AutoClicker\AutoClicker3\tessdata", "eng", false);
+                dg_Clicks.AutoGenerateColumns = false;
+                dg_Clicks.DataSource = Clicks;
+                dg_Clicks.Columns[0].DataPropertyName = "ClickSequence";
+                dg_Clicks.Columns[1].DataPropertyName = "DelayAfterClick";
+                dg_Clicks.Columns[2].DataPropertyName = "ClickType";
+                dg_Clicks.Columns[3].DataPropertyName = "ClickPointX";
+                dg_Clicks.Columns[4].DataPropertyName = "ClickPointY";
+                dg_Clicks.Columns[5].DataPropertyName = "ClickOffset";
+                dg_Clicks.Columns[6].DataPropertyName = "ClickColorText";
+                dg_Clicks.Columns[7].DataPropertyName = "ClickImagePath";
                 LoadInventory();
             }
             catch
             {
 
             }
-            
+
 
         }
 
@@ -224,11 +333,10 @@ namespace AutoClicker
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
             this.textBox = new System.Windows.Forms.TextBox();
             this.labelMousePosition = new System.Windows.Forms.Label();
-            this.buttonStart = new System.Windows.Forms.Button();
+            this.btn_Start = new System.Windows.Forms.Button();
             this.buttonRecord = new System.Windows.Forms.Button();
             this.LogoutTimer = new System.Windows.Forms.Timer(this.components);
             this.ClickTimer = new System.Windows.Forms.Timer(this.components);
-            this.RapidClickTimer = new System.Windows.Forms.Timer(this.components);
             this.DropTimer = new System.Windows.Forms.Timer(this.components);
             this.DrinkTimer = new System.Windows.Forms.Timer(this.components);
             this.PrayerTimer = new System.Windows.Forms.Timer(this.components);
@@ -239,23 +347,31 @@ namespace AutoClicker
             this.InvFullTimer = new System.Windows.Forms.Timer(this.components);
             this.AgilityTimer = new System.Windows.Forms.Timer(this.components);
             this.BarbFishTimer = new System.Windows.Forms.Timer(this.components);
-            this.AutoShootTimer = new System.Windows.Forms.Timer(this.components);
-            this.WoodCutTimer2 = new System.Windows.Forms.Timer(this.components);
             this.RuneCraftTimer = new System.Windows.Forms.Timer(this.components);
             this.label1 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
             this.trackLabel1 = new System.Windows.Forms.Label();
             this.lblClickSeconds = new System.Windows.Forms.Label();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
-            this.lblColorRange = new System.Windows.Forms.Label();
-            this.sliderColorRange = new System.Windows.Forms.TrackBar();
-            this.button1 = new System.Windows.Forms.Button();
-            this.groupBox3 = new System.Windows.Forms.GroupBox();
+            this.groupBox8 = new System.Windows.Forms.GroupBox();
+            this.label26 = new System.Windows.Forms.Label();
+            this.txt_Timeout_Cycle_Min = new System.Windows.Forms.TextBox();
+            this.txt_Timeout_Cycle_Max = new System.Windows.Forms.TextBox();
             this.label9 = new System.Windows.Forms.Label();
-            this.maxRandom = new System.Windows.Forms.NumericUpDown();
-            this.minRandom = new System.Windows.Forms.NumericUpDown();
-            this.lblClickOffsetNumber = new System.Windows.Forms.Label();
+            this.radio_Short_Timeouts = new System.Windows.Forms.RadioButton();
+            this.label23 = new System.Windows.Forms.Label();
             this.chkTimeOut = new System.Windows.Forms.CheckBox();
+            this.label22 = new System.Windows.Forms.Label();
+            this.radio_Long_Timeouts = new System.Windows.Forms.RadioButton();
+            this.label25 = new System.Windows.Forms.Label();
+            this.chk_End_Timeout_Only = new System.Windows.Forms.CheckBox();
+            this.txt_Long_Timeout_Max = new System.Windows.Forms.TextBox();
+            this.txt_Short_Timeout_Min = new System.Windows.Forms.TextBox();
+            this.txt_Long_Timeout_Min = new System.Windows.Forms.TextBox();
+            this.txt_Short_Timeout_Max = new System.Windows.Forms.TextBox();
+            this.label24 = new System.Windows.Forms.Label();
+            this.groupBox3 = new System.Windows.Forms.GroupBox();
+            this.lblClickOffsetNumber = new System.Windows.Forms.Label();
             this.label7 = new System.Windows.Forms.Label();
             this.lblClickOffset = new System.Windows.Forms.Label();
             this.sliderClickOffset = new System.Windows.Forms.TrackBar();
@@ -277,6 +393,11 @@ namespace AutoClicker
             this.chkDropInverse = new System.Windows.Forms.CheckBox();
             this.btnSetupInventory = new System.Windows.Forms.Button();
             this.btnSingleClickInv = new System.Windows.Forms.Button();
+            this.label10 = new System.Windows.Forms.Label();
+            this.txt_Pixel_Skip = new System.Windows.Forms.TextBox();
+            this.lblColorRange = new System.Windows.Forms.Label();
+            this.sliderColorRange = new System.Windows.Forms.TrackBar();
+            this.btn_Find_Image = new System.Windows.Forms.Button();
             this.btnHide = new System.Windows.Forms.Button();
             this.chkLog = new System.Windows.Forms.CheckBox();
             this.contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(this.components);
@@ -287,70 +408,114 @@ namespace AutoClicker
             this.saveInventoryToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.loadInventoryToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toggleLoggingToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.TabController = new System.Windows.Forms.TabControl();
-            this.Buttons = new System.Windows.Forms.TabPage();
-            this.btnStartAlch = new System.Windows.Forms.Button();
-            this.btnSetAlch = new System.Windows.Forms.Button();
-            this.btnMine = new System.Windows.Forms.Button();
-            this.btnAutoShoot = new System.Windows.Forms.Button();
-            this.btnCanAgi = new System.Windows.Forms.Button();
-            this.btnWC2 = new System.Windows.Forms.Button();
-            this.btnRC = new System.Windows.Forms.Button();
-            this.btnBarbFish = new System.Windows.Forms.Button();
-            this.btnSeersAgil = new System.Windows.Forms.Button();
-            this.btnWoodcut2 = new System.Windows.Forms.Button();
-            this.btnPickPocket = new System.Windows.Forms.Button();
-            this.btnNightmare = new System.Windows.Forms.Button();
-            this.btnTan = new System.Windows.Forms.Button();
-            this.WoodCut = new System.Windows.Forms.TabPage();
-            this.btnWoodcut = new System.Windows.Forms.Button();
-            this.tableWoodCut = new System.Windows.Forms.TableLayoutPanel();
-            this.radioMagicTree = new System.Windows.Forms.RadioButton();
-            this.radioYewTree = new System.Windows.Forms.RadioButton();
-            this.radioRegularTree = new System.Windows.Forms.RadioButton();
-            this.radioWillowTree = new System.Windows.Forms.RadioButton();
-            this.radioMapleTree = new System.Windows.Forms.RadioButton();
-            this.radioOakTree = new System.Windows.Forms.RadioButton();
-            this.pictureBox8 = new System.Windows.Forms.PictureBox();
-            this.pictureBox9 = new System.Windows.Forms.PictureBox();
-            this.pictureBox10 = new System.Windows.Forms.PictureBox();
-            this.pictureBox11 = new System.Windows.Forms.PictureBox();
-            this.pictureBox12 = new System.Windows.Forms.PictureBox();
-            this.pictureBox13 = new System.Windows.Forms.PictureBox();
-            this.Mining = new System.Windows.Forms.TabPage();
-            this.label10 = new System.Windows.Forms.Label();
-            this.button2 = new System.Windows.Forms.Button();
-            this.btnMining = new System.Windows.Forms.Button();
+            this.clicksToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.saveToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.saveAsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.loadToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.workerSeersAgility = new System.ComponentModel.BackgroundWorker();
             this.workerCanifisAgility = new System.ComponentModel.BackgroundWorker();
             this.workerBarbFish = new System.ComponentModel.BackgroundWorker();
             this.chkClicks = new System.Windows.Forms.CheckBox();
-            this.workerRC = new System.ComponentModel.BackgroundWorker();
-            this.workerMining = new System.ComponentModel.BackgroundWorker();
+            this.worker_RC = new System.ComponentModel.BackgroundWorker();
+            this.worker_Mining = new System.ComponentModel.BackgroundWorker();
+            this.worker_Gem_Mining = new System.ComponentModel.BackgroundWorker();
+            this.worker_Auto_Attack = new System.ComponentModel.BackgroundWorker();
+            this.worker_Woodcut = new System.ComponentModel.BackgroundWorker();
             this.workerAlch = new System.ComponentModel.BackgroundWorker();
+            this.ClickTab = new System.Windows.Forms.TabPage();
+            this.btn_Move_Click_Down = new System.Windows.Forms.Button();
+            this.btn_Move_Click_Up = new System.Windows.Forms.Button();
+            this.btn_Add_Click = new System.Windows.Forms.Button();
+            this.dg_Clicks = new System.Windows.Forms.DataGridView();
+            this.Click_Sequence = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.Click_Delay = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.Click_Type = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.Click_X = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.Click_Y = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.Click_Offset = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.Click_Color = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.Click_Image = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.Buttons = new System.Windows.Forms.TabPage();
+            this.groupBox9 = new System.Windows.Forms.GroupBox();
+            this.label30 = new System.Windows.Forms.Label();
+            this.txt_Find_Color_A = new System.Windows.Forms.TextBox();
+            this.label27 = new System.Windows.Forms.Label();
+            this.label28 = new System.Windows.Forms.Label();
+            this.btn_Find_Color = new System.Windows.Forms.Button();
+            this.label29 = new System.Windows.Forms.Label();
+            this.txt_Find_Color_B = new System.Windows.Forms.TextBox();
+            this.txt_Find_Color_G = new System.Windows.Forms.TextBox();
+            this.txt_Find_Color_R = new System.Windows.Forms.TextBox();
+            this.groupBox7 = new System.Windows.Forms.GroupBox();
+            this.label32 = new System.Windows.Forms.Label();
+            this.label19 = new System.Windows.Forms.Label();
+            this.txt_Color_A_2 = new System.Windows.Forms.TextBox();
+            this.label20 = new System.Windows.Forms.Label();
+            this.label21 = new System.Windows.Forms.Label();
+            this.txt_Color_B_2 = new System.Windows.Forms.TextBox();
+            this.txt_Color_G_2 = new System.Windows.Forms.TextBox();
+            this.txt_Color_R_2 = new System.Windows.Forms.TextBox();
+            this.label18 = new System.Windows.Forms.Label();
+            this.btn_Monitor_3 = new System.Windows.Forms.Button();
+            this.btn_Monitor_2 = new System.Windows.Forms.Button();
+            this.btn_Monitor_1 = new System.Windows.Forms.Button();
+            this.btn_Gem_Mine = new System.Windows.Forms.Button();
+            this.groupBox6 = new System.Windows.Forms.GroupBox();
+            this.txt_Inv_Bot_Y = new System.Windows.Forms.TextBox();
+            this.txt_Inv_Bot_X = new System.Windows.Forms.TextBox();
+            this.txt_Inv_Top_Y = new System.Windows.Forms.TextBox();
+            this.label15 = new System.Windows.Forms.Label();
+            this.label17 = new System.Windows.Forms.Label();
+            this.txt_Inv_Top_X = new System.Windows.Forms.TextBox();
+            this.groupBox5 = new System.Windows.Forms.GroupBox();
+            this.txt_Screen_Bot_Y = new System.Windows.Forms.TextBox();
+            this.txt_Screen_Bot_X = new System.Windows.Forms.TextBox();
+            this.txt_Screen_Top_Y = new System.Windows.Forms.TextBox();
+            this.label14 = new System.Windows.Forms.Label();
+            this.label16 = new System.Windows.Forms.Label();
+            this.txt_Screen_Top_X = new System.Windows.Forms.TextBox();
+            this.groupBox4 = new System.Windows.Forms.GroupBox();
+            this.label31 = new System.Windows.Forms.Label();
+            this.txt_Color_A = new System.Windows.Forms.TextBox();
+            this.label13 = new System.Windows.Forms.Label();
+            this.label12 = new System.Windows.Forms.Label();
+            this.label11 = new System.Windows.Forms.Label();
+            this.txt_Color_B = new System.Windows.Forms.TextBox();
+            this.txt_Color_G = new System.Windows.Forms.TextBox();
+            this.txt_Color_R = new System.Windows.Forms.TextBox();
+            this.btnStartAlch = new System.Windows.Forms.Button();
+            this.btnSetAlch = new System.Windows.Forms.Button();
+            this.btn_Mine = new System.Windows.Forms.Button();
+            this.btn_Auto_Attack = new System.Windows.Forms.Button();
+            this.btnCanAgi = new System.Windows.Forms.Button();
+            this.btn_Woodcut = new System.Windows.Forms.Button();
+            this.btnRC = new System.Windows.Forms.Button();
+            this.btnBarbFish = new System.Windows.Forms.Button();
+            this.btnSeersAgil = new System.Windows.Forms.Button();
+            this.btnPickPocket = new System.Windows.Forms.Button();
+            this.btnNightmare = new System.Windows.Forms.Button();
+            this.TabController = new System.Windows.Forms.TabControl();
+            this.worker_Normal_Clicks = new System.ComponentModel.BackgroundWorker();
             this.groupBox2.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.sliderColorRange)).BeginInit();
+            this.groupBox8.SuspendLayout();
             this.groupBox3.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.maxRandom)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.minRandom)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.sliderClickOffset)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numCount)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.sliderCycles)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.sliderClicks)).BeginInit();
             this.groupBox1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numInventoryCount)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.sliderColorRange)).BeginInit();
             this.menuStrip1.SuspendLayout();
-            this.TabController.SuspendLayout();
+            this.ClickTab.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.dg_Clicks)).BeginInit();
             this.Buttons.SuspendLayout();
-            this.WoodCut.SuspendLayout();
-            this.tableWoodCut.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox8)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox9)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox10)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox11)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox12)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox13)).BeginInit();
-            this.Mining.SuspendLayout();
+            this.groupBox9.SuspendLayout();
+            this.groupBox7.SuspendLayout();
+            this.groupBox6.SuspendLayout();
+            this.groupBox5.SuspendLayout();
+            this.groupBox4.SuspendLayout();
+            this.TabController.SuspendLayout();
             this.SuspendLayout();
             // 
             // textBox
@@ -364,7 +529,7 @@ namespace AutoClicker
             this.textBox.Name = "textBox";
             this.textBox.ReadOnly = true;
             this.textBox.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.textBox.Size = new System.Drawing.Size(310, 523);
+            this.textBox.Size = new System.Drawing.Size(310, 613);
             this.textBox.TabIndex = 3;
             // 
             // labelMousePosition
@@ -378,20 +543,19 @@ namespace AutoClicker
             this.labelMousePosition.Text = "labelMousePosition";
             this.labelMousePosition.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
-            // buttonStart
+            // btn_Start
             // 
-            this.buttonStart.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.buttonStart.Location = new System.Drawing.Point(446, 541);
-            this.buttonStart.Name = "buttonStart";
-            this.buttonStart.Size = new System.Drawing.Size(75, 23);
-            this.buttonStart.TabIndex = 1;
-            this.buttonStart.Text = "Start";
-            this.buttonStart.Click += new System.EventHandler(this.ButtonStart);
+            this.btn_Start.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btn_Start.Location = new System.Drawing.Point(452, 631);
+            this.btn_Start.Name = "btn_Start";
+            this.btn_Start.Size = new System.Drawing.Size(75, 23);
+            this.btn_Start.TabIndex = 1;
+            this.btn_Start.Text = "Start";
             // 
             // buttonRecord
             // 
             this.buttonRecord.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.buttonRecord.Location = new System.Drawing.Point(320, 541);
+            this.buttonRecord.Location = new System.Drawing.Point(326, 631);
             this.buttonRecord.Name = "buttonRecord";
             this.buttonRecord.Size = new System.Drawing.Size(107, 23);
             this.buttonRecord.TabIndex = 0;
@@ -406,11 +570,6 @@ namespace AutoClicker
             // ClickTimer
             // 
             this.ClickTimer.Tick += new System.EventHandler(this.ClickTimer_Tick);
-            // 
-            // RapidClickTimer
-            // 
-            this.RapidClickTimer.Interval = 1000;
-            this.RapidClickTimer.Tick += new System.EventHandler(this.RapidClickTimer_Tick);
             // 
             // DropTimer
             // 
@@ -461,16 +620,6 @@ namespace AutoClicker
             this.BarbFishTimer.Interval = 15000;
             this.BarbFishTimer.Tick += new System.EventHandler(this.BarbFishTimer_Tick);
             // 
-            // AutoShootTimer
-            // 
-            this.AutoShootTimer.Interval = 4000;
-            this.AutoShootTimer.Tick += new System.EventHandler(this.AutoShootTimer_Tick);
-            // 
-            // WoodCutTimer2
-            // 
-            this.WoodCutTimer2.Interval = 15000;
-            this.WoodCutTimer2.Tick += new System.EventHandler(this.WoodCutTimer2_Tick);
-            // 
             // RuneCraftTimer
             // 
             this.RuneCraftTimer.Interval = 79000;
@@ -482,7 +631,7 @@ namespace AutoClicker
             this.label1.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label1.Location = new System.Drawing.Point(9, 19);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(186, 16);
+            this.label1.Size = new System.Drawing.Size(185, 16);
             this.label1.TabIndex = 5;
             this.label1.Text = "Number of times to repeat";
             // 
@@ -510,62 +659,207 @@ namespace AutoClicker
             this.lblClickSeconds.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lblClickSeconds.Location = new System.Drawing.Point(327, 91);
             this.lblClickSeconds.Name = "lblClickSeconds";
-            this.lblClickSeconds.Size = new System.Drawing.Size(15, 16);
+            this.lblClickSeconds.Size = new System.Drawing.Size(14, 16);
             this.lblClickSeconds.TabIndex = 10;
             this.lblClickSeconds.Text = "1";
             // 
             // groupBox2
             // 
-            this.groupBox2.Controls.Add(this.lblColorRange);
-            this.groupBox2.Controls.Add(this.sliderColorRange);
-            this.groupBox2.Controls.Add(this.button1);
+            this.groupBox2.Controls.Add(this.groupBox8);
             this.groupBox2.Controls.Add(this.groupBox3);
             this.groupBox2.Controls.Add(this.groupBox1);
             this.groupBox2.Location = new System.Drawing.Point(320, 24);
             this.groupBox2.Name = "groupBox2";
-            this.groupBox2.Size = new System.Drawing.Size(395, 511);
+            this.groupBox2.Size = new System.Drawing.Size(395, 601);
             this.groupBox2.TabIndex = 13;
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "Settings";
             // 
-            // lblColorRange
+            // groupBox8
             // 
-            this.lblColorRange.AutoSize = true;
-            this.lblColorRange.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblColorRange.Location = new System.Drawing.Point(324, 469);
-            this.lblColorRange.Name = "lblColorRange";
-            this.lblColorRange.Size = new System.Drawing.Size(54, 20);
-            this.lblColorRange.TabIndex = 19;
-            this.lblColorRange.Text = "100%";
+            this.groupBox8.Controls.Add(this.label26);
+            this.groupBox8.Controls.Add(this.txt_Timeout_Cycle_Min);
+            this.groupBox8.Controls.Add(this.txt_Timeout_Cycle_Max);
+            this.groupBox8.Controls.Add(this.label9);
+            this.groupBox8.Controls.Add(this.radio_Short_Timeouts);
+            this.groupBox8.Controls.Add(this.label23);
+            this.groupBox8.Controls.Add(this.chkTimeOut);
+            this.groupBox8.Controls.Add(this.label22);
+            this.groupBox8.Controls.Add(this.radio_Long_Timeouts);
+            this.groupBox8.Controls.Add(this.label25);
+            this.groupBox8.Controls.Add(this.chk_End_Timeout_Only);
+            this.groupBox8.Controls.Add(this.txt_Long_Timeout_Max);
+            this.groupBox8.Controls.Add(this.txt_Short_Timeout_Min);
+            this.groupBox8.Controls.Add(this.txt_Long_Timeout_Min);
+            this.groupBox8.Controls.Add(this.txt_Short_Timeout_Max);
+            this.groupBox8.Controls.Add(this.label24);
+            this.groupBox8.Location = new System.Drawing.Point(7, 408);
+            this.groupBox8.Name = "groupBox8";
+            this.groupBox8.Size = new System.Drawing.Size(382, 187);
+            this.groupBox8.TabIndex = 42;
+            this.groupBox8.TabStop = false;
+            this.groupBox8.Text = "Timeouts";
             // 
-            // sliderColorRange
+            // label26
             // 
-            this.sliderColorRange.Location = new System.Drawing.Point(88, 460);
-            this.sliderColorRange.Maximum = 50;
-            this.sliderColorRange.Name = "sliderColorRange";
-            this.sliderColorRange.Size = new System.Drawing.Size(237, 45);
-            this.sliderColorRange.SmallChange = 5;
-            this.sliderColorRange.TabIndex = 18;
-            this.sliderColorRange.TickFrequency = 5;
-            this.sliderColorRange.Scroll += new System.EventHandler(this.sliderColorRange_Scroll);
+            this.label26.AutoSize = true;
+            this.label26.Location = new System.Drawing.Point(52, 41);
+            this.label26.Name = "label26";
+            this.label26.Size = new System.Drawing.Size(84, 13);
+            this.label26.TabIndex = 45;
+            this.label26.Text = "Every # of Cyles";
             // 
-            // button1
+            // txt_Timeout_Cycle_Min
             // 
-            this.button1.Location = new System.Drawing.Point(7, 469);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(75, 23);
-            this.button1.TabIndex = 17;
-            this.button1.Text = "Find Image";
-            this.button1.UseVisualStyleBackColor = true;
-            this.button1.Click += new System.EventHandler(this.button1_Click);
+            this.txt_Timeout_Cycle_Min.Location = new System.Drawing.Point(144, 38);
+            this.txt_Timeout_Cycle_Min.MaxLength = 6;
+            this.txt_Timeout_Cycle_Min.Name = "txt_Timeout_Cycle_Min";
+            this.txt_Timeout_Cycle_Min.Size = new System.Drawing.Size(49, 20);
+            this.txt_Timeout_Cycle_Min.TabIndex = 42;
+            this.txt_Timeout_Cycle_Min.Text = "0";
+            this.txt_Timeout_Cycle_Min.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.txt_Number_Only_KeyPress);
+            // 
+            // txt_Timeout_Cycle_Max
+            // 
+            this.txt_Timeout_Cycle_Max.Location = new System.Drawing.Point(227, 38);
+            this.txt_Timeout_Cycle_Max.MaxLength = 6;
+            this.txt_Timeout_Cycle_Max.Name = "txt_Timeout_Cycle_Max";
+            this.txt_Timeout_Cycle_Max.Size = new System.Drawing.Size(49, 20);
+            this.txt_Timeout_Cycle_Max.TabIndex = 43;
+            this.txt_Timeout_Cycle_Max.Text = "0";
+            this.txt_Timeout_Cycle_Max.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.txt_Number_Only_KeyPress);
+            // 
+            // label9
+            // 
+            this.label9.AutoSize = true;
+            this.label9.Location = new System.Drawing.Point(199, 41);
+            this.label9.Name = "label9";
+            this.label9.Size = new System.Drawing.Size(22, 13);
+            this.label9.TabIndex = 44;
+            this.label9.Text = "TO";
+            // 
+            // radio_Short_Timeouts
+            // 
+            this.radio_Short_Timeouts.AutoSize = true;
+            this.radio_Short_Timeouts.Checked = true;
+            this.radio_Short_Timeouts.Location = new System.Drawing.Point(14, 69);
+            this.radio_Short_Timeouts.Name = "radio_Short_Timeouts";
+            this.radio_Short_Timeouts.Size = new System.Drawing.Size(124, 17);
+            this.radio_Short_Timeouts.TabIndex = 38;
+            this.radio_Short_Timeouts.TabStop = true;
+            this.radio_Short_Timeouts.Text = "Short Timeouts ( ms )";
+            this.radio_Short_Timeouts.UseVisualStyleBackColor = true;
+            this.radio_Short_Timeouts.CheckedChanged += new System.EventHandler(this.radio_Short_Timeouts_CheckedChanged);
+            // 
+            // label23
+            // 
+            this.label23.AutoSize = true;
+            this.label23.Location = new System.Drawing.Point(238, 22);
+            this.label23.Name = "label23";
+            this.label23.Size = new System.Drawing.Size(30, 13);
+            this.label23.TabIndex = 41;
+            this.label23.Text = "MAX";
+            // 
+            // chkTimeOut
+            // 
+            this.chkTimeOut.AutoSize = true;
+            this.chkTimeOut.Location = new System.Drawing.Point(14, 19);
+            this.chkTimeOut.Name = "chkTimeOut";
+            this.chkTimeOut.Size = new System.Drawing.Size(125, 17);
+            this.chkTimeOut.TabIndex = 14;
+            this.chkTimeOut.Text = "Use random timeouts";
+            this.chkTimeOut.UseVisualStyleBackColor = true;
+            this.chkTimeOut.CheckedChanged += new System.EventHandler(this.chkTimeOut_CheckedChanged);
+            // 
+            // label22
+            // 
+            this.label22.AutoSize = true;
+            this.label22.Location = new System.Drawing.Point(152, 22);
+            this.label22.Name = "label22";
+            this.label22.Size = new System.Drawing.Size(27, 13);
+            this.label22.TabIndex = 40;
+            this.label22.Text = "MIN";
+            // 
+            // radio_Long_Timeouts
+            // 
+            this.radio_Long_Timeouts.AutoSize = true;
+            this.radio_Long_Timeouts.Location = new System.Drawing.Point(13, 99);
+            this.radio_Long_Timeouts.Name = "radio_Long_Timeouts";
+            this.radio_Long_Timeouts.Size = new System.Drawing.Size(123, 17);
+            this.radio_Long_Timeouts.TabIndex = 39;
+            this.radio_Long_Timeouts.Text = "Long Timeouts ( ms )";
+            this.radio_Long_Timeouts.UseVisualStyleBackColor = true;
+            // 
+            // label25
+            // 
+            this.label25.AutoSize = true;
+            this.label25.Location = new System.Drawing.Point(199, 99);
+            this.label25.Name = "label25";
+            this.label25.Size = new System.Drawing.Size(22, 13);
+            this.label25.TabIndex = 37;
+            this.label25.Text = "TO";
+            // 
+            // chk_End_Timeout_Only
+            // 
+            this.chk_End_Timeout_Only.AutoSize = true;
+            this.chk_End_Timeout_Only.Checked = true;
+            this.chk_End_Timeout_Only.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.chk_End_Timeout_Only.Location = new System.Drawing.Point(14, 128);
+            this.chk_End_Timeout_Only.Name = "chk_End_Timeout_Only";
+            this.chk_End_Timeout_Only.Size = new System.Drawing.Size(147, 17);
+            this.chk_End_Timeout_Only.TabIndex = 27;
+            this.chk_End_Timeout_Only.Text = "Timeout end of cycle only";
+            this.chk_End_Timeout_Only.UseVisualStyleBackColor = true;
+            this.chk_End_Timeout_Only.CheckedChanged += new System.EventHandler(this.chk_End_Timeout_Only_CheckedChanged);
+            // 
+            // txt_Long_Timeout_Max
+            // 
+            this.txt_Long_Timeout_Max.Location = new System.Drawing.Point(227, 96);
+            this.txt_Long_Timeout_Max.MaxLength = 6;
+            this.txt_Long_Timeout_Max.Name = "txt_Long_Timeout_Max";
+            this.txt_Long_Timeout_Max.Size = new System.Drawing.Size(49, 20);
+            this.txt_Long_Timeout_Max.TabIndex = 36;
+            this.txt_Long_Timeout_Max.Text = "240000";
+            // 
+            // txt_Short_Timeout_Min
+            // 
+            this.txt_Short_Timeout_Min.Location = new System.Drawing.Point(144, 67);
+            this.txt_Short_Timeout_Min.MaxLength = 6;
+            this.txt_Short_Timeout_Min.Name = "txt_Short_Timeout_Min";
+            this.txt_Short_Timeout_Min.Size = new System.Drawing.Size(49, 20);
+            this.txt_Short_Timeout_Min.TabIndex = 11;
+            this.txt_Short_Timeout_Min.Text = "5000";
+            // 
+            // txt_Long_Timeout_Min
+            // 
+            this.txt_Long_Timeout_Min.Location = new System.Drawing.Point(144, 96);
+            this.txt_Long_Timeout_Min.MaxLength = 6;
+            this.txt_Long_Timeout_Min.Name = "txt_Long_Timeout_Min";
+            this.txt_Long_Timeout_Min.Size = new System.Drawing.Size(49, 20);
+            this.txt_Long_Timeout_Min.TabIndex = 35;
+            this.txt_Long_Timeout_Min.Text = "30000";
+            // 
+            // txt_Short_Timeout_Max
+            // 
+            this.txt_Short_Timeout_Max.Location = new System.Drawing.Point(227, 67);
+            this.txt_Short_Timeout_Max.MaxLength = 6;
+            this.txt_Short_Timeout_Max.Name = "txt_Short_Timeout_Max";
+            this.txt_Short_Timeout_Max.Size = new System.Drawing.Size(49, 20);
+            this.txt_Short_Timeout_Max.TabIndex = 30;
+            this.txt_Short_Timeout_Max.Text = "30000";
+            // 
+            // label24
+            // 
+            this.label24.AutoSize = true;
+            this.label24.Location = new System.Drawing.Point(199, 70);
+            this.label24.Name = "label24";
+            this.label24.Size = new System.Drawing.Size(22, 13);
+            this.label24.TabIndex = 34;
+            this.label24.Text = "TO";
             // 
             // groupBox3
             // 
-            this.groupBox3.Controls.Add(this.label9);
-            this.groupBox3.Controls.Add(this.maxRandom);
-            this.groupBox3.Controls.Add(this.minRandom);
             this.groupBox3.Controls.Add(this.lblClickOffsetNumber);
-            this.groupBox3.Controls.Add(this.chkTimeOut);
             this.groupBox3.Controls.Add(this.label7);
             this.groupBox3.Controls.Add(this.lblClickOffset);
             this.groupBox3.Controls.Add(this.sliderClickOffset);
@@ -584,43 +878,10 @@ namespace AutoClicker
             this.groupBox3.Controls.Add(this.trackLabel1);
             this.groupBox3.Location = new System.Drawing.Point(6, 120);
             this.groupBox3.Name = "groupBox3";
-            this.groupBox3.Size = new System.Drawing.Size(383, 330);
+            this.groupBox3.Size = new System.Drawing.Size(383, 282);
             this.groupBox3.TabIndex = 8;
             this.groupBox3.TabStop = false;
             this.groupBox3.Text = "Clicks";
-            // 
-            // label9
-            // 
-            this.label9.AutoSize = true;
-            this.label9.Location = new System.Drawing.Point(226, 301);
-            this.label9.Name = "label9";
-            this.label9.Size = new System.Drawing.Size(22, 13);
-            this.label9.TabIndex = 26;
-            this.label9.Text = "TO";
-            // 
-            // maxRandom
-            // 
-            this.maxRandom.Location = new System.Drawing.Point(267, 299);
-            this.maxRandom.Maximum = new decimal(new int[] {
-            1000,
-            0,
-            0,
-            0});
-            this.maxRandom.Name = "maxRandom";
-            this.maxRandom.Size = new System.Drawing.Size(63, 20);
-            this.maxRandom.TabIndex = 25;
-            // 
-            // minRandom
-            // 
-            this.minRandom.Location = new System.Drawing.Point(143, 299);
-            this.minRandom.Maximum = new decimal(new int[] {
-            1000,
-            0,
-            0,
-            0});
-            this.minRandom.Name = "minRandom";
-            this.minRandom.Size = new System.Drawing.Size(69, 20);
-            this.minRandom.TabIndex = 24;
             // 
             // lblClickOffsetNumber
             // 
@@ -628,20 +889,9 @@ namespace AutoClicker
             this.lblClickOffsetNumber.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lblClickOffsetNumber.Location = new System.Drawing.Point(327, 233);
             this.lblClickOffsetNumber.Name = "lblClickOffsetNumber";
-            this.lblClickOffsetNumber.Size = new System.Drawing.Size(15, 16);
+            this.lblClickOffsetNumber.Size = new System.Drawing.Size(14, 16);
             this.lblClickOffsetNumber.TabIndex = 23;
             this.lblClickOffsetNumber.Text = "3";
-            // 
-            // chkTimeOut
-            // 
-            this.chkTimeOut.AutoSize = true;
-            this.chkTimeOut.Location = new System.Drawing.Point(12, 300);
-            this.chkTimeOut.Name = "chkTimeOut";
-            this.chkTimeOut.Size = new System.Drawing.Size(125, 17);
-            this.chkTimeOut.TabIndex = 14;
-            this.chkTimeOut.Text = "Use random timeouts";
-            this.chkTimeOut.UseVisualStyleBackColor = true;
-            this.chkTimeOut.CheckedChanged += new System.EventHandler(this.chkTimeOut_CheckedChanged);
             // 
             // label7
             // 
@@ -658,7 +908,7 @@ namespace AutoClicker
             this.lblClickOffset.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lblClickOffset.Location = new System.Drawing.Point(26, 214);
             this.lblClickOffset.Name = "lblClickOffset";
-            this.lblClickOffset.Size = new System.Drawing.Size(86, 16);
+            this.lblClickOffset.Size = new System.Drawing.Size(85, 16);
             this.lblClickOffset.TabIndex = 21;
             this.lblClickOffset.Text = "Click Offset";
             // 
@@ -709,7 +959,7 @@ namespace AutoClicker
             this.radioCycles.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.radioCycles.Location = new System.Drawing.Point(12, 140);
             this.radioCycles.Name = "radioCycles";
-            this.radioCycles.Size = new System.Drawing.Size(172, 20);
+            this.radioCycles.Size = new System.Drawing.Size(171, 20);
             this.radioCycles.TabIndex = 17;
             this.radioCycles.TabStop = true;
             this.radioCycles.Text = "Time between cycles";
@@ -722,7 +972,7 @@ namespace AutoClicker
             this.radioClicks.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.radioClicks.Location = new System.Drawing.Point(12, 64);
             this.radioClicks.Name = "radioClicks";
-            this.radioClicks.Size = new System.Drawing.Size(167, 20);
+            this.radioClicks.Size = new System.Drawing.Size(166, 20);
             this.radioClicks.TabIndex = 16;
             this.radioClicks.TabStop = true;
             this.radioClicks.Text = "Time between clicks";
@@ -735,7 +985,7 @@ namespace AutoClicker
             this.lblCycleSeconds.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lblCycleSeconds.Location = new System.Drawing.Point(329, 169);
             this.lblCycleSeconds.Name = "lblCycleSeconds";
-            this.lblCycleSeconds.Size = new System.Drawing.Size(15, 16);
+            this.lblCycleSeconds.Size = new System.Drawing.Size(14, 16);
             this.lblCycleSeconds.TabIndex = 14;
             this.lblCycleSeconds.Text = "1";
             // 
@@ -817,7 +1067,7 @@ namespace AutoClicker
             this.label4.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label4.Location = new System.Drawing.Point(9, 45);
             this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(156, 16);
+            this.label4.Size = new System.Drawing.Size(155, 16);
             this.label4.TabIndex = 24;
             this.label4.Text = "Number of inv to click";
             // 
@@ -875,9 +1125,59 @@ namespace AutoClicker
             this.btnSingleClickInv.UseVisualStyleBackColor = true;
             this.btnSingleClickInv.Click += new System.EventHandler(this.btnSingleClickInv_Click);
             // 
+            // label10
+            // 
+            this.label10.AutoSize = true;
+            this.label10.Location = new System.Drawing.Point(330, 482);
+            this.label10.Name = "label10";
+            this.label10.Size = new System.Drawing.Size(53, 13);
+            this.label10.TabIndex = 21;
+            this.label10.Text = "Pixel Skip";
+            // 
+            // txt_Pixel_Skip
+            // 
+            this.txt_Pixel_Skip.Location = new System.Drawing.Point(334, 498);
+            this.txt_Pixel_Skip.MaxLength = 3;
+            this.txt_Pixel_Skip.Name = "txt_Pixel_Skip";
+            this.txt_Pixel_Skip.Size = new System.Drawing.Size(39, 20);
+            this.txt_Pixel_Skip.TabIndex = 20;
+            this.txt_Pixel_Skip.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.txt_Number_Only_KeyPress);
+            // 
+            // lblColorRange
+            // 
+            this.lblColorRange.AutoSize = true;
+            this.lblColorRange.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblColorRange.Location = new System.Drawing.Point(274, 491);
+            this.lblColorRange.Name = "lblColorRange";
+            this.lblColorRange.Size = new System.Drawing.Size(44, 20);
+            this.lblColorRange.TabIndex = 19;
+            this.lblColorRange.Text = "90%";
+            // 
+            // sliderColorRange
+            // 
+            this.sliderColorRange.Location = new System.Drawing.Point(102, 482);
+            this.sliderColorRange.Maximum = 50;
+            this.sliderColorRange.Name = "sliderColorRange";
+            this.sliderColorRange.Size = new System.Drawing.Size(166, 45);
+            this.sliderColorRange.SmallChange = 5;
+            this.sliderColorRange.TabIndex = 18;
+            this.sliderColorRange.TickFrequency = 5;
+            this.sliderColorRange.Value = 10;
+            this.sliderColorRange.Scroll += new System.EventHandler(this.sliderColorRange_Scroll);
+            // 
+            // btn_Find_Image
+            // 
+            this.btn_Find_Image.Location = new System.Drawing.Point(21, 491);
+            this.btn_Find_Image.Name = "btn_Find_Image";
+            this.btn_Find_Image.Size = new System.Drawing.Size(75, 23);
+            this.btn_Find_Image.TabIndex = 17;
+            this.btn_Find_Image.Text = "Find Image";
+            this.btn_Find_Image.UseVisualStyleBackColor = true;
+            this.btn_Find_Image.Click += new System.EventHandler(this.btn_Find_Image_Click);
+            // 
             // btnHide
             // 
-            this.btnHide.Location = new System.Drawing.Point(543, 541);
+            this.btnHide.Location = new System.Drawing.Point(549, 631);
             this.btnHide.Name = "btnHide";
             this.btnHide.Size = new System.Drawing.Size(136, 23);
             this.btnHide.TabIndex = 15;
@@ -906,10 +1206,11 @@ namespace AutoClicker
             // menuStrip1
             // 
             this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.fileToolStripMenuItem});
+            this.fileToolStripMenuItem,
+            this.clicksToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
-            this.menuStrip1.Size = new System.Drawing.Size(1162, 24);
+            this.menuStrip1.Size = new System.Drawing.Size(1346, 24);
             this.menuStrip1.TabIndex = 15;
             this.menuStrip1.Text = "menuStrip1";
             // 
@@ -966,422 +1267,36 @@ namespace AutoClicker
             this.toggleLoggingToolStripMenuItem.Text = "Toggle Logging";
             this.toggleLoggingToolStripMenuItem.ToolTipText = "Ctrl + L";
             // 
-            // TabController
-            // 
-            this.TabController.Controls.Add(this.Buttons);
-            this.TabController.Controls.Add(this.WoodCut);
-            this.TabController.Controls.Add(this.Mining);
-            this.TabController.Location = new System.Drawing.Point(721, 28);
-            this.TabController.Name = "TabController";
-            this.TabController.SelectedIndex = 0;
-            this.TabController.Size = new System.Drawing.Size(413, 507);
-            this.TabController.TabIndex = 16;
-            // 
-            // Buttons
-            // 
-            this.Buttons.Controls.Add(this.btnStartAlch);
-            this.Buttons.Controls.Add(this.btnSetAlch);
-            this.Buttons.Controls.Add(this.btnMine);
-            this.Buttons.Controls.Add(this.btnAutoShoot);
-            this.Buttons.Controls.Add(this.btnCanAgi);
-            this.Buttons.Controls.Add(this.btnWC2);
-            this.Buttons.Controls.Add(this.btnRC);
-            this.Buttons.Controls.Add(this.btnBarbFish);
-            this.Buttons.Controls.Add(this.btnSeersAgil);
-            this.Buttons.Controls.Add(this.btnWoodcut2);
-            this.Buttons.Controls.Add(this.btnPickPocket);
-            this.Buttons.Controls.Add(this.btnNightmare);
-            this.Buttons.Controls.Add(this.btnTan);
-            this.Buttons.Location = new System.Drawing.Point(4, 22);
-            this.Buttons.Name = "Buttons";
-            this.Buttons.Size = new System.Drawing.Size(405, 481);
-            this.Buttons.TabIndex = 2;
-            this.Buttons.Text = "Buttons";
-            this.Buttons.UseVisualStyleBackColor = true;
-            // 
-            // btnStartAlch
-            // 
-            this.btnStartAlch.Location = new System.Drawing.Point(16, 349);
-            this.btnStartAlch.Name = "btnStartAlch";
-            this.btnStartAlch.Size = new System.Drawing.Size(102, 23);
-            this.btnStartAlch.TabIndex = 29;
-            this.btnStartAlch.Text = "Start Alching";
-            this.btnStartAlch.UseVisualStyleBackColor = true;
-            this.btnStartAlch.Click += new System.EventHandler(this.btnStartAlch_Click);
-            // 
-            // btnSetAlch
-            // 
-            this.btnSetAlch.Location = new System.Drawing.Point(16, 320);
-            this.btnSetAlch.Name = "btnSetAlch";
-            this.btnSetAlch.Size = new System.Drawing.Size(102, 23);
-            this.btnSetAlch.TabIndex = 28;
-            this.btnSetAlch.Text = "Set Alch Point";
-            this.btnSetAlch.UseVisualStyleBackColor = true;
-            this.btnSetAlch.Click += new System.EventHandler(this.btnSetAlch_Click);
-            // 
-            // btnMine
-            // 
-            this.btnMine.Location = new System.Drawing.Point(16, 238);
-            this.btnMine.Name = "btnMine";
-            this.btnMine.Size = new System.Drawing.Size(75, 23);
-            this.btnMine.TabIndex = 27;
-            this.btnMine.Text = "Mining";
-            this.btnMine.UseVisualStyleBackColor = true;
-            this.btnMine.Click += new System.EventHandler(this.btnMine_Click);
-            // 
-            // btnAutoShoot
-            // 
-            this.btnAutoShoot.Location = new System.Drawing.Point(134, 89);
-            this.btnAutoShoot.Name = "btnAutoShoot";
-            this.btnAutoShoot.Size = new System.Drawing.Size(75, 23);
-            this.btnAutoShoot.TabIndex = 26;
-            this.btnAutoShoot.Text = "AutoShoot";
-            this.btnAutoShoot.UseVisualStyleBackColor = true;
-            this.btnAutoShoot.Click += new System.EventHandler(this.btnAutoShoot_Click);
-            // 
-            // btnCanAgi
-            // 
-            this.btnCanAgi.Location = new System.Drawing.Point(134, 178);
-            this.btnCanAgi.Name = "btnCanAgi";
-            this.btnCanAgi.Size = new System.Drawing.Size(75, 23);
-            this.btnCanAgi.TabIndex = 25;
-            this.btnCanAgi.Text = "Canifis Agi";
-            this.btnCanAgi.UseVisualStyleBackColor = true;
-            this.btnCanAgi.Click += new System.EventHandler(this.btnCanAgi_Click);
-            // 
-            // btnWC2
-            // 
-            this.btnWC2.Location = new System.Drawing.Point(134, 51);
-            this.btnWC2.Name = "btnWC2";
-            this.btnWC2.Size = new System.Drawing.Size(75, 23);
-            this.btnWC2.TabIndex = 24;
-            this.btnWC2.Text = "Woodcut";
-            this.btnWC2.UseVisualStyleBackColor = true;
-            this.btnWC2.Click += new System.EventHandler(this.btnWC2_Click);
-            // 
-            // btnRC
-            // 
-            this.btnRC.Location = new System.Drawing.Point(16, 208);
-            this.btnRC.Name = "btnRC";
-            this.btnRC.Size = new System.Drawing.Size(75, 23);
-            this.btnRC.TabIndex = 23;
-            this.btnRC.Text = "RC";
-            this.btnRC.UseVisualStyleBackColor = true;
-            this.btnRC.Click += new System.EventHandler(this.btnRC_Click);
-            // 
-            // btnBarbFish
-            // 
-            this.btnBarbFish.Location = new System.Drawing.Point(134, 15);
-            this.btnBarbFish.Name = "btnBarbFish";
-            this.btnBarbFish.Size = new System.Drawing.Size(75, 23);
-            this.btnBarbFish.TabIndex = 22;
-            this.btnBarbFish.Text = "Barb Fish";
-            this.btnBarbFish.UseVisualStyleBackColor = true;
-            this.btnBarbFish.Click += new System.EventHandler(this.btnBarbFish_Click);
-            // 
-            // btnSeersAgil
-            // 
-            this.btnSeersAgil.Location = new System.Drawing.Point(16, 178);
-            this.btnSeersAgil.Name = "btnSeersAgil";
-            this.btnSeersAgil.Size = new System.Drawing.Size(75, 23);
-            this.btnSeersAgil.TabIndex = 21;
-            this.btnSeersAgil.Text = "Seers Agility";
-            this.btnSeersAgil.UseVisualStyleBackColor = true;
-            this.btnSeersAgil.Click += new System.EventHandler(this.btnSeersAgil_Click);
-            // 
-            // btnWoodcut2
-            // 
-            this.btnWoodcut2.Location = new System.Drawing.Point(16, 129);
-            this.btnWoodcut2.Name = "btnWoodcut2";
-            this.btnWoodcut2.Size = new System.Drawing.Size(75, 23);
-            this.btnWoodcut2.TabIndex = 20;
-            this.btnWoodcut2.Text = "Woodcut";
-            this.btnWoodcut2.UseVisualStyleBackColor = true;
-            this.btnWoodcut2.Click += new System.EventHandler(this.btnWoodcut2_Click);
-            // 
-            // btnPickPocket
-            // 
-            this.btnPickPocket.Location = new System.Drawing.Point(16, 89);
-            this.btnPickPocket.Name = "btnPickPocket";
-            this.btnPickPocket.Size = new System.Drawing.Size(75, 23);
-            this.btnPickPocket.TabIndex = 19;
-            this.btnPickPocket.Text = "Pick Pocket";
-            this.btnPickPocket.UseVisualStyleBackColor = true;
-            this.btnPickPocket.Click += new System.EventHandler(this.btnPickPocket_Click);
-            // 
-            // btnNightmare
-            // 
-            this.btnNightmare.Location = new System.Drawing.Point(16, 15);
-            this.btnNightmare.Name = "btnNightmare";
-            this.btnNightmare.Size = new System.Drawing.Size(75, 23);
-            this.btnNightmare.TabIndex = 17;
-            this.btnNightmare.Text = "Nightmare";
-            this.btnNightmare.UseVisualStyleBackColor = true;
-            this.btnNightmare.Click += new System.EventHandler(this.btnNightmare_Click);
-            // 
-            // btnTan
-            // 
-            this.btnTan.Location = new System.Drawing.Point(16, 51);
-            this.btnTan.Name = "btnTan";
-            this.btnTan.Size = new System.Drawing.Size(75, 23);
-            this.btnTan.TabIndex = 18;
-            this.btnTan.Text = "Tan Hides";
-            this.btnTan.UseVisualStyleBackColor = true;
-            this.btnTan.Click += new System.EventHandler(this.btnTan_Click);
-            // 
-            // WoodCut
-            // 
-            this.WoodCut.Controls.Add(this.btnWoodcut);
-            this.WoodCut.Controls.Add(this.tableWoodCut);
-            this.WoodCut.Location = new System.Drawing.Point(4, 22);
-            this.WoodCut.Name = "WoodCut";
-            this.WoodCut.Padding = new System.Windows.Forms.Padding(3);
-            this.WoodCut.Size = new System.Drawing.Size(405, 481);
-            this.WoodCut.TabIndex = 0;
-            this.WoodCut.Text = "Wood Cutting";
-            this.WoodCut.UseVisualStyleBackColor = true;
-            // 
-            // btnWoodcut
-            // 
-            this.btnWoodcut.Location = new System.Drawing.Point(136, 438);
-            this.btnWoodcut.Name = "btnWoodcut";
-            this.btnWoodcut.Size = new System.Drawing.Size(114, 23);
-            this.btnWoodcut.TabIndex = 1;
-            this.btnWoodcut.Text = "Start Woodcutting";
-            this.btnWoodcut.UseVisualStyleBackColor = true;
-            this.btnWoodcut.Click += new System.EventHandler(this.btnWoodcut_Click);
-            // 
-            // tableWoodCut
-            // 
-            this.tableWoodCut.AutoScroll = true;
-            this.tableWoodCut.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
-            this.tableWoodCut.CellBorderStyle = System.Windows.Forms.TableLayoutPanelCellBorderStyle.Inset;
-            this.tableWoodCut.ColumnCount = 2;
-            this.tableWoodCut.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
-            this.tableWoodCut.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
-            this.tableWoodCut.Controls.Add(this.radioMagicTree, 0, 5);
-            this.tableWoodCut.Controls.Add(this.radioYewTree, 0, 4);
-            this.tableWoodCut.Controls.Add(this.radioRegularTree, 0, 0);
-            this.tableWoodCut.Controls.Add(this.radioWillowTree, 0, 2);
-            this.tableWoodCut.Controls.Add(this.radioMapleTree, 0, 3);
-            this.tableWoodCut.Controls.Add(this.radioOakTree, 0, 1);
-            this.tableWoodCut.Controls.Add(this.pictureBox8, 1, 0);
-            this.tableWoodCut.Controls.Add(this.pictureBox9, 1, 1);
-            this.tableWoodCut.Controls.Add(this.pictureBox10, 1, 2);
-            this.tableWoodCut.Controls.Add(this.pictureBox11, 1, 3);
-            this.tableWoodCut.Controls.Add(this.pictureBox12, 1, 4);
-            this.tableWoodCut.Controls.Add(this.pictureBox13, 1, 5);
-            this.tableWoodCut.Location = new System.Drawing.Point(6, 6);
-            this.tableWoodCut.MaximumSize = new System.Drawing.Size(405, 469);
-            this.tableWoodCut.Name = "tableWoodCut";
-            this.tableWoodCut.Padding = new System.Windows.Forms.Padding(0, 0, 3, 0);
-            this.tableWoodCut.RowCount = 6;
-            this.tableWoodCut.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 150F));
-            this.tableWoodCut.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 150F));
-            this.tableWoodCut.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 150F));
-            this.tableWoodCut.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 150F));
-            this.tableWoodCut.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 150F));
-            this.tableWoodCut.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 150F));
-            this.tableWoodCut.Size = new System.Drawing.Size(393, 418);
-            this.tableWoodCut.TabIndex = 0;
-            // 
-            // radioMagicTree
-            // 
-            this.radioMagicTree.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left)));
-            this.radioMagicTree.AutoSize = true;
-            this.radioMagicTree.Location = new System.Drawing.Point(5, 765);
-            this.radioMagicTree.Name = "radioMagicTree";
-            this.radioMagicTree.Size = new System.Drawing.Size(79, 144);
-            this.radioMagicTree.TabIndex = 10;
-            this.radioMagicTree.TabStop = true;
-            this.radioMagicTree.Text = "Magic Tree";
-            this.radioMagicTree.UseVisualStyleBackColor = true;
-            // 
-            // radioYewTree
-            // 
-            this.radioYewTree.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left)));
-            this.radioYewTree.AutoSize = true;
-            this.radioYewTree.Location = new System.Drawing.Point(5, 613);
-            this.radioYewTree.Name = "radioYewTree";
-            this.radioYewTree.Size = new System.Drawing.Size(71, 144);
-            this.radioYewTree.TabIndex = 5;
-            this.radioYewTree.TabStop = true;
-            this.radioYewTree.Text = "Yew Tree";
-            this.radioYewTree.UseVisualStyleBackColor = true;
-            // 
-            // radioRegularTree
-            // 
-            this.radioRegularTree.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.radioRegularTree.AutoSize = true;
-            this.radioRegularTree.Checked = true;
-            this.radioRegularTree.Location = new System.Drawing.Point(5, 5);
-            this.radioRegularTree.Name = "radioRegularTree";
-            this.radioRegularTree.Size = new System.Drawing.Size(179, 144);
-            this.radioRegularTree.TabIndex = 0;
-            this.radioRegularTree.TabStop = true;
-            this.radioRegularTree.Text = "Regular Tree";
-            this.radioRegularTree.UseVisualStyleBackColor = true;
-            // 
-            // radioWillowTree
-            // 
-            this.radioWillowTree.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left)));
-            this.radioWillowTree.AutoSize = true;
-            this.radioWillowTree.Location = new System.Drawing.Point(5, 309);
-            this.radioWillowTree.Name = "radioWillowTree";
-            this.radioWillowTree.Size = new System.Drawing.Size(81, 144);
-            this.radioWillowTree.TabIndex = 3;
-            this.radioWillowTree.TabStop = true;
-            this.radioWillowTree.Text = "Willow Tree";
-            this.radioWillowTree.UseVisualStyleBackColor = true;
-            // 
-            // radioMapleTree
-            // 
-            this.radioMapleTree.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left)));
-            this.radioMapleTree.AutoSize = true;
-            this.radioMapleTree.Location = new System.Drawing.Point(5, 461);
-            this.radioMapleTree.Name = "radioMapleTree";
-            this.radioMapleTree.Size = new System.Drawing.Size(79, 144);
-            this.radioMapleTree.TabIndex = 4;
-            this.radioMapleTree.TabStop = true;
-            this.radioMapleTree.Text = "Maple Tree";
-            this.radioMapleTree.UseVisualStyleBackColor = true;
-            // 
-            // radioOakTree
-            // 
-            this.radioOakTree.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left)));
-            this.radioOakTree.AutoSize = true;
-            this.radioOakTree.Location = new System.Drawing.Point(5, 157);
-            this.radioOakTree.Name = "radioOakTree";
-            this.radioOakTree.Size = new System.Drawing.Size(70, 144);
-            this.radioOakTree.TabIndex = 2;
-            this.radioOakTree.TabStop = true;
-            this.radioOakTree.Text = "Oak Tree";
-            this.radioOakTree.UseVisualStyleBackColor = true;
-            // 
-            // pictureBox8
-            // 
-            this.pictureBox8.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.pictureBox8.Image = ((System.Drawing.Image)(resources.GetObject("pictureBox8.Image")));
-            this.pictureBox8.Location = new System.Drawing.Point(192, 5);
-            this.pictureBox8.Name = "pictureBox8";
-            this.pictureBox8.Size = new System.Drawing.Size(179, 144);
-            this.pictureBox8.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
-            this.pictureBox8.TabIndex = 12;
-            this.pictureBox8.TabStop = false;
-            // 
-            // pictureBox9
-            // 
-            this.pictureBox9.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.pictureBox9.Image = ((System.Drawing.Image)(resources.GetObject("pictureBox9.Image")));
-            this.pictureBox9.Location = new System.Drawing.Point(192, 157);
-            this.pictureBox9.Name = "pictureBox9";
-            this.pictureBox9.Size = new System.Drawing.Size(179, 144);
-            this.pictureBox9.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
-            this.pictureBox9.TabIndex = 13;
-            this.pictureBox9.TabStop = false;
-            // 
-            // pictureBox10
-            // 
-            this.pictureBox10.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.pictureBox10.Image = ((System.Drawing.Image)(resources.GetObject("pictureBox10.Image")));
-            this.pictureBox10.Location = new System.Drawing.Point(192, 309);
-            this.pictureBox10.Name = "pictureBox10";
-            this.pictureBox10.Size = new System.Drawing.Size(179, 144);
-            this.pictureBox10.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
-            this.pictureBox10.TabIndex = 14;
-            this.pictureBox10.TabStop = false;
-            // 
-            // pictureBox11
-            // 
-            this.pictureBox11.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.pictureBox11.Image = ((System.Drawing.Image)(resources.GetObject("pictureBox11.Image")));
-            this.pictureBox11.Location = new System.Drawing.Point(192, 461);
-            this.pictureBox11.Name = "pictureBox11";
-            this.pictureBox11.Size = new System.Drawing.Size(179, 144);
-            this.pictureBox11.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
-            this.pictureBox11.TabIndex = 15;
-            this.pictureBox11.TabStop = false;
-            // 
-            // pictureBox12
-            // 
-            this.pictureBox12.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.pictureBox12.Image = ((System.Drawing.Image)(resources.GetObject("pictureBox12.Image")));
-            this.pictureBox12.Location = new System.Drawing.Point(192, 613);
-            this.pictureBox12.Name = "pictureBox12";
-            this.pictureBox12.Size = new System.Drawing.Size(179, 144);
-            this.pictureBox12.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
-            this.pictureBox12.TabIndex = 16;
-            this.pictureBox12.TabStop = false;
-            // 
-            // pictureBox13
-            // 
-            this.pictureBox13.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.pictureBox13.Image = ((System.Drawing.Image)(resources.GetObject("pictureBox13.Image")));
-            this.pictureBox13.Location = new System.Drawing.Point(192, 765);
-            this.pictureBox13.Name = "pictureBox13";
-            this.pictureBox13.Size = new System.Drawing.Size(179, 144);
-            this.pictureBox13.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
-            this.pictureBox13.TabIndex = 17;
-            this.pictureBox13.TabStop = false;
-            // 
-            // Mining
-            // 
-            this.Mining.Controls.Add(this.label10);
-            this.Mining.Controls.Add(this.button2);
-            this.Mining.Controls.Add(this.btnMining);
-            this.Mining.Location = new System.Drawing.Point(4, 22);
-            this.Mining.Name = "Mining";
-            this.Mining.Padding = new System.Windows.Forms.Padding(3);
-            this.Mining.Size = new System.Drawing.Size(405, 481);
-            this.Mining.TabIndex = 1;
-            this.Mining.Text = "Mining";
-            this.Mining.UseVisualStyleBackColor = true;
-            // 
-            // label10
-            // 
-            this.label10.AutoSize = true;
-            this.label10.Location = new System.Drawing.Point(200, 30);
-            this.label10.Name = "label10";
-            this.label10.Size = new System.Drawing.Size(63, 13);
-            this.label10.TabIndex = 5;
-            this.label10.Text = "lblInvCheck";
-            // 
-            // button2
-            // 
-            this.button2.Location = new System.Drawing.Point(26, 25);
-            this.button2.Name = "button2";
-            this.button2.Size = new System.Drawing.Size(154, 23);
-            this.button2.TabIndex = 4;
-            this.button2.Text = "Set Inv Check For Drop";
-            this.button2.UseVisualStyleBackColor = true;
-            // 
-            // btnMining
-            // 
-            this.btnMining.Location = new System.Drawing.Point(141, 256);
-            this.btnMining.Name = "btnMining";
-            this.btnMining.Size = new System.Drawing.Size(114, 23);
-            this.btnMining.TabIndex = 3;
-            this.btnMining.Text = "Start Mining";
-            this.btnMining.UseVisualStyleBackColor = true;
+            // clicksToolStripMenuItem
+            // 
+            this.clicksToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.saveToolStripMenuItem,
+            this.saveAsToolStripMenuItem,
+            this.loadToolStripMenuItem});
+            this.clicksToolStripMenuItem.Name = "clicksToolStripMenuItem";
+            this.clicksToolStripMenuItem.Size = new System.Drawing.Size(50, 20);
+            this.clicksToolStripMenuItem.Text = "Clicks";
+            // 
+            // saveToolStripMenuItem
+            // 
+            this.saveToolStripMenuItem.Name = "saveToolStripMenuItem";
+            this.saveToolStripMenuItem.Size = new System.Drawing.Size(114, 22);
+            this.saveToolStripMenuItem.Text = "Save";
+            this.saveToolStripMenuItem.Click += new System.EventHandler(this.saveToolStripMenuItem_Click);
+            // 
+            // saveAsToolStripMenuItem
+            // 
+            this.saveAsToolStripMenuItem.Name = "saveAsToolStripMenuItem";
+            this.saveAsToolStripMenuItem.Size = new System.Drawing.Size(114, 22);
+            this.saveAsToolStripMenuItem.Text = "Save As";
+            this.saveAsToolStripMenuItem.Click += new System.EventHandler(this.saveAsToolStripMenuItem_Click);
+            // 
+            // loadToolStripMenuItem
+            // 
+            this.loadToolStripMenuItem.Name = "loadToolStripMenuItem";
+            this.loadToolStripMenuItem.Size = new System.Drawing.Size(114, 22);
+            this.loadToolStripMenuItem.Text = "Load";
+            this.loadToolStripMenuItem.Click += new System.EventHandler(this.loadToolStripMenuItem_Click);
             // 
             // workerSeersAgility
             // 
@@ -1417,17 +1332,29 @@ namespace AutoClicker
             this.chkClicks.UseVisualStyleBackColor = true;
             this.chkClicks.CheckedChanged += new System.EventHandler(this.chkClicks_CheckedChanged);
             // 
-            // workerRC
+            // worker_RC
             // 
-            this.workerRC.WorkerReportsProgress = true;
-            this.workerRC.WorkerSupportsCancellation = true;
-            this.workerRC.DoWork += new System.ComponentModel.DoWorkEventHandler(this.workerRC_DoWork);
+            this.worker_RC.WorkerReportsProgress = true;
+            this.worker_RC.WorkerSupportsCancellation = true;
+            this.worker_RC.DoWork += new System.ComponentModel.DoWorkEventHandler(this.worker_RC_DoWork);
             // 
-            // workerMining
+            // worker_Mining
             // 
-            this.workerMining.WorkerReportsProgress = true;
-            this.workerMining.WorkerSupportsCancellation = true;
-            this.workerMining.DoWork += new System.ComponentModel.DoWorkEventHandler(this.workerMining_DoWork);
+            this.worker_Mining.WorkerReportsProgress = true;
+            this.worker_Mining.WorkerSupportsCancellation = true;
+            this.worker_Mining.DoWork += new System.ComponentModel.DoWorkEventHandler(this.worker_Mining_DoWork);
+            // 
+            // worker_Gem_Mining
+            // 
+            this.worker_Gem_Mining.WorkerReportsProgress = true;
+            this.worker_Gem_Mining.WorkerSupportsCancellation = true;
+            this.worker_Gem_Mining.DoWork += new System.ComponentModel.DoWorkEventHandler(this.worker_Gem_Mining_DoWork);
+            // 
+            // worker_Auto_Attack
+            // 
+            this.worker_Auto_Attack.WorkerReportsProgress = true;
+            this.worker_Auto_Attack.WorkerSupportsCancellation = true;
+            this.worker_Auto_Attack.DoWork += new System.ComponentModel.DoWorkEventHandler(this.worker_Auto_Attack_DoWork);
             // 
             // workerAlch
             // 
@@ -1435,10 +1362,743 @@ namespace AutoClicker
             this.workerAlch.WorkerSupportsCancellation = true;
             this.workerAlch.DoWork += new System.ComponentModel.DoWorkEventHandler(this.workerAlch_DoWork);
             // 
+            // ClickTab
+            // 
+            this.ClickTab.Controls.Add(this.btn_Move_Click_Down);
+            this.ClickTab.Controls.Add(this.btn_Move_Click_Up);
+            this.ClickTab.Controls.Add(this.btn_Add_Click);
+            this.ClickTab.Controls.Add(this.dg_Clicks);
+            this.ClickTab.Location = new System.Drawing.Point(4, 22);
+            this.ClickTab.Name = "ClickTab";
+            this.ClickTab.Padding = new System.Windows.Forms.Padding(3);
+            this.ClickTab.Size = new System.Drawing.Size(605, 544);
+            this.ClickTab.TabIndex = 3;
+            this.ClickTab.Text = "Clicks";
+            this.ClickTab.UseVisualStyleBackColor = true;
+            // 
+            // btn_Move_Click_Down
+            // 
+            this.btn_Move_Click_Down.Location = new System.Drawing.Point(270, 481);
+            this.btn_Move_Click_Down.Name = "btn_Move_Click_Down";
+            this.btn_Move_Click_Down.Size = new System.Drawing.Size(38, 23);
+            this.btn_Move_Click_Down.TabIndex = 3;
+            this.btn_Move_Click_Down.Text = "↓";
+            this.btn_Move_Click_Down.UseVisualStyleBackColor = true;
+            this.btn_Move_Click_Down.Click += new System.EventHandler(this.btn_Move_Click_Down_Click);
+            // 
+            // btn_Move_Click_Up
+            // 
+            this.btn_Move_Click_Up.Location = new System.Drawing.Point(226, 481);
+            this.btn_Move_Click_Up.Name = "btn_Move_Click_Up";
+            this.btn_Move_Click_Up.Size = new System.Drawing.Size(38, 23);
+            this.btn_Move_Click_Up.TabIndex = 2;
+            this.btn_Move_Click_Up.Text = "↑";
+            this.btn_Move_Click_Up.UseVisualStyleBackColor = true;
+            this.btn_Move_Click_Up.Click += new System.EventHandler(this.btn_Move_Click_Up_Click);
+            // 
+            // btn_Add_Click
+            // 
+            this.btn_Add_Click.Location = new System.Drawing.Point(17, 481);
+            this.btn_Add_Click.Name = "btn_Add_Click";
+            this.btn_Add_Click.Size = new System.Drawing.Size(75, 23);
+            this.btn_Add_Click.TabIndex = 1;
+            this.btn_Add_Click.Text = "Add";
+            this.btn_Add_Click.UseVisualStyleBackColor = true;
+            this.btn_Add_Click.Click += new System.EventHandler(this.btn_Add_Click_Click);
+            // 
+            // dg_Clicks
+            // 
+            this.dg_Clicks.AllowUserToResizeRows = false;
+            this.dg_Clicks.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.dg_Clicks.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
+            this.Click_Sequence,
+            this.Click_Delay,
+            this.Click_Type,
+            this.Click_X,
+            this.Click_Y,
+            this.Click_Offset,
+            this.Click_Color,
+            this.Click_Image});
+            this.dg_Clicks.Location = new System.Drawing.Point(3, 6);
+            this.dg_Clicks.MultiSelect = false;
+            this.dg_Clicks.Name = "dg_Clicks";
+            this.dg_Clicks.RowHeadersWidth = 25;
+            this.dg_Clicks.Size = new System.Drawing.Size(594, 469);
+            this.dg_Clicks.TabIndex = 0;
+            // 
+            // Click_Sequence
+            // 
+            this.Click_Sequence.HeaderText = "#";
+            this.Click_Sequence.Name = "Click_Sequence";
+            this.Click_Sequence.Width = 30;
+            // 
+            // Click_Delay
+            // 
+            this.Click_Delay.HeaderText = "Delay";
+            this.Click_Delay.Name = "Click_Delay";
+            this.Click_Delay.Width = 60;
+            // 
+            // Click_Type
+            // 
+            this.Click_Type.HeaderText = "Button";
+            this.Click_Type.Name = "Click_Type";
+            this.Click_Type.Width = 50;
+            // 
+            // Click_X
+            // 
+            this.Click_X.HeaderText = "X";
+            this.Click_X.Name = "Click_X";
+            this.Click_X.Width = 50;
+            // 
+            // Click_Y
+            // 
+            this.Click_Y.HeaderText = "Y";
+            this.Click_Y.Name = "Click_Y";
+            this.Click_Y.Width = 50;
+            // 
+            // Click_Offset
+            // 
+            this.Click_Offset.HeaderText = "Offset";
+            this.Click_Offset.Name = "Click_Offset";
+            this.Click_Offset.Width = 50;
+            // 
+            // Click_Color
+            // 
+            this.Click_Color.HeaderText = "RGB (x,x,x)";
+            this.Click_Color.Name = "Click_Color";
+            // 
+            // Click_Image
+            // 
+            this.Click_Image.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
+            this.Click_Image.HeaderText = "Image";
+            this.Click_Image.Name = "Click_Image";
+            // 
+            // Buttons
+            // 
+            this.Buttons.Controls.Add(this.groupBox9);
+            this.Buttons.Controls.Add(this.label10);
+            this.Buttons.Controls.Add(this.txt_Pixel_Skip);
+            this.Buttons.Controls.Add(this.groupBox7);
+            this.Buttons.Controls.Add(this.lblColorRange);
+            this.Buttons.Controls.Add(this.label18);
+            this.Buttons.Controls.Add(this.sliderColorRange);
+            this.Buttons.Controls.Add(this.btn_Find_Image);
+            this.Buttons.Controls.Add(this.btn_Monitor_3);
+            this.Buttons.Controls.Add(this.btn_Monitor_2);
+            this.Buttons.Controls.Add(this.btn_Monitor_1);
+            this.Buttons.Controls.Add(this.btn_Gem_Mine);
+            this.Buttons.Controls.Add(this.groupBox6);
+            this.Buttons.Controls.Add(this.groupBox5);
+            this.Buttons.Controls.Add(this.groupBox4);
+            this.Buttons.Controls.Add(this.btnStartAlch);
+            this.Buttons.Controls.Add(this.btnSetAlch);
+            this.Buttons.Controls.Add(this.btn_Mine);
+            this.Buttons.Controls.Add(this.btn_Auto_Attack);
+            this.Buttons.Controls.Add(this.btnCanAgi);
+            this.Buttons.Controls.Add(this.btn_Woodcut);
+            this.Buttons.Controls.Add(this.btnRC);
+            this.Buttons.Controls.Add(this.btnBarbFish);
+            this.Buttons.Controls.Add(this.btnSeersAgil);
+            this.Buttons.Controls.Add(this.btnPickPocket);
+            this.Buttons.Controls.Add(this.btnNightmare);
+            this.Buttons.Location = new System.Drawing.Point(4, 22);
+            this.Buttons.Name = "Buttons";
+            this.Buttons.Size = new System.Drawing.Size(605, 544);
+            this.Buttons.TabIndex = 2;
+            this.Buttons.Text = "Buttons";
+            this.Buttons.UseVisualStyleBackColor = true;
+            // 
+            // groupBox9
+            // 
+            this.groupBox9.Controls.Add(this.label30);
+            this.groupBox9.Controls.Add(this.txt_Find_Color_A);
+            this.groupBox9.Controls.Add(this.label27);
+            this.groupBox9.Controls.Add(this.label28);
+            this.groupBox9.Controls.Add(this.btn_Find_Color);
+            this.groupBox9.Controls.Add(this.label29);
+            this.groupBox9.Controls.Add(this.txt_Find_Color_B);
+            this.groupBox9.Controls.Add(this.txt_Find_Color_G);
+            this.groupBox9.Controls.Add(this.txt_Find_Color_R);
+            this.groupBox9.Location = new System.Drawing.Point(200, 178);
+            this.groupBox9.Name = "groupBox9";
+            this.groupBox9.Size = new System.Drawing.Size(189, 106);
+            this.groupBox9.TabIndex = 31;
+            this.groupBox9.TabStop = false;
+            this.groupBox9.Text = "Find Color";
+            // 
+            // label30
+            // 
+            this.label30.AutoSize = true;
+            this.label30.Location = new System.Drawing.Point(146, 23);
+            this.label30.Name = "label30";
+            this.label30.Size = new System.Drawing.Size(14, 13);
+            this.label30.TabIndex = 40;
+            this.label30.Text = "A";
+            // 
+            // txt_Find_Color_A
+            // 
+            this.txt_Find_Color_A.Enabled = false;
+            this.txt_Find_Color_A.Location = new System.Drawing.Point(139, 40);
+            this.txt_Find_Color_A.MaxLength = 3;
+            this.txt_Find_Color_A.Name = "txt_Find_Color_A";
+            this.txt_Find_Color_A.Size = new System.Drawing.Size(35, 20);
+            this.txt_Find_Color_A.TabIndex = 39;
+            // 
+            // label27
+            // 
+            this.label27.AutoSize = true;
+            this.label27.Location = new System.Drawing.Point(107, 23);
+            this.label27.Name = "label27";
+            this.label27.Size = new System.Drawing.Size(14, 13);
+            this.label27.TabIndex = 5;
+            this.label27.Text = "B";
+            // 
+            // label28
+            // 
+            this.label28.AutoSize = true;
+            this.label28.Location = new System.Drawing.Point(65, 22);
+            this.label28.Name = "label28";
+            this.label28.Size = new System.Drawing.Size(15, 13);
+            this.label28.TabIndex = 4;
+            this.label28.Text = "G";
+            // 
+            // btn_Find_Color
+            // 
+            this.btn_Find_Color.Location = new System.Drawing.Point(58, 66);
+            this.btn_Find_Color.Name = "btn_Find_Color";
+            this.btn_Find_Color.Size = new System.Drawing.Size(75, 23);
+            this.btn_Find_Color.TabIndex = 38;
+            this.btn_Find_Color.Text = "Find Color";
+            this.btn_Find_Color.UseVisualStyleBackColor = true;
+            this.btn_Find_Color.Click += new System.EventHandler(this.btn_Find_Color_Click);
+            // 
+            // label29
+            // 
+            this.label29.AutoSize = true;
+            this.label29.Location = new System.Drawing.Point(27, 23);
+            this.label29.Name = "label29";
+            this.label29.Size = new System.Drawing.Size(15, 13);
+            this.label29.TabIndex = 3;
+            this.label29.Text = "R";
+            // 
+            // txt_Find_Color_B
+            // 
+            this.txt_Find_Color_B.Enabled = false;
+            this.txt_Find_Color_B.Location = new System.Drawing.Point(98, 40);
+            this.txt_Find_Color_B.MaxLength = 3;
+            this.txt_Find_Color_B.Name = "txt_Find_Color_B";
+            this.txt_Find_Color_B.Size = new System.Drawing.Size(35, 20);
+            this.txt_Find_Color_B.TabIndex = 2;
+            // 
+            // txt_Find_Color_G
+            // 
+            this.txt_Find_Color_G.Enabled = false;
+            this.txt_Find_Color_G.Location = new System.Drawing.Point(57, 40);
+            this.txt_Find_Color_G.MaxLength = 3;
+            this.txt_Find_Color_G.Name = "txt_Find_Color_G";
+            this.txt_Find_Color_G.Size = new System.Drawing.Size(35, 20);
+            this.txt_Find_Color_G.TabIndex = 1;
+            // 
+            // txt_Find_Color_R
+            // 
+            this.txt_Find_Color_R.Enabled = false;
+            this.txt_Find_Color_R.Location = new System.Drawing.Point(16, 40);
+            this.txt_Find_Color_R.MaxLength = 3;
+            this.txt_Find_Color_R.Name = "txt_Find_Color_R";
+            this.txt_Find_Color_R.Size = new System.Drawing.Size(35, 20);
+            this.txt_Find_Color_R.TabIndex = 0;
+            // 
+            // groupBox7
+            // 
+            this.groupBox7.Controls.Add(this.label32);
+            this.groupBox7.Controls.Add(this.label19);
+            this.groupBox7.Controls.Add(this.txt_Color_A_2);
+            this.groupBox7.Controls.Add(this.label20);
+            this.groupBox7.Controls.Add(this.label21);
+            this.groupBox7.Controls.Add(this.txt_Color_B_2);
+            this.groupBox7.Controls.Add(this.txt_Color_G_2);
+            this.groupBox7.Controls.Add(this.txt_Color_R_2);
+            this.groupBox7.Location = new System.Drawing.Point(200, 94);
+            this.groupBox7.Name = "groupBox7";
+            this.groupBox7.Size = new System.Drawing.Size(189, 73);
+            this.groupBox7.TabIndex = 31;
+            this.groupBox7.TabStop = false;
+            this.groupBox7.Text = "Secondary Color";
+            // 
+            // label32
+            // 
+            this.label32.AutoSize = true;
+            this.label32.Location = new System.Drawing.Point(145, 24);
+            this.label32.Name = "label32";
+            this.label32.Size = new System.Drawing.Size(14, 13);
+            this.label32.TabIndex = 9;
+            this.label32.Text = "A";
+            // 
+            // label19
+            // 
+            this.label19.AutoSize = true;
+            this.label19.Location = new System.Drawing.Point(107, 23);
+            this.label19.Name = "label19";
+            this.label19.Size = new System.Drawing.Size(14, 13);
+            this.label19.TabIndex = 5;
+            this.label19.Text = "B";
+            // 
+            // txt_Color_A_2
+            // 
+            this.txt_Color_A_2.Location = new System.Drawing.Point(139, 40);
+            this.txt_Color_A_2.MaxLength = 3;
+            this.txt_Color_A_2.Name = "txt_Color_A_2";
+            this.txt_Color_A_2.Size = new System.Drawing.Size(35, 20);
+            this.txt_Color_A_2.TabIndex = 8;
+            // 
+            // label20
+            // 
+            this.label20.AutoSize = true;
+            this.label20.Location = new System.Drawing.Point(65, 22);
+            this.label20.Name = "label20";
+            this.label20.Size = new System.Drawing.Size(15, 13);
+            this.label20.TabIndex = 4;
+            this.label20.Text = "G";
+            // 
+            // label21
+            // 
+            this.label21.AutoSize = true;
+            this.label21.Location = new System.Drawing.Point(27, 23);
+            this.label21.Name = "label21";
+            this.label21.Size = new System.Drawing.Size(15, 13);
+            this.label21.TabIndex = 3;
+            this.label21.Text = "R";
+            // 
+            // txt_Color_B_2
+            // 
+            this.txt_Color_B_2.Location = new System.Drawing.Point(98, 40);
+            this.txt_Color_B_2.MaxLength = 3;
+            this.txt_Color_B_2.Name = "txt_Color_B_2";
+            this.txt_Color_B_2.Size = new System.Drawing.Size(35, 20);
+            this.txt_Color_B_2.TabIndex = 2;
+            this.txt_Color_B_2.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.txt_Number_Only_KeyPress);
+            // 
+            // txt_Color_G_2
+            // 
+            this.txt_Color_G_2.Location = new System.Drawing.Point(57, 40);
+            this.txt_Color_G_2.MaxLength = 3;
+            this.txt_Color_G_2.Name = "txt_Color_G_2";
+            this.txt_Color_G_2.Size = new System.Drawing.Size(35, 20);
+            this.txt_Color_G_2.TabIndex = 1;
+            this.txt_Color_G_2.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.txt_Number_Only_KeyPress);
+            // 
+            // txt_Color_R_2
+            // 
+            this.txt_Color_R_2.Location = new System.Drawing.Point(16, 40);
+            this.txt_Color_R_2.MaxLength = 3;
+            this.txt_Color_R_2.Name = "txt_Color_R_2";
+            this.txt_Color_R_2.Size = new System.Drawing.Size(35, 20);
+            this.txt_Color_R_2.TabIndex = 0;
+            this.txt_Color_R_2.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.txt_Number_Only_KeyPress);
+            // 
+            // label18
+            // 
+            this.label18.AutoSize = true;
+            this.label18.Location = new System.Drawing.Point(55, 411);
+            this.label18.Name = "label18";
+            this.label18.Size = new System.Drawing.Size(42, 13);
+            this.label18.TabIndex = 37;
+            this.label18.Text = "Monitor";
+            // 
+            // btn_Monitor_3
+            // 
+            this.btn_Monitor_3.Location = new System.Drawing.Point(102, 434);
+            this.btn_Monitor_3.Name = "btn_Monitor_3";
+            this.btn_Monitor_3.Size = new System.Drawing.Size(37, 23);
+            this.btn_Monitor_3.TabIndex = 36;
+            this.btn_Monitor_3.Text = "3";
+            this.btn_Monitor_3.UseVisualStyleBackColor = true;
+            this.btn_Monitor_3.Click += new System.EventHandler(this.btn_Monitor_3_Click);
+            // 
+            // btn_Monitor_2
+            // 
+            this.btn_Monitor_2.Location = new System.Drawing.Point(59, 434);
+            this.btn_Monitor_2.Name = "btn_Monitor_2";
+            this.btn_Monitor_2.Size = new System.Drawing.Size(37, 23);
+            this.btn_Monitor_2.TabIndex = 35;
+            this.btn_Monitor_2.Text = "2";
+            this.btn_Monitor_2.UseVisualStyleBackColor = true;
+            this.btn_Monitor_2.Click += new System.EventHandler(this.btn_Monitor_2_Click);
+            // 
+            // btn_Monitor_1
+            // 
+            this.btn_Monitor_1.Location = new System.Drawing.Point(16, 434);
+            this.btn_Monitor_1.Name = "btn_Monitor_1";
+            this.btn_Monitor_1.Size = new System.Drawing.Size(37, 23);
+            this.btn_Monitor_1.TabIndex = 34;
+            this.btn_Monitor_1.Text = "1";
+            this.btn_Monitor_1.UseVisualStyleBackColor = true;
+            this.btn_Monitor_1.Click += new System.EventHandler(this.btn_Monitor_1_Click);
+            // 
+            // btn_Gem_Mine
+            // 
+            this.btn_Gem_Mine.Location = new System.Drawing.Point(16, 268);
+            this.btn_Gem_Mine.Name = "btn_Gem_Mine";
+            this.btn_Gem_Mine.Size = new System.Drawing.Size(75, 23);
+            this.btn_Gem_Mine.TabIndex = 33;
+            this.btn_Gem_Mine.Text = "Gem Mine";
+            this.btn_Gem_Mine.UseVisualStyleBackColor = true;
+            // 
+            // groupBox6
+            // 
+            this.groupBox6.Controls.Add(this.txt_Inv_Bot_Y);
+            this.groupBox6.Controls.Add(this.txt_Inv_Bot_X);
+            this.groupBox6.Controls.Add(this.txt_Inv_Top_Y);
+            this.groupBox6.Controls.Add(this.label15);
+            this.groupBox6.Controls.Add(this.label17);
+            this.groupBox6.Controls.Add(this.txt_Inv_Top_X);
+            this.groupBox6.Location = new System.Drawing.Point(395, 137);
+            this.groupBox6.Name = "groupBox6";
+            this.groupBox6.Size = new System.Drawing.Size(189, 115);
+            this.groupBox6.TabIndex = 32;
+            this.groupBox6.TabStop = false;
+            this.groupBox6.Text = "Inventory Coords";
+            // 
+            // txt_Inv_Bot_Y
+            // 
+            this.txt_Inv_Bot_Y.Location = new System.Drawing.Point(72, 89);
+            this.txt_Inv_Bot_Y.MaxLength = 5;
+            this.txt_Inv_Bot_Y.Name = "txt_Inv_Bot_Y";
+            this.txt_Inv_Bot_Y.Size = new System.Drawing.Size(49, 20);
+            this.txt_Inv_Bot_Y.TabIndex = 10;
+            this.txt_Inv_Bot_Y.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.txt_Number_Only_KeyPress);
+            // 
+            // txt_Inv_Bot_X
+            // 
+            this.txt_Inv_Bot_X.Location = new System.Drawing.Point(16, 89);
+            this.txt_Inv_Bot_X.MaxLength = 5;
+            this.txt_Inv_Bot_X.Name = "txt_Inv_Bot_X";
+            this.txt_Inv_Bot_X.Size = new System.Drawing.Size(49, 20);
+            this.txt_Inv_Bot_X.TabIndex = 9;
+            this.txt_Inv_Bot_X.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.txt_Number_Only_KeyPress);
+            // 
+            // txt_Inv_Top_Y
+            // 
+            this.txt_Inv_Top_Y.Location = new System.Drawing.Point(72, 40);
+            this.txt_Inv_Top_Y.MaxLength = 5;
+            this.txt_Inv_Top_Y.Name = "txt_Inv_Top_Y";
+            this.txt_Inv_Top_Y.Size = new System.Drawing.Size(49, 20);
+            this.txt_Inv_Top_Y.TabIndex = 8;
+            this.txt_Inv_Top_Y.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.txt_Number_Only_KeyPress);
+            // 
+            // label15
+            // 
+            this.label15.AutoSize = true;
+            this.label15.Location = new System.Drawing.Point(15, 73);
+            this.label15.Name = "label15";
+            this.label15.Size = new System.Drawing.Size(80, 13);
+            this.label15.TabIndex = 5;
+            this.label15.Text = "Bot Right X + Y";
+            // 
+            // label17
+            // 
+            this.label17.AutoSize = true;
+            this.label17.Location = new System.Drawing.Point(15, 24);
+            this.label17.Name = "label17";
+            this.label17.Size = new System.Drawing.Size(76, 13);
+            this.label17.TabIndex = 3;
+            this.label17.Text = "Top Left X + Y";
+            // 
+            // txt_Inv_Top_X
+            // 
+            this.txt_Inv_Top_X.Location = new System.Drawing.Point(16, 40);
+            this.txt_Inv_Top_X.MaxLength = 5;
+            this.txt_Inv_Top_X.Name = "txt_Inv_Top_X";
+            this.txt_Inv_Top_X.Size = new System.Drawing.Size(49, 20);
+            this.txt_Inv_Top_X.TabIndex = 0;
+            this.txt_Inv_Top_X.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.txt_Number_Only_KeyPress);
+            // 
+            // groupBox5
+            // 
+            this.groupBox5.Controls.Add(this.txt_Screen_Bot_Y);
+            this.groupBox5.Controls.Add(this.txt_Screen_Bot_X);
+            this.groupBox5.Controls.Add(this.txt_Screen_Top_Y);
+            this.groupBox5.Controls.Add(this.label14);
+            this.groupBox5.Controls.Add(this.label16);
+            this.groupBox5.Controls.Add(this.txt_Screen_Top_X);
+            this.groupBox5.Location = new System.Drawing.Point(395, 16);
+            this.groupBox5.Name = "groupBox5";
+            this.groupBox5.Size = new System.Drawing.Size(189, 115);
+            this.groupBox5.TabIndex = 31;
+            this.groupBox5.TabStop = false;
+            this.groupBox5.Text = "Screen Coords";
+            // 
+            // txt_Screen_Bot_Y
+            // 
+            this.txt_Screen_Bot_Y.Location = new System.Drawing.Point(72, 89);
+            this.txt_Screen_Bot_Y.MaxLength = 5;
+            this.txt_Screen_Bot_Y.Name = "txt_Screen_Bot_Y";
+            this.txt_Screen_Bot_Y.Size = new System.Drawing.Size(49, 20);
+            this.txt_Screen_Bot_Y.TabIndex = 10;
+            this.txt_Screen_Bot_Y.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.txt_Number_Only_KeyPress);
+            // 
+            // txt_Screen_Bot_X
+            // 
+            this.txt_Screen_Bot_X.Location = new System.Drawing.Point(16, 89);
+            this.txt_Screen_Bot_X.MaxLength = 5;
+            this.txt_Screen_Bot_X.Name = "txt_Screen_Bot_X";
+            this.txt_Screen_Bot_X.Size = new System.Drawing.Size(49, 20);
+            this.txt_Screen_Bot_X.TabIndex = 9;
+            this.txt_Screen_Bot_X.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.txt_Number_Only_KeyPress);
+            // 
+            // txt_Screen_Top_Y
+            // 
+            this.txt_Screen_Top_Y.Location = new System.Drawing.Point(72, 40);
+            this.txt_Screen_Top_Y.MaxLength = 5;
+            this.txt_Screen_Top_Y.Name = "txt_Screen_Top_Y";
+            this.txt_Screen_Top_Y.Size = new System.Drawing.Size(49, 20);
+            this.txt_Screen_Top_Y.TabIndex = 8;
+            this.txt_Screen_Top_Y.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.txt_Number_Only_KeyPress);
+            // 
+            // label14
+            // 
+            this.label14.AutoSize = true;
+            this.label14.Location = new System.Drawing.Point(15, 73);
+            this.label14.Name = "label14";
+            this.label14.Size = new System.Drawing.Size(80, 13);
+            this.label14.TabIndex = 5;
+            this.label14.Text = "Bot Right X + Y";
+            // 
+            // label16
+            // 
+            this.label16.AutoSize = true;
+            this.label16.Location = new System.Drawing.Point(15, 24);
+            this.label16.Name = "label16";
+            this.label16.Size = new System.Drawing.Size(76, 13);
+            this.label16.TabIndex = 3;
+            this.label16.Text = "Top Left X + Y";
+            // 
+            // txt_Screen_Top_X
+            // 
+            this.txt_Screen_Top_X.Location = new System.Drawing.Point(16, 40);
+            this.txt_Screen_Top_X.MaxLength = 5;
+            this.txt_Screen_Top_X.Name = "txt_Screen_Top_X";
+            this.txt_Screen_Top_X.Size = new System.Drawing.Size(49, 20);
+            this.txt_Screen_Top_X.TabIndex = 0;
+            this.txt_Screen_Top_X.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.txt_Number_Only_KeyPress);
+            // 
+            // groupBox4
+            // 
+            this.groupBox4.Controls.Add(this.label31);
+            this.groupBox4.Controls.Add(this.txt_Color_A);
+            this.groupBox4.Controls.Add(this.label13);
+            this.groupBox4.Controls.Add(this.label12);
+            this.groupBox4.Controls.Add(this.label11);
+            this.groupBox4.Controls.Add(this.txt_Color_B);
+            this.groupBox4.Controls.Add(this.txt_Color_G);
+            this.groupBox4.Controls.Add(this.txt_Color_R);
+            this.groupBox4.Location = new System.Drawing.Point(200, 15);
+            this.groupBox4.Name = "groupBox4";
+            this.groupBox4.Size = new System.Drawing.Size(189, 73);
+            this.groupBox4.TabIndex = 30;
+            this.groupBox4.TabStop = false;
+            this.groupBox4.Text = "Primary Color";
+            // 
+            // label31
+            // 
+            this.label31.AutoSize = true;
+            this.label31.Location = new System.Drawing.Point(146, 24);
+            this.label31.Name = "label31";
+            this.label31.Size = new System.Drawing.Size(14, 13);
+            this.label31.TabIndex = 7;
+            this.label31.Text = "A";
+            // 
+            // txt_Color_A
+            // 
+            this.txt_Color_A.Location = new System.Drawing.Point(139, 40);
+            this.txt_Color_A.MaxLength = 3;
+            this.txt_Color_A.Name = "txt_Color_A";
+            this.txt_Color_A.Size = new System.Drawing.Size(35, 20);
+            this.txt_Color_A.TabIndex = 6;
+            // 
+            // label13
+            // 
+            this.label13.AutoSize = true;
+            this.label13.Location = new System.Drawing.Point(107, 23);
+            this.label13.Name = "label13";
+            this.label13.Size = new System.Drawing.Size(14, 13);
+            this.label13.TabIndex = 5;
+            this.label13.Text = "B";
+            // 
+            // label12
+            // 
+            this.label12.AutoSize = true;
+            this.label12.Location = new System.Drawing.Point(65, 22);
+            this.label12.Name = "label12";
+            this.label12.Size = new System.Drawing.Size(15, 13);
+            this.label12.TabIndex = 4;
+            this.label12.Text = "G";
+            // 
+            // label11
+            // 
+            this.label11.AutoSize = true;
+            this.label11.Location = new System.Drawing.Point(27, 23);
+            this.label11.Name = "label11";
+            this.label11.Size = new System.Drawing.Size(15, 13);
+            this.label11.TabIndex = 3;
+            this.label11.Text = "R";
+            // 
+            // txt_Color_B
+            // 
+            this.txt_Color_B.Location = new System.Drawing.Point(98, 40);
+            this.txt_Color_B.MaxLength = 3;
+            this.txt_Color_B.Name = "txt_Color_B";
+            this.txt_Color_B.Size = new System.Drawing.Size(35, 20);
+            this.txt_Color_B.TabIndex = 2;
+            this.txt_Color_B.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.txt_Number_Only_KeyPress);
+            // 
+            // txt_Color_G
+            // 
+            this.txt_Color_G.Location = new System.Drawing.Point(57, 40);
+            this.txt_Color_G.MaxLength = 3;
+            this.txt_Color_G.Name = "txt_Color_G";
+            this.txt_Color_G.Size = new System.Drawing.Size(35, 20);
+            this.txt_Color_G.TabIndex = 1;
+            this.txt_Color_G.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.txt_Number_Only_KeyPress);
+            // 
+            // txt_Color_R
+            // 
+            this.txt_Color_R.Location = new System.Drawing.Point(16, 40);
+            this.txt_Color_R.MaxLength = 3;
+            this.txt_Color_R.Name = "txt_Color_R";
+            this.txt_Color_R.Size = new System.Drawing.Size(35, 20);
+            this.txt_Color_R.TabIndex = 0;
+            this.txt_Color_R.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.txt_Number_Only_KeyPress);
+            // 
+            // btnStartAlch
+            // 
+            this.btnStartAlch.Location = new System.Drawing.Point(16, 349);
+            this.btnStartAlch.Name = "btnStartAlch";
+            this.btnStartAlch.Size = new System.Drawing.Size(102, 23);
+            this.btnStartAlch.TabIndex = 29;
+            this.btnStartAlch.Text = "Start Alching";
+            this.btnStartAlch.UseVisualStyleBackColor = true;
+            this.btnStartAlch.Click += new System.EventHandler(this.btnStartAlch_Click);
+            // 
+            // btnSetAlch
+            // 
+            this.btnSetAlch.Location = new System.Drawing.Point(16, 320);
+            this.btnSetAlch.Name = "btnSetAlch";
+            this.btnSetAlch.Size = new System.Drawing.Size(102, 23);
+            this.btnSetAlch.TabIndex = 28;
+            this.btnSetAlch.Text = "Set Alch Point";
+            this.btnSetAlch.UseVisualStyleBackColor = true;
+            this.btnSetAlch.Click += new System.EventHandler(this.btnSetAlch_Click);
+            // 
+            // btn_Mine
+            // 
+            this.btn_Mine.Location = new System.Drawing.Point(16, 238);
+            this.btn_Mine.Name = "btn_Mine";
+            this.btn_Mine.Size = new System.Drawing.Size(75, 23);
+            this.btn_Mine.TabIndex = 27;
+            this.btn_Mine.Text = "Mining";
+            this.btn_Mine.UseVisualStyleBackColor = true;
+            // 
+            // btn_Auto_Attack
+            // 
+            this.btn_Auto_Attack.Location = new System.Drawing.Point(102, 89);
+            this.btn_Auto_Attack.Name = "btn_Auto_Attack";
+            this.btn_Auto_Attack.Size = new System.Drawing.Size(75, 23);
+            this.btn_Auto_Attack.TabIndex = 26;
+            this.btn_Auto_Attack.Text = "AutoShoot";
+            this.btn_Auto_Attack.UseVisualStyleBackColor = true;
+            this.btn_Auto_Attack.Click += new System.EventHandler(this.btn_Auto_Attack_Click);
+            // 
+            // btnCanAgi
+            // 
+            this.btnCanAgi.Location = new System.Drawing.Point(102, 178);
+            this.btnCanAgi.Name = "btnCanAgi";
+            this.btnCanAgi.Size = new System.Drawing.Size(75, 23);
+            this.btnCanAgi.TabIndex = 25;
+            this.btnCanAgi.Text = "Canifis Agi";
+            this.btnCanAgi.UseVisualStyleBackColor = true;
+            this.btnCanAgi.Click += new System.EventHandler(this.btnCanAgi_Click);
+            // 
+            // btn_Woodcut
+            // 
+            this.btn_Woodcut.Location = new System.Drawing.Point(102, 50);
+            this.btn_Woodcut.Name = "btn_Woodcut";
+            this.btn_Woodcut.Size = new System.Drawing.Size(75, 23);
+            this.btn_Woodcut.TabIndex = 24;
+            this.btn_Woodcut.Text = "Woodcut";
+            this.btn_Woodcut.UseVisualStyleBackColor = true;
+            // 
+            // btnRC
+            // 
+            this.btnRC.Location = new System.Drawing.Point(16, 208);
+            this.btnRC.Name = "btnRC";
+            this.btnRC.Size = new System.Drawing.Size(75, 23);
+            this.btnRC.TabIndex = 23;
+            this.btnRC.Text = "RC";
+            this.btnRC.UseVisualStyleBackColor = true;
+            this.btnRC.Click += new System.EventHandler(this.btnRC_Click);
+            // 
+            // btnBarbFish
+            // 
+            this.btnBarbFish.Location = new System.Drawing.Point(102, 15);
+            this.btnBarbFish.Name = "btnBarbFish";
+            this.btnBarbFish.Size = new System.Drawing.Size(75, 23);
+            this.btnBarbFish.TabIndex = 22;
+            this.btnBarbFish.Text = "Barb Fish";
+            this.btnBarbFish.UseVisualStyleBackColor = true;
+            this.btnBarbFish.Click += new System.EventHandler(this.btnBarbFish_Click);
+            // 
+            // btnSeersAgil
+            // 
+            this.btnSeersAgil.Location = new System.Drawing.Point(16, 178);
+            this.btnSeersAgil.Name = "btnSeersAgil";
+            this.btnSeersAgil.Size = new System.Drawing.Size(75, 23);
+            this.btnSeersAgil.TabIndex = 21;
+            this.btnSeersAgil.Text = "Seers Agility";
+            this.btnSeersAgil.UseVisualStyleBackColor = true;
+            this.btnSeersAgil.Click += new System.EventHandler(this.btnSeersAgil_Click);
+            // 
+            // btnPickPocket
+            // 
+            this.btnPickPocket.Location = new System.Drawing.Point(16, 89);
+            this.btnPickPocket.Name = "btnPickPocket";
+            this.btnPickPocket.Size = new System.Drawing.Size(75, 23);
+            this.btnPickPocket.TabIndex = 19;
+            this.btnPickPocket.Text = "Pick Pocket";
+            this.btnPickPocket.UseVisualStyleBackColor = true;
+            this.btnPickPocket.Click += new System.EventHandler(this.btnPickPocket_Click);
+            // 
+            // btnNightmare
+            // 
+            this.btnNightmare.Location = new System.Drawing.Point(16, 15);
+            this.btnNightmare.Name = "btnNightmare";
+            this.btnNightmare.Size = new System.Drawing.Size(75, 23);
+            this.btnNightmare.TabIndex = 17;
+            this.btnNightmare.Text = "Nightmare";
+            this.btnNightmare.UseVisualStyleBackColor = true;
+            this.btnNightmare.Click += new System.EventHandler(this.btnNightmare_Click);
+            // 
+            // TabController
+            // 
+            this.TabController.Controls.Add(this.Buttons);
+            this.TabController.Controls.Add(this.ClickTab);
+            this.TabController.Location = new System.Drawing.Point(721, 28);
+            this.TabController.Name = "TabController";
+            this.TabController.SelectedIndex = 0;
+            this.TabController.Size = new System.Drawing.Size(613, 570);
+            this.TabController.TabIndex = 16;
+            // 
+            // worker_Normal_Clicks
+            // 
+            this.worker_Normal_Clicks.WorkerReportsProgress = true;
+            this.worker_Normal_Clicks.WorkerSupportsCancellation = true;
+            this.worker_Normal_Clicks.DoWork += new System.ComponentModel.DoWorkEventHandler(this.worker_Normal_Clicks_DoWork);
+            this.worker_Normal_Clicks.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.worker_RunWorkerCompleted);
+            // 
             // MainForm
             // 
             this.AutoScaleBaseSize = new System.Drawing.Size(5, 13);
-            this.ClientSize = new System.Drawing.Size(1162, 576);
+            this.ClientSize = new System.Drawing.Size(1346, 666);
             this.Controls.Add(this.chkClicks);
             this.Controls.Add(this.TabController);
             this.Controls.Add(this.btnHide);
@@ -1447,19 +2107,17 @@ namespace AutoClicker
             this.Controls.Add(this.textBox);
             this.Controls.Add(this.chkLog);
             this.Controls.Add(this.labelMousePosition);
-            this.Controls.Add(this.buttonStart);
+            this.Controls.Add(this.btn_Start);
             this.Controls.Add(this.buttonRecord);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "MainForm";
             this.Text = "Auto Clicker";
             this.Load += new System.EventHandler(this.MainFormLoad);
             this.groupBox2.ResumeLayout(false);
-            this.groupBox2.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.sliderColorRange)).EndInit();
+            this.groupBox8.ResumeLayout(false);
+            this.groupBox8.PerformLayout();
             this.groupBox3.ResumeLayout(false);
             this.groupBox3.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.maxRandom)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.minRandom)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.sliderClickOffset)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numCount)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.sliderCycles)).EndInit();
@@ -1467,21 +2125,24 @@ namespace AutoClicker
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numInventoryCount)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.sliderColorRange)).EndInit();
             this.menuStrip1.ResumeLayout(false);
             this.menuStrip1.PerformLayout();
-            this.TabController.ResumeLayout(false);
+            this.ClickTab.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.dg_Clicks)).EndInit();
             this.Buttons.ResumeLayout(false);
-            this.WoodCut.ResumeLayout(false);
-            this.tableWoodCut.ResumeLayout(false);
-            this.tableWoodCut.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox8)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox9)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox10)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox11)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox12)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox13)).EndInit();
-            this.Mining.ResumeLayout(false);
-            this.Mining.PerformLayout();
+            this.Buttons.PerformLayout();
+            this.groupBox9.ResumeLayout(false);
+            this.groupBox9.PerformLayout();
+            this.groupBox7.ResumeLayout(false);
+            this.groupBox7.PerformLayout();
+            this.groupBox6.ResumeLayout(false);
+            this.groupBox6.PerformLayout();
+            this.groupBox5.ResumeLayout(false);
+            this.groupBox5.PerformLayout();
+            this.groupBox4.ResumeLayout(false);
+            this.groupBox4.PerformLayout();
+            this.TabController.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -1490,7 +2151,7 @@ namespace AutoClicker
         [STAThread]
         public static void Main(string[] args)
         {
-            Application.Run(new MainForm());
+            System.Windows.Forms.Application.Run(new MainForm());
         }
 
         void ButtonRecord(object sender, System.EventArgs e)
@@ -1503,6 +2164,11 @@ namespace AutoClicker
             }
             else
             {
+                if (Clicks.Count > 0)
+                {
+                    if (MessageBox.Show("Erase current clicks?", "Erase", MessageBoxButtons.YesNo) != DialogResult.Yes)
+                        return;
+                }
                 buttonRecord.Text = "Recording...";
                 ClickCountPos = 0;
                 Clicks.Clear();
@@ -1512,12 +2178,84 @@ namespace AutoClicker
             RecordClicks = !RecordClicks;
         }
 
-        void ButtonStart(object sender, System.EventArgs e)
+        void ButtonStart(object sender, System.EventArgs e, BackgroundWorker worker = null)
         {
-            //LogWrite(Inventory[1].ToString())
-;            StartAutoClicker();
+            //if(worker == null && CurrentWorker == null)
+            //{
+            //    CurrentWorker = worker_Normal_Clicks;
+            //}
+
+            //else 
+            if (worker != null && !RunProgram)
+            {
+                CurrentWorker = worker;
+            }
+            else if(CurrentWorker != null && RunProgram)
+            {
+                //contiue
+            }
+            else
+            {
+                CurrentWorker = worker_Normal_Clicks;
+            }
+
+
+            if (CurrentWorker == worker_Normal_Clicks && Clicks.Count < 1 && !RunProgram)
+            {
+                MessageBox.Show("Need to have at least one click recored");
+                return;
+            }
+
+
+            RunProgram = !RunProgram;
+            if (RunProgram)
+            {
+                UpdateButtons(CurrentWorker, true);
+                //btn_Start.Text = "Stop";
+                LogWrite("Starting Clicker");
+                SetGlobalDetails();
+                var runParams = new RunParams<string>();
+                runParams.ReportProgress = new Progress<string>(value => LogWrite(value));
+                runParams.Timeouts = new Timeouts()
+                {
+                    Active = chkTimeOut.Checked,
+                    TimeoutCountMin = int.Parse(txt_Timeout_Cycle_Min.Text),
+                    TimeoutCountMax = int.Parse(txt_Timeout_Cycle_Max.Text),
+                    TimeoutLengthMin = TimeoutLengthMin,
+                    TimeoutLengthMax = TimeoutLengthMax
+                };
+                runParams.RunLimit = (int)numCount.Value;
+                runParams.ScreenshotInfo = new ScreenshotInfo() { ColorRange = ColorRange };
+                runParams.ClickList = Clicks.ToList(); ;
+                CurrentWorker.RunWorkerAsync(runParams);
+            }
+            else
+            {
+                //UpdateButtons(CurrentWorker, false);
+                //btn_Start.Text = "Start";
+                LogWrite("Cancelling Clicker");
+                CurrentWorker.CancelAsync();
+            }
         }
 
+        private void UpdateButtons(BackgroundWorker currentWorker, bool v)
+        {
+            Color btnColor = Color.Transparent;
+            if (v)
+                btnColor = Color.Red;
+            if(CurrentWorker == worker_Normal_Clicks)
+            {
+                btn_Start.BackColor = btnColor;
+            }
+            else if(CurrentWorker == worker_Gem_Mining)
+            {
+                btn_Gem_Mine.BackColor = btnColor;
+            }
+            else if(CurrentWorker == worker_Normal_Clicks)
+            {
+
+            }
+        }
 
         UserActivityHook actHook;
         void MainFormLoad(object sender, System.EventArgs e)
@@ -1537,6 +2275,16 @@ namespace AutoClicker
             labelMousePosition.Text = String.Format("x={0}  y={1} wheel={2}", e.X, e.Y, e.Delta);
             if (e.Clicks > 0)
             {
+                if (FindingColor)
+                {
+                    var color = MainScreen.GetColorAt(Cursor.Position);
+                    txt_Find_Color_R.Text = color.R.ToString();
+                    txt_Find_Color_G.Text = color.G.ToString();
+                    txt_Find_Color_B.Text = color.B.ToString();
+                    txt_Find_Color_A.Text = color.A.ToString();
+                    btn_Find_Color.PerformClick();
+                }
+
                 if (RecordClicks)
                 {
                     ClickStopwatch.Stop();
@@ -1547,10 +2295,11 @@ namespace AutoClicker
                         LogWrite("Delay from click " + (Clicks.Count - 1) + ": " + ClickStopwatch.ElapsedMilliseconds);
                     }
 
-                    Clicks.Add(new Click(
+                    Clicks.Add(new Click(ClickCountPos++,
                         Cursor.Position,
                         e.Button == MouseButtons.Left ? 0 : 1,
-                        0));
+                        0,
+                        ClickOffset));
                     LogWrite("Added Click");
                     ClickStopwatch.Reset();
                     ClickStopwatch.Start();
@@ -1593,20 +2342,11 @@ namespace AutoClicker
                 switch (e.KeyCode)
                 {
                     case Keys.D1:
-                        StartAutoClicker();
+                        //StartAutoClicker();
+                        this.btn_Start.PerformClick();
                         Ctrl = false;
                         break;
                     case Keys.D2:
-                        if (RapidClickTimer.Enabled)
-                        {
-                            LogWrite("End RapidClick");
-                            RapidClickTimer.Stop();
-                        }
-                        else
-                        {
-                            LogWrite("Start RapidClick");
-                            RapidClickTimer.Start();
-                        }
                         Ctrl = false;
                         break;
                     case Keys.D3:
@@ -1669,13 +2409,22 @@ namespace AutoClicker
             var clickPoint = currentClick.ClickPoint;
             var mouseButton = currentClick.ClickType;
 
-            if (radioCycles.Checked)
-                ClickTimer.Interval = (int)currentClick.DelayAfterClick + RandomGenerate.Next(-200,200);
+            if (UseRandomTimeouts && !EndTimeoutsOnly && RandomTimeoutCount <= 0 && ClickCountPos == TimeoutPos)
+            {
+                RandomTimeoutCount = GetRandomTimeoutCount();
+                ClickTimer.Interval = GetRandomTimeout();
+                TimedOut = true;
+                TimeoutPos = RandomGenerate.Next(1, Clicks.Count - 1);
+            }
+            else if (radioCycles.Checked)
+                ClickTimer.Interval = (int)currentClick.DelayAfterClick + RandomGenerate.Next(-200, 200);
             else if (TimedOut)
             {
                 TimedOut = !TimedOut;
                 ClickTimer.Interval = GetInterval();
             }
+
+
 
             ClickCountPos++;
             if (ClickCountPos > Clicks.Count - 1)
@@ -1685,7 +2434,7 @@ namespace AutoClicker
                 if (UseRandomTimeouts)
                 {
                     RandomTimeoutCount--;
-                    if (RandomTimeoutCount <= 0)
+                    if (RandomTimeoutCount <= 0 && EndTimeoutsOnly)
                     {
                         RandomTimeoutCount = GetRandomTimeoutCount();
                         ClickTimer.Interval = GetRandomTimeout();
@@ -1704,17 +2453,6 @@ namespace AutoClicker
 
             DoMouseClick(mouseButton, clickPoint);
 
-        }
-
-        private void RapidClickTimer_Tick(object sender, EventArgs e)
-        {
-            var max = (int)(sliderClicks.Value * 1.2) * 100;
-            var min = (int)(sliderClicks.Value * .8) * 100;
-            if(RandomGenerate.Next(1,10) == 1)
-                RapidClickTimer.Interval =  RandomGenerate.Next(20, 100);
-            else
-                RapidClickTimer.Interval = RandomGenerate.Next(min, max);
-            DoMouseClick(0, Point.Empty);
         }
 
         private void NMZPrayerTimer_Tick(object sender, EventArgs e)
@@ -1749,7 +2487,7 @@ namespace AutoClicker
             //Convert(imageClone, false);
             //var image2 = new Bitmap(imageClone, imageClone.Width * 3, imageClone.Height * 3);
             //Convert2(image2, false);
-            
+
             ////ocr.SetVariable("tessedit_char_whitelist", "0123456789");
             //var result = ocr.DoOCR(image2, Rectangle.Empty);
             //int hp = 0;
@@ -1787,13 +2525,13 @@ namespace AutoClicker
             //    {
 
             //    }
-                
+
             //    var point = Inventory[CurrentInventoryClickCount];
             //    DoMouseClick(0, point);
             //    CurrentInventoryClickCount++;
             //    LogWrite("Eating");
             //    PickPocketTimer.Start();
-                    
+
             //}
             //else
             //    LogWrite("HP Safe");
@@ -1815,13 +2553,13 @@ namespace AutoClicker
                 {
                     PickPocketTimer.Interval = 15000;
                     TimedOut = false;
-                }  
+                }
                 else
                 {
                     RandomTimeoutCount--;
                     if (RandomTimeoutCount <= 0)
                     {
-                        RapidClickTimer.Stop();
+                        //RapidClickTimer.Stop();
                         RandomTimeoutCount = GetRandomTimeoutCount();
                         PickPocketTimer.Interval = GetRandomTimeout();
                         LogWrite("Hit Timeout for : " + PickPocketTimer.Interval);
@@ -1832,7 +2570,7 @@ namespace AutoClicker
                     }
                 }
             }
-            
+
             var origMousePoint = Mouse.Mouse.GetLocation();
             var heartImage = Properties.Resources.HealthHeart2;
             var imageList = new List<Bitmap>() { Properties.Resources.Gold20, Properties.Resources.Gold21,
@@ -1844,13 +2582,13 @@ namespace AutoClicker
             var healthBar = Color.FromArgb(225, 35, 0);
 
             LogWrite("Checking for coin bag");
-            var screenShot = MainScreen.CaptureScreen();
+            var screenShot = MainScreen.CaptureScreen(SelectedMonitor);
             var lowerX = screenShot.Width / 4;
             var lowerY = screenShot.Height / 4;
             Point point = MainScreen.FindImageFromList(screenShot, new Point(screenShot.Width - lowerX, screenShot.Height / 2), new Point(screenShot.Width, screenShot.Height), imageList, colorRange);
             if (!point.IsEmpty)
             {
-                RapidClickTimer.Stop();
+                //RapidClickTimer.Stop();
                 point.X += 10;
                 point.Y += 20;
                 LogWrite("FOUND");
@@ -1861,11 +2599,11 @@ namespace AutoClicker
                 Mouse.Mouse.MoveTo(origMousePoint.X + RandomGenerate.Next(-5, 5), origMousePoint.Y + RandomGenerate.Next(-5, 5));
             }
 
-            if(!MainScreen.FindColorPointRange(screenShot, AlchPoint, healthBar, colorRange))
+            if (!MainScreen.FindColorPointRange(screenShot, AlchPoint, healthBar, colorRange))
             {
                 EatFailCount++;
-                RapidClickTimer.Stop();
-                if(CurrentInventoryClickCount >= TotalInventoryClickCount && EatFailCount < 9)
+                //RapidClickTimer.Stop();
+                if (CurrentInventoryClickCount >= TotalInventoryClickCount && EatFailCount < 9)
                 {
                     EatFailCount = 9;
                 }
@@ -1878,7 +2616,7 @@ namespace AutoClicker
                     LogWrite("FOUND");
                     DoMouseClick(0, point);
                 }
-                
+
 
                 Thread.Sleep(RandomGenerate.Next(500, 2000));
 
@@ -1889,43 +2627,15 @@ namespace AutoClicker
                 EatFailCount = 0;
             }
 
-            if(EatFailCount >= EatFailCountMax)
+            if (EatFailCount >= EatFailCountMax)
             {
                 StopAutoClicker();
                 return;
             }
 
 
-            if (!RapidClickTimer.Enabled)
-                RapidClickTimer.Start();
-
-            
-
-            //LogWrite("Checking for health");
-            //Point point = MainScreen.FindImage(screenShot, new Point(screenShot.Width - lowerX, 0), new Point(screenShot.Width, lowerY), heartImage, colorRange);
-            //if (!point.IsEmpty)
-            //{
-            //    LogWrite("FOUND");
-            //    DoMouseClick(0, point);
-            //}
-
-            //long milliseconds = DateTimeOffset.Now.ToUnixTimeMilliseconds();
-            //var colorRange = 360m * (sliderColorRange.Value / 100m);
-            //var image = Properties.Resources.Pick_Pocket;
-            //DoMouseClick(1, new Point(x, y));
-            //while (DateTimeOffset.Now.ToUnixTimeMilliseconds() - milliseconds < 1500)
-            //{
-
-            //}
-            //var point = MainScreen.FindImage(new Point(200, 170), new Point(700, 550), image, colorRange);
-
-            //if (!point.IsEmpty)
-            //{
-            //    point.X += image.Width / 2;
-            //    point.Y += image.Height / 2;
-
-            //    DoMouseClick(0, point);
-            //}
+            //if (!RapidClickTimer.Enabled)
+            //RapidClickTimer.Start();
         }
 
         private void WoodcutTimer_Tick(object sender, EventArgs e)
@@ -1941,8 +2651,8 @@ namespace AutoClicker
             {
 
             }
-            var point = MainScreen.FindImage(new Point(750, 300), new Point(delayTime, 500), image, colorRange);
-            
+            var point = MainScreen.FindImage(new Point(750, 300), new Point(delayTime, 500), image, colorRange, SelectedMonitor);
+
             point.X += image.Width / 2;
             point.Y += image.Height / 2;
 
@@ -1955,7 +2665,7 @@ namespace AutoClicker
             //1900,990
             var colorRange = 360m * (sliderColorRange.Value / 100m);
             var image = Properties.Resources.Empty_Inv_Space;
-            var point = MainScreen.FindImage(new Point(1835, 925), new Point(1900, 990), image, colorRange);
+            var point = MainScreen.FindImage(new Point(1835, 925), new Point(1900, 990), image, colorRange, SelectedMonitor);
             if (point.IsEmpty)
             {
                 WoodcutTimer.Stop();
@@ -1966,7 +2676,7 @@ namespace AutoClicker
         }
         private void NMZDrinkTimer_Tick(object sender, EventArgs e)
         {
-            var screenshot = MainScreen.CaptureScreen();
+            var screenshot = MainScreen.CaptureScreen(SelectedMonitor);
             FindAbsorbPotion(screenshot);
             //long milliseconds = DateTimeOffset.Now.ToUnixTimeMilliseconds();
             //var secondClick = false;
@@ -1982,7 +2692,7 @@ namespace AutoClicker
             DrinkTimer.Interval = RandomGenerate.Next(60000, 240000);
             LogWrite("Next drink tick: " + DrinkTimer.Interval);
             System.GC.Collect();
-            
+
             //LogWrite(String.Format("X:{0} Y:{1}", point.X, point.Y));
         }
         private void FindOverloadPotion(Bitmap screenshot)
@@ -2036,16 +2746,14 @@ namespace AutoClicker
         {
             LogWrite("Checking for absorb");
 
-            var image = Properties.Resources.Absorb_1;
-            var offsetX = image.Width / 2;
-            var offsetY = image.Height / 2;
+
 
             var colorRange = 360m * (sliderColorRange.Value / 100m);
             var point = MainScreen.FindInInventory(Properties.Resources.Absorb_1, screenshot, colorRange);
             if (!point.IsEmpty)
             {
-                point.X += offsetX;
-                point.Y += offsetY;
+                point.X += Absorb_offsetX;
+                point.Y += Absorb_offsetY;
                 LogWrite("found 1 dose");
                 DoMouseClick(0, point);
                 return;
@@ -2053,8 +2761,8 @@ namespace AutoClicker
             point = MainScreen.FindInInventory(Properties.Resources.Absorb_2, screenshot, colorRange);
             if (!point.IsEmpty)
             {
-                point.X += offsetX;
-                point.Y += offsetY;
+                point.X += Absorb_offsetX;
+                point.Y += Absorb_offsetY;
                 LogWrite("found 2 dose");
                 DoMouseClick(0, point);
                 return;
@@ -2062,8 +2770,8 @@ namespace AutoClicker
             point = MainScreen.FindInInventory(Properties.Resources.Absorb_3, screenshot, colorRange);
             if (!point.IsEmpty)
             {
-                point.X += offsetX;
-                point.Y += offsetY;
+                point.X += Absorb_offsetX;
+                point.Y += Absorb_offsetY;
                 LogWrite("found 3 dose");
                 DoMouseClick(0, point);
                 return;
@@ -2071,8 +2779,8 @@ namespace AutoClicker
             point = MainScreen.FindInInventory(Properties.Resources.Absorb_4, screenshot, colorRange);
             if (!point.IsEmpty)
             {
-                point.X += offsetX;
-                point.Y += offsetY;
+                point.X += Absorb_offsetX;
+                point.Y += Absorb_offsetY;
                 LogWrite("found 4 dose");
                 DoMouseClick(0, point);
                 return;
@@ -2082,7 +2790,7 @@ namespace AutoClicker
         private void NMZOverloadTimer_Tick(object sender, EventArgs e)
         {
             LogWrite("Checking for overload");
-            var screenshot = MainScreen.CaptureScreen();
+            var screenshot = MainScreen.CaptureScreen(SelectedMonitor);
 
             var image = Properties.Resources.Over_1;
             var offsetX = image.Width / 2;
@@ -2130,7 +2838,7 @@ namespace AutoClicker
 
         public void DoMouseClick(int mouseButton, Point point)
         {
-            if(point != Point.Empty)
+            if (point != Point.Empty)
             {
                 point.X += GetRandomOffset();
                 point.Y += GetRandomOffset();
@@ -2138,9 +2846,9 @@ namespace AutoClicker
                     LogWrite("Clicked at X:" + point.X + "  Y:" + point.Y);
                 Mouse.Mouse.MoveTo(point.X, point.Y);
             }
-            
+
             long milliseconds = DateTimeOffset.Now.ToUnixTimeMilliseconds();
-            while(DateTimeOffset.Now.ToUnixTimeMilliseconds() - milliseconds <= 200)
+            while (DateTimeOffset.Now.ToUnixTimeMilliseconds() - milliseconds <= 200)
             {
 
             }
@@ -2211,45 +2919,9 @@ namespace AutoClicker
             return RandomGenerate.Next(0, ClickOffset * 2) - ClickOffset;
         }
 
-        public void StartAutoClicker()
-        {
-            if (RunProgram || NMZEnabled || PickPocket || Woodcutting)
-            {
-                StopAutoClicker();
-                return;
-            }
-
-            IterationCount = (int)numCount.Value;
-            if (IterationCount == 0)
-                InfiniteLoop = true;
-            else
-                InfiniteLoop = false;
-
-            StopRecordingClicks();
-
-            if (Clicks.Count < 1)
-            {
-                MessageBox.Show("Need to have at least one click recored");
-                return;
-            }
-
-            sliderClicks.Enabled = false;
-            numCount.Enabled = false;
-            buttonRecord.Enabled = false;
-            ClickCountPos = 0;
-            buttonStart.Text = "Stop";
-            RunProgram = true;
-            ClickTimer.Interval = GetInterval();
-            ClickTimer.Start();
-            LogWrite("Starting Auto Clicker");
-        }
-
         public void StopAutoClicker()
         {
-
-            RapidClickTimer.Stop();
             BarbFishTimer.Stop();
-            AutoShootTimer.Stop();
             LogoutTimer.Stop();
             ClickTimer.Stop();
             PrayerTimer.Stop();
@@ -2268,7 +2940,7 @@ namespace AutoClicker
             Woodcutting = false;
             workerAlch.CancelAsync();
 
-            buttonStart.Text = "Start";
+            btn_Start.Text = "Start";
             LogWrite("Stopping Auto Clicker");
         }
 
@@ -2386,9 +3058,9 @@ namespace AutoClicker
             if (dropping)
             {
                 Dropping = true;
-                DoMouseClick(0, Inventory[DropClickPos]);
+                PerformLeftClick(Inventory[DropClickPos], null);
                 Thread.Sleep(100);
-                DoMouseClick(0, Inventory[DropClickPos]);
+                PerformLeftClick(Inventory[DropClickPos], null);
                 Thread.Sleep(100);
                 //Keyboard.Keyboard.HoldKey(Keys.ShiftKey);
                 Keyboard.MyKeyboard.PressKey(Keyboard.MyKeyboard.VK_LSHIFT, Keyboard.MyKeyboard.SCANKEY_LSHIFT);
@@ -2424,7 +3096,7 @@ namespace AutoClicker
             currentPoint.X += RandomGenerate.Next(-5, 5);
             currentPoint.Y += RandomGenerate.Next(-5, 5);
             DoMouseClick(0, currentPoint);
-            DropTimer.Interval = RandomGenerate.Next(50,200);
+            DropTimer.Interval = RandomGenerate.Next(50, 200);
         }
 
         private void btnSetupInventory_Click(object sender, EventArgs e)
@@ -2447,7 +3119,7 @@ namespace AutoClicker
 
         private void DisableAll()
         {
-            buttonStart.Enabled = false;
+            btn_Start.Enabled = false;
             //buttonRecord.Enabled = false;
             chkLog.Enabled = false;
             chkDropInverse.Enabled = false;
@@ -2456,11 +3128,12 @@ namespace AutoClicker
             btnSetupInventory.Enabled = false;
             btnSingleClickInv.Enabled = false;
             btnDropInventory.Enabled = false;
+            btn_Find_Color.Enabled = false;
         }
 
         private void EnableAll()
         {
-            buttonStart.Enabled = true;
+            btn_Start.Enabled = true;
             //buttonRecord.Enabled = true;
             chkLog.Enabled = true;
             chkDropInverse.Enabled = true;
@@ -2469,6 +3142,7 @@ namespace AutoClicker
             btnSetupInventory.Enabled = true;
             btnSingleClickInv.Enabled = true;
             btnDropInventory.Enabled = true;
+            btn_Find_Color.Enabled = true;
         }
 
         private void btnSingleClickInv_Click(object sender, EventArgs e)
@@ -2498,11 +3172,11 @@ namespace AutoClicker
 
         private int GetRandomTimeoutCount()
         {
-            return RandomGenerate.Next((int)minRandom.Value, (int)maxRandom.Value);
+            return RandomGenerate.Next(int.Parse(txt_Timeout_Cycle_Min.Text), int.Parse(txt_Timeout_Cycle_Max.Text));
         }
         private int GetRandomTimeout()
         {
-            return RandomGenerate.Next(30000, 240000);
+            return RandomGenerate.Next(3000, 8000);
         }
 
         private void btnHide_Click(object sender, EventArgs e)
@@ -2525,14 +3199,14 @@ namespace AutoClicker
             startToolStripMenuItem.Enabled = false;
             stopToolStripMenuItem.Enabled = true;
 
-            StartAutoClicker();
+            btn_Start.PerformClick();
         }
 
         private void stopToolStripMenuItem_Click(object sender, EventArgs e)
         {
             stopToolStripMenuItem.Enabled = false;
             startToolStripMenuItem.Enabled = true;
-            StartAutoClicker();
+            btn_Start.PerformClick();
         }
 
         private void saveInventoryToolStripMenuItem_Click(object sender, EventArgs e)
@@ -2615,14 +3289,14 @@ namespace AutoClicker
             }
         }
 
-        private void button1_Click(object sender, EventArgs e)
+        private void btn_Find_Image_Click(object sender, EventArgs e)
         {
             var image = Properties.Resources.tanner_head; //. //MainScreen.LoadImageFile("c:\\AppData\\AutoClicker\\Images\\TreeSwatch.png");
             var checkedImage = TabController.Controls.OfType<RadioButton>().FirstOrDefault(r => r.Checked);
             var offsetX = image.Width / 2;
             var offsetY = image.Height / 2;
             var colorRange = 360m * (sliderColorRange.Value / 100m);
-            var point = MainScreen.FindImage(new Point(5, 35), new Point(1910, 990), image, colorRange);
+            var point = MainScreen.FindImage(new Point(5, 35), new Point(1910, 990), image, colorRange, SelectedMonitor);
 
             LogWrite(String.Format("X:{0} Y:{1}", point.X, point.Y));
 
@@ -2635,31 +3309,18 @@ namespace AutoClicker
             lblColorRange.Text = (100 - sliderColorRange.Value).ToString() + "%";
         }
 
-        private void btnWoodcut_Click(object sender, EventArgs e)
-        {
-
-            var checkedButton = tableWoodCut.Controls.OfType<RadioButton>().FirstOrDefault(r => r.Checked);
-            var checkedImage = PictureDictionary.Dictionary[checkedButton.Name];
-            var offsetX = checkedImage.Width / 2;
-            var offsetY = checkedImage.Height / 2;
-            var colorRange = 360m * (sliderColorRange.Value / 100m);
-            var point = MainScreen.FindImage(new Point(5,35), new Point(1910, 990), checkedImage, colorRange);
-            LogWrite(String.Format("X:{0} Y:{1}", point.X, point.Y));
-
-            Mouse.Mouse.MoveTo(point.X + offsetX, point.Y + offsetY);
-        }
-
         private void btnNightmare_Click(object sender, EventArgs e)
         {
             if (NMZEnabled)
             {
                 LogWrite("Stopping Nightmare Zone!");
                 StopAutoClicker();
-                buttonStart.Enabled = true;
+                btn_Start.Enabled = true;
                 return;
             }
 
-            buttonStart.Enabled = false;
+            InitializeNightmareValues();
+            btn_Start.Enabled = false;
             LogWrite("Starting Nightmare Zone!");
 
             PrayerTimer.Start();
@@ -2679,42 +3340,16 @@ namespace AutoClicker
             NMZEnabled = true;
         }
 
-        private void btnTan_Click(object sender, EventArgs e)
+        private void InitializeNightmareValues()
         {
-            var interval = delayTime;
-            Point point = new Point(); ;
-            List<Bitmap> imageList = new List<Bitmap>()
-            {
-                Properties.Resources.Tanner_1,
-                Properties.Resources.Tanner_2,
-                Properties.Resources.Tanner_3,
-                Properties.Resources.Tanner_4,
-                Properties.Resources.Tanner_Head1
-            };
-            for(int i = 0; i < imageList.Count; i++)
-            {
-                point = FindTanner(imageList[i]);
-                if (point.IsEmpty)
-                    continue;
-            }
-            if (point.IsEmpty)
-                return;
-
-            LogWrite("tanner");
-            DoMouseClick(1, point);
-        }
-
-        private Point FindTanner(Bitmap image) {
-            var point = new Point();
-            var colorRange = 360m * (sliderColorRange.Value / 100m);
-            var screenshot = MainScreen.CaptureScreen();
-            point = MainScreen.FindTanner(image, screenshot, colorRange);
-            return point;
+            var image = Properties.Resources.Absorb_1;
+            var Absorb_offsetX = image.Width / 2;
+            var Absorb_offsetY = image.Height / 2;
         }
 
         private void btnPickPocket_Click(object sender, EventArgs e)
         {
-            
+
             //var colorRange = 360m * (sliderColorRange.Value / 100m);
             //LogWrite(colorRange.ToString());
             if (Inventory.Count < 1)
@@ -2736,7 +3371,6 @@ namespace AutoClicker
             //EatTimer.Start();
             PickPocketTimer.Interval = 15000;
             PickPocketTimer.Start();
-            RapidClickTimer.Start();
             PickPocket = true;
 
 
@@ -2753,7 +3387,7 @@ namespace AutoClicker
                 for (int y = 0; y < image.Height; y++)
                 {
                     Color gotColor = image.GetPixel(x, y);
-                    if(MainScreen.ColorDiff(gotColor, black) < 0.05m)
+                    if (MainScreen.ColorDiff(gotColor, black) < 0.05m)
                     {
                         image.SetPixel(x, y, white);
                         //image.SetPixel(x - 1, y, white);
@@ -2766,8 +3400,8 @@ namespace AutoClicker
                     else
                     {
                         image.SetPixel(x, y, black);
-                        if(widen && x-1 > 0)
-                            image.SetPixel(x-1, y, black);
+                        if (widen && x - 1 > 0)
+                            image.SetPixel(x - 1, y, black);
                     }
                 }
             }
@@ -2799,26 +3433,7 @@ namespace AutoClicker
             }
         }
 
-        private void btnWoodcut2_Click(object sender, EventArgs e)
-        {
-            if (Woodcutting)
-            {
-                StopAutoClicker();
-                return;
-            }
-            Woodcutting = true;
-            LogWrite("Staring wood cutting");
-            WoodcutTimer.Start();
-            long milliseconds = DateTimeOffset.Now.ToUnixTimeMilliseconds();
-            while(DateTimeOffset.Now.ToUnixTimeMilliseconds() - milliseconds < 6000)
-            {
-
-            }
-            InvFullTimer.Start();
-
-        }
-
-        private  void btnSeersAgil_Click(object sender, EventArgs e)
+        private void btnSeersAgil_Click(object sender, EventArgs e)
         {
             //var screenshot = MainScreen.CaptureScreen();
 
@@ -2937,7 +3552,7 @@ namespace AutoClicker
             //bank
             //point = MainScreen.FindImage(new Point(950, 350), new Point(1150, 450), image, colorRange);
             //DoMouseClick(0, new Point(point.X + offsetX, point.Y + offsetY));
-            point = MainScreen.FindColorScreenRange(new Point(MidX, 0), new Point(MaxX, MidY), attackDot, 8, colorRange);
+            point = MainScreen.FindColorScreenRange(new Point(MidX, 0), new Point(MaxX, MidY), attackDot, 8, colorRange, SelectedMonitor);
             if (!point.IsEmpty)
             {
                 offsetX = RandomGenerate.Next(-5, 15);
@@ -2953,7 +3568,7 @@ namespace AutoClicker
             //First Ledge
             //point = MainScreen.FindImage(new Point(600, 350), new Point(750, 500), image, colorRange);
             //DoMouseClick(0, new Point(point.X + offsetX, point.Y + offsetY));
-            point = MainScreen.FindColorScreenRange(new Point(0, 0), new Point(MidX, MidY), attackDot, 8, colorRange);
+            point = MainScreen.FindColorScreenRange(new Point(0, 0), new Point(MidX, MidY), attackDot, 8, colorRange, SelectedMonitor);
             if (!point.IsEmpty)
             {
                 offsetX = RandomGenerate.Next(-5, 15);
@@ -2969,7 +3584,7 @@ namespace AutoClicker
             //tight rope
             //point = MainScreen.FindImage(new Point(800, 650), new Point(900, 750), image, colorRange);
             //DoMouseClick(0, new Point(point.X + offsetX, point.Y + offsetY));
-            point = MainScreen.FindColorScreenRange(new Point(0, MidY), new Point(MidX, MaxY), attackDot, 8, colorRange);
+            point = MainScreen.FindColorScreenRange(new Point(0, MidY), new Point(MidX, MaxY), attackDot, 8, colorRange, SelectedMonitor);
             if (!point.IsEmpty)
             {
                 offsetX = RandomGenerate.Next(-5, 15);
@@ -2985,7 +3600,7 @@ namespace AutoClicker
             //Second Ledge
             //point = MainScreen.FindImage(new Point(900, 600), new Point(1150, 700), image, colorRange);
             //DoMouseClick(0, new Point(point.X + offsetX, point.Y + offsetY));
-            point = MainScreen.FindColorScreenRange(new Point(MidX, MidY), new Point(MaxX, MaxY), attackDot, 8, colorRange);
+            point = MainScreen.FindColorScreenRange(new Point(MidX, MidY), new Point(MaxX, MaxY), attackDot, 8, colorRange, SelectedMonitor);
             if (!point.IsEmpty)
             {
                 offsetX = RandomGenerate.Next(-5, 15);
@@ -3001,7 +3616,7 @@ namespace AutoClicker
             //Third Ledge
             //point = MainScreen.FindImage(new Point(550, 575), new Point(750, 675), image, colorRange);
             //DoMouseClick(0, new Point(point.X + offsetX, point.Y + offsetY));
-            point = MainScreen.FindColorScreenRange(new Point(0, MidY), new Point(MidX, MaxY), attackDot, 8, colorRange);
+            point = MainScreen.FindColorScreenRange(new Point(0, MidY), new Point(MidX, MaxY), attackDot, 8, colorRange, SelectedMonitor);
             if (!point.IsEmpty)
             {
                 offsetX = RandomGenerate.Next(-5, 15);
@@ -3017,7 +3632,7 @@ namespace AutoClicker
             //Finish
             //point = MainScreen.FindImage(new Point(950, 500), new Point(1050, 700), image, colorRange);
             //DoMouseClick(0, new Point(point.X + offsetX, point.Y + offsetY));
-            point = MainScreen.FindColorScreenRange(new Point(MidX, MidY), new Point(MaxX, MaxY), attackDot, 8, colorRange);
+            point = MainScreen.FindColorScreenRange(new Point(MidX, MidY), new Point(MaxX, MaxY), attackDot, 8, colorRange, SelectedMonitor);
             if (!point.IsEmpty)
             {
                 offsetX = RandomGenerate.Next(-5, 15);
@@ -3033,42 +3648,42 @@ namespace AutoClicker
         private void PopulateSeersAgilityClicks()
         {
             Clicks.Clear();
-            Clicks.Add(new Click(new Point(920, 785), 0, 1000));
+            Clicks.Add(new Click(0, new Point(920, 785), 0, 1000, ClickOffset));
 
-            Clicks.Add(new Click(new Point(968, 785), 0, 1000));
+            Clicks.Add(new Click(1, new Point(968, 785), 0, 1000, ClickOffset));
 
-            Clicks.Add(new Click(new Point(1018, 785), 1, 2000));
+            Clicks.Add(new Click(2, new Point(1018, 785), 1, 2000, ClickOffset));
 
-            Clicks.Add(new Click(new Point(977, 880), 0, 1000));
+            Clicks.Add(new Click(3, new Point(977, 880), 0, 1000, ClickOffset));
 
             //run / leave bak
-            Clicks.Add(new Click(new Point(964, 960), 0, 1000));
+            Clicks.Add(new Click(4, new Point(964, 960), 0, 1000, ClickOffset));
 
             //eat
-            Clicks.Add(new Click(new Point(1791, 761), 0, 2000));
+            Clicks.Add(new Click(5, new Point(1791, 761), 0, 2000, ClickOffset));
 
-            Clicks.Add(new Click(new Point(1837, 755), 0, 2000));
+            Clicks.Add(new Click(6, new Point(1837, 755), 0, 2000, ClickOffset));
 
             //continue run
-            Clicks.Add(new Click(new Point(964, 960), 0, 5000));
+            Clicks.Add(new Click(7, new Point(964, 960), 0, 5000, ClickOffset));
 
-            Clicks.Add(new Click(new Point(964, 960), 0, 5000));
+            Clicks.Add(new Click(8, new Point(964, 960), 0, 5000, ClickOffset));
 
-            Clicks.Add(new Click(new Point(1209, 960), 0, 5000));
+            Clicks.Add(new Click(9, new Point(1209, 960), 0, 5000, ClickOffset));
 
-            Clicks.Add(new Click(new Point(1529, 486), 0, 7000));
+            Clicks.Add(new Click(10, new Point(1529, 486), 0, 7000, ClickOffset));
 
-            Clicks.Add(new Click(new Point(1753, 620), 0, 11000));
+            Clicks.Add(new Click(11, new Point(1753, 620), 0, 11000, ClickOffset));
 
-            Clicks.Add(new Click(new Point(200, 518), 0, 10000));
+            Clicks.Add(new Click(12, new Point(200, 518), 0, 10000, ClickOffset));
 
-            Clicks.Add(new Click(new Point(492, 190), 0, 11000));
+            Clicks.Add(new Click(13, new Point(492, 190), 0, 11000, ClickOffset));
 
-            Clicks.Add(new Click(new Point(960, 197), 0, 6000));
+            Clicks.Add(new Click(14, new Point(960, 197), 0, 6000, ClickOffset));
 
-            Clicks.Add(new Click(new Point(961, 246), 0, 6000));
+            Clicks.Add(new Click(15, new Point(961, 246), 0, 6000, ClickOffset));
 
-            Clicks.Add(new Click(new Point(1034, 825), 0, 1000));
+            Clicks.Add(new Click(16, new Point(1034, 825), 0, 1000, ClickOffset));
         }
 
         private void workerSeersAgility_ProgressChanged(object sender, ProgressChangedEventArgs e)
@@ -3099,10 +3714,10 @@ namespace AutoClicker
 
             if (agilOn)
             {
-                
+
                 workerSeersAgility.RunWorkerAsync();
             }
-                
+
 
             System.GC.Collect();
         }
@@ -3125,16 +3740,16 @@ namespace AutoClicker
 
             //workerBarbFish.RunWorkerAsync();
             LogWrite("Check Fishing");
-            var screenShot = MainScreen.CaptureScreen();
+            var screenShot = MainScreen.CaptureScreen(SelectedMonitor);
             var image = Properties.Resources.NotFishing;
             var colorRange = 360m * (20 / 100m); //sliderColorRange.Value
             Point point;
 
-            point = MainScreen.FindImage(screenShot, new Point(1530, 80), new Point(1700, 120), image, colorRange);
+            point = MainScreen.FindImage(screenShot, new Point(1530, 80), new Point(1700, 120), image, colorRange, SelectedMonitor);
             if (!point.IsEmpty)
             {
                 image = Properties.Resources.EmptyInvSpace;
-                point = MainScreen.FindImage(screenShot, new Point(1850, 940), new Point(1900, 985), image, colorRange);
+                point = MainScreen.FindImage(screenShot, new Point(1850, 940), new Point(1900, 985), image, colorRange, SelectedMonitor);
                 if (point.IsEmpty)
                 {
                     ClickInventory(true);
@@ -3142,21 +3757,21 @@ namespace AutoClicker
                 else
                 {
                     image = Properties.Resources.BarbFish11;
-                    point = MainScreen.FindImage(screenShot, new Point(5, 35), new Point(1910, 990), image, colorRange);
+                    point = MainScreen.FindImage(screenShot, new Point(5, 35), new Point(1910, 990), image, colorRange, SelectedMonitor);
                     if (point.IsEmpty)
                     {
                         image = Properties.Resources.BarbFish12;
-                        point = MainScreen.FindImage(screenShot, new Point(5, 35), new Point(1910, 990), image, colorRange);
+                        point = MainScreen.FindImage(screenShot, new Point(5, 35), new Point(1910, 990), image, colorRange, SelectedMonitor);
                     }
                     if (point.IsEmpty)
                     {
                         image = Properties.Resources.BarbFish13;
-                        point = MainScreen.FindImage(screenShot, new Point(5, 35), new Point(1910, 990), image, colorRange);
+                        point = MainScreen.FindImage(screenShot, new Point(5, 35), new Point(1910, 990), image, colorRange, SelectedMonitor);
                     }
                     if (point.IsEmpty)
                     {
                         image = Properties.Resources.BarbFish;
-                        point = MainScreen.FindImage(screenShot, new Point(5, 35), new Point(1910, 990), image, colorRange);
+                        point = MainScreen.FindImage(screenShot, new Point(5, 35), new Point(1910, 990), image, colorRange, SelectedMonitor);
                     }
                     var offsetX = image.Width / 2;
                     var offsetY = image.Height / 2;
@@ -3168,192 +3783,165 @@ namespace AutoClicker
 
         }
 
-        private void AutoShootTimer_Tick(object sender, EventArgs e)
+        private void worker_Auto_Attack_DoWork(object sender, DoWorkEventArgs e)
         {
+            var runParams = e.Argument as RunParams<string>;
+            var report = runParams.ReportProgress;
+            var runCount = runParams.RunLimit;
+            Timeouts timeouts = runParams.Timeouts;
+            var timeoutCount = RandomGenerate.Next(timeouts.TimeoutCountMin, timeouts.TimeoutCountMax);
+            var timeoutPos = RandomGenerate.Next(0, Clicks.Count - 1);
 
-            //R-38
-            //G-30
-            //B-23
+            if (runCount == 0)
+                runCount = 99999;
 
-            //var FightBorder = Color.FromArgb(56, 48, 35);
-            var MonsterHealth = Color.FromArgb(4, 136, 52);
-            var attackDot = Color.FromArgb(212, 0, 255);
 
-            //workerBarbFish.RunWorkerAsync();
-            LogWrite("Check For Targets");
-            var screenShot = MainScreen.CaptureScreen();
-            var testPixel = screenShot.GetPixel(9, 72);
+            report.Report("Starting Auto Attack Worker");
+            report.Report("Total Runs = " + runCount);
+            Thread.Sleep(3000);
 
-            if (testPixel != MonsterHealth)
+
+            while (!worker_Normal_Clicks.CancellationPending && runCount > 0)
             {
-                var point = MainScreen.FindColor(screenShot, new Point(200, 200), new Point(1200, 900), attackDot, 8);
-                if (!point.IsEmpty)
+
+                report.Report("Check For Targets");
+                using (var screenShot = MainScreen.CaptureScreen(SelectedMonitor))
                 {
-                    DoMouseClick(0, new Point(point.X, point.Y));
+                    var testPixel = screenShot.GetPixel(9, 72);
+
+                    if (testPixel != MonsterHealth)
+                    {
+                        var point = MainScreen.FindColor(screenShot, TopLeft, BottomRight, SearchColor, 8);
+                        if (!point.IsEmpty)
+                        {
+                            PerformLeftClick(point, report);
+                            Thread.Sleep(RandomGenerate.Next(2000, 4000));
+                        }
+                        else
+                        {
+                            //Thread.Sleep(RandomGenerate.Next(3000, 3000));
+                            Thread.Sleep(3000);
+                        }
+                    }
+                    else
+                    {
+                        //Thread.Sleep(RandomGenerate.Next(3000, 3000));
+                        Thread.Sleep(3000);
+                    }
                 }
+
+                report.Report("Check For Targets Ended");
             }
 
-
-            //for (int x = 5; x < 12; x++)
-            //{
-            //    for (int y = 50; y < 60; y++)
-            //    {
-            //        //for(int a = 0; a < 255; a++)
-            //        //{
-            //        //var FightBorder = Color.FromArgb(56, 48, 35);
-            //        if (screenShot.GetPixel(x, y) == FightBorder)
-            //            {
-            //                LogWrite("Found: " + x + ":" + y);
-            //            }
-            //        //}
-            //    }
-            //}
-            LogWrite("Check For Targets Ended");
-            return;
-            
-            //var colorRange = 360m * (20 / 100m); //sliderColorRange.Value
-            //Point point;
-
-            //point = MainScreen.FindImage(screenShot, new Point(1530, 80), new Point(1700, 120), image, colorRange);
-            //if (!point.IsEmpty)
-            //{
-            //    image = Properties.Resources.EmptyInvSpace;
-            //    point = MainScreen.FindImage(screenShot, new Point(1850, 940), new Point(1900, 985), image, colorRange);
-            //    if (point.IsEmpty)
-            //    {
-            //        ClickInventory(true);
-            //    }
-            //    else
-            //    {
-            //        image = Properties.Resources.BarbFish11;
-            //        point = MainScreen.FindImage(screenShot, new Point(5, 35), new Point(1910, 990), image, colorRange);
-            //        if (point.IsEmpty)
-            //        {
-            //            image = Properties.Resources.BarbFish12;
-            //            point = MainScreen.FindImage(screenShot, new Point(5, 35), new Point(1910, 990), image, colorRange);
-            //        }
-            //        if (point.IsEmpty)
-            //        {
-            //            image = Properties.Resources.BarbFish13;
-            //            point = MainScreen.FindImage(screenShot, new Point(5, 35), new Point(1910, 990), image, colorRange);
-            //        }
-            //        if (point.IsEmpty)
-            //        {
-            //            image = Properties.Resources.BarbFish;
-            //            point = MainScreen.FindImage(screenShot, new Point(5, 35), new Point(1910, 990), image, colorRange);
-            //        }
-            //        var offsetX = image.Width / 2;
-            //        var offsetY = image.Height / 2;
-            //        DoMouseClick(0, new Point(point.X + offsetX, point.Y + offsetY));
-            //    }
-            //}
-            //System.GC.Collect();
-            //LogWrite("Check For Targets Ended");
+            report.Report("Ending Auto Attack Worker");
 
         }
 
-        private void WoodCutTimer2_Tick(object sender, EventArgs e)
+        private void Worker_Woodcut_DoWork(object sender, DoWorkEventArgs e)
         {
+            var runParams = e.Argument as RunParams<string>;
+            var report = runParams.ReportProgress;
+            var runCount = runParams.RunLimit;
+            Timeouts timeouts = runParams.Timeouts;
+            var timeoutCount = RandomGenerate.Next(timeouts.TimeoutCountMin, timeouts.TimeoutCountMax);
+            var timeoutPos = RandomGenerate.Next(0, Clicks.Count - 1);
 
-            //workerBarbFish.RunWorkerAsync();
-            LogWrite("Check Woodcut");
-            var screenShot = MainScreen.CaptureScreen();
-            var image = Properties.Resources.WCOK;
-            var colorRange = 360m * (20 / 100m); //sliderColorRange.Value
-            Point point;
+            report.Report("Starting Woodcut Worker");
+            report.Report("Total Runs = " + runCount);
+            Thread.Sleep(3000);
 
-            point = MainScreen.FindImage(screenShot, new Point(90, 50), new Point(135, 80), image, colorRange);
-            if (point.IsEmpty)
+
+            while (!worker_Normal_Clicks.CancellationPending && runCount > 0)
             {
-                image = Properties.Resources.EmptyInvSpace;
-                point = MainScreen.FindImage(screenShot, new Point(1850, 940), new Point(1900, 985), image, colorRange);
-                if (point.IsEmpty)
+                LogWrite("Check Woodcut");
+                using (var screenShot = MainScreen.CaptureScreen(SelectedMonitor))
                 {
-                    ClickInventory(true);
-                }
-                else
-                {
-                    image = Properties.Resources.Woodcut1;
-                    point = MainScreen.FindImage(screenShot, new Point(800, 400), new Point(1100, 700), image, colorRange);
+                    var image = Properties.Resources.WCOK;
+                    Point point;
+
+                    point = MainScreen.FindImage(screenShot, new Point(90, 50), new Point(135, 80), image, ColorRange, SelectedMonitor);
                     if (point.IsEmpty)
                     {
-                        image = Properties.Resources.Woodcut2;
-                        point = MainScreen.FindImage(screenShot, new Point(800, 400), new Point(1100, 700), image, colorRange);
+                        image = Properties.Resources.EmptyInvSpace;
+                        point = MainScreen.FindImage(screenShot, new Point(1850, 940), new Point(1900, 985), image, ColorRange, SelectedMonitor);
+                        if (point.IsEmpty)
+                        {
+                            ClickInventory(true);
+                        }
+                        else
+                        {
+                            image = Properties.Resources.Woodcut1;
+                            point = MainScreen.FindImage(screenShot, new Point(800, 400), new Point(1100, 700), image, ColorRange, SelectedMonitor);
+                            if (point.IsEmpty)
+                            {
+                                image = Properties.Resources.Woodcut2;
+                                point = MainScreen.FindImage(screenShot, new Point(800, 400), new Point(1100, 700), image, ColorRange, SelectedMonitor);
+                            }
+                            var offsetX = image.Width / 2;
+                            var offsetY = image.Height / 2;
+                            PerformLeftClick(new Point(point.X + offsetX, point.Y + offsetY), report);
+                        }
                     }
-                    //if (point.IsEmpty)
-                    //{
-                    //    image = Properties.Resources.BarbFish13;
-                    //    point = MainScreen.FindImage(screenShot, new Point(5, 35), new Point(1910, 990), image, colorRange);
-                    //}
-                    //if (point.IsEmpty)
-                    //{
-                    //    image = Properties.Resources.BarbFish;
-                    //    point = MainScreen.FindImage(screenShot, new Point(5, 35), new Point(1910, 990), image, colorRange);
-                    //}
-                    var offsetX = image.Width / 2;
-                    var offsetY = image.Height / 2;
-                    DoMouseClick(0, new Point(point.X + offsetX, point.Y + offsetY));
                 }
             }
-            System.GC.Collect();
-            LogWrite("Woodcut Ended");
 
+            report.Report("Ending Woodcut Worker");
         }
 
         private void RuneCraftTimer_Tick(object sender, EventArgs e)
         {
             //click in bank
-            Clicks.Add(new Click(new Point(920, 785), 0, 1000));
+            Clicks.Add(new Click(0, new Point(920, 785), 0, 1000, ClickOffset));
 
-            Clicks.Add(new Click(new Point(968, 785), 0, 1000));
+            Clicks.Add(new Click(1, new Point(968, 785), 0, 1000, ClickOffset));
 
-            Clicks.Add(new Click(new Point(1018, 785), 1, 2000));
+            Clicks.Add(new Click(2, new Point(1018, 785), 1, 2000, ClickOffset));
 
-            Clicks.Add(new Click(new Point(977, 880), 0, 1000));
+            Clicks.Add(new Click(3, new Point(977, 880), 0, 1000, ClickOffset));
 
             //run / leave bak
-            Clicks.Add(new Click(new Point(964, 960), 0, 1000));
+            Clicks.Add(new Click(4, new Point(964, 960), 0, 1000, ClickOffset));
 
             //eat
-            Clicks.Add(new Click(new Point(1791, 761), 0, 2000));
+            Clicks.Add(new Click(5, new Point(1791, 761), 0, 2000, ClickOffset));
 
-            Clicks.Add(new Click(new Point(1837, 755), 0, 2000));
+            Clicks.Add(new Click(6, new Point(1837, 755), 0, 2000, ClickOffset));
 
             //continue run
-            Clicks.Add(new Click(new Point(964, 960), 0, 5000));
+            Clicks.Add(new Click(7, new Point(964, 960), 0, 5000, ClickOffset));
 
-            Clicks.Add(new Click(new Point(964, 960), 0, 5000));
+            Clicks.Add(new Click(8, new Point(964, 960), 0, 5000, ClickOffset));
 
-            Clicks.Add(new Click(new Point(1209, 960), 0, 5000));
+            Clicks.Add(new Click(9, new Point(1209, 960), 0, 5000, ClickOffset));
 
-            Clicks.Add(new Click(new Point(1529, 486), 0, 7000));
+            Clicks.Add(new Click(10, new Point(1529, 486), 0, 7000, ClickOffset));
 
-            Clicks.Add(new Click(new Point(1753, 620), 0, 11000));
+            Clicks.Add(new Click(11, new Point(1753, 620), 0, 11000, ClickOffset));
 
-            Clicks.Add(new Click(new Point(200, 518), 0, 10000));
+            Clicks.Add(new Click(12, new Point(200, 518), 0, 10000, ClickOffset));
 
-            Clicks.Add(new Click(new Point(492, 190), 0, 11000));
+            Clicks.Add(new Click(13, new Point(492, 190), 0, 11000, ClickOffset));
 
-            Clicks.Add(new Click(new Point(960, 197), 0, 6000));
+            Clicks.Add(new Click(14, new Point(960, 197), 0, 6000, ClickOffset));
 
-            Clicks.Add(new Click(new Point(961, 246), 0, 6000));
+            Clicks.Add(new Click(15, new Point(961, 246), 0, 6000, ClickOffset));
 
-            Clicks.Add(new Click(new Point(1034, 825), 0, 1000));
+            Clicks.Add(new Click(16, new Point(1034, 825), 0, 1000, ClickOffset));
             //Thread.Sleep(1000);
         }
         private void workerBarbFish_DoWork(object sender, System.ComponentModel.DoWorkEventArgs e)
         {
             LogWrite("Check Fishing");
-            var screenShot = MainScreen.CaptureScreen();
+            var screenShot = MainScreen.CaptureScreen(SelectedMonitor);
             var image = Properties.Resources.NotFishing;
             var colorRange = 360m * (10 / 100m);
             Point point;
 
-            point = MainScreen.FindImage(screenShot, new Point(1530, 80), new Point(1700, 120), image, colorRange);
-            if(!point.IsEmpty)
+            point = MainScreen.FindImage(screenShot, new Point(1530, 80), new Point(1700, 120), image, colorRange, SelectedMonitor);
+            if (!point.IsEmpty)
             {
                 image = Properties.Resources.Empty_Inv_Space;
-                point = MainScreen.FindImage(screenShot, new Point(1855, 950), new Point(1900, 985), image, colorRange);
+                point = MainScreen.FindImage(screenShot, new Point(1855, 950), new Point(1900, 985), image, colorRange, SelectedMonitor);
                 if (point.IsEmpty)
                 {
                     ClickInventory(true);
@@ -3361,7 +3949,7 @@ namespace AutoClicker
                 else
                 {
                     image = Properties.Resources.BarbFish11;
-                    point = MainScreen.FindImage(screenShot, new Point(5, 35), new Point(1910, 990), image, colorRange);
+                    point = MainScreen.FindImage(screenShot, new Point(5, 35), new Point(1910, 990), image, colorRange, SelectedMonitor);
                     var offsetX = image.Width / 2;
                     var offsetY = image.Height / 2;
                     DoMouseClick(0, new Point(point.X + offsetX, point.Y + offsetY));
@@ -3390,34 +3978,34 @@ namespace AutoClicker
             DoMouseClick(0, new Point(770, 350));
             Thread.Sleep(8000);
             //First Ledge
-            point = MainScreen.FindImage(new Point(900, 290), new Point(980, 400), image, colorRange);
+            point = MainScreen.FindImage(new Point(900, 290), new Point(980, 400), image, colorRange, SelectedMonitor);
             DoMouseClick(0, new Point(point.X + offsetX, point.Y + offsetY));
             Thread.Sleep(5500);
             //Second Ledge
-            point = MainScreen.FindImage(new Point(750, 480), new Point(800, 575), image, colorRange);
+            point = MainScreen.FindImage(new Point(750, 480), new Point(800, 575), image, colorRange, SelectedMonitor);
             DoMouseClick(0, new Point(point.X + offsetX, point.Y + offsetY));
             Thread.Sleep(5500);
             //Third Ledge
-            point = MainScreen.FindImage(new Point(700, 650), new Point(750, 750), image, colorRange);
+            point = MainScreen.FindImage(new Point(700, 650), new Point(750, 750), image, colorRange, SelectedMonitor);
             DoMouseClick(0, new Point(point.X + offsetX, point.Y + offsetY));
             Thread.Sleep(6000);
             //Fourth Ledge
-            point = MainScreen.FindImage(new Point(880, 740), new Point(945, 850), image, colorRange);
+            point = MainScreen.FindImage(new Point(880, 740), new Point(945, 850), image, colorRange, SelectedMonitor);
             DoMouseClick(0, new Point(point.X + offsetX, point.Y + offsetY));
             Thread.Sleep(5500);
             //Polevault
-            point = MainScreen.FindImage(new Point(980, 600), new Point(1060, 660), image, colorRange);
+            point = MainScreen.FindImage(new Point(980, 600), new Point(1060, 660), image, colorRange, SelectedMonitor);
             DoMouseClick(0, new Point(point.X + offsetX, point.Y + offsetY));
             Thread.Sleep(7500);
 
-            point = MainScreen.FindImage(new Point(1300, 500), new Point(1570, 600), image, colorRange);
+            point = MainScreen.FindImage(new Point(1300, 500), new Point(1570, 600), image, colorRange, SelectedMonitor);
             if (point.IsEmpty) {
                 point = new Point(1500, 570);
             }
             DoMouseClick(0, new Point(point.X + offsetX, point.Y + offsetY));
             Thread.Sleep(6500);
 
-            point = MainScreen.FindImage(new Point(930, 330), new Point(980, 380), image, colorRange);
+            point = MainScreen.FindImage(new Point(930, 330), new Point(980, 380), image, colorRange, SelectedMonitor);
             DoMouseClick(0, new Point(point.X + offsetX, point.Y + offsetY));
             Thread.Sleep(5000);
 
@@ -3440,28 +4028,19 @@ namespace AutoClicker
                 BarbFishTimer.Stop(); // workerSeersAgility.CancelAsync();
                 LogWrite("Ending Barb Fish!");
             }
-                
+
         }
 
         private void btnRC_Click(object sender, EventArgs e)
         {
-            //PopulateRCClicks();
-            //RuneCraft = !RuneCraft;
-            //if (RuneCraft)
-            //{
-            //    LogWrite("Staring RC!");
-            //    StartAutoClicker();
-            //}
-            //else
-            //{
-            //    LogWrite("Ending RC!");
-            //    StopAutoClicker(); // workerSeersAgility.CancelAsync();
-            //}
             var runParams = new RunParams<string>();
             runParams.ReportProgress = new Progress<string>(value => LogWrite(value));
-            runParams.Timeouts = chkTimeOut.Checked;
-            runParams.TimeoutLow = (int)minRandom.Value;
-            runParams.TimeoutHigh = (int)maxRandom.Value;
+            runParams.Timeouts = new Timeouts()
+            {
+                Active = chkTimeOut.Enabled,
+                TimeoutCountMin = int.Parse(txt_Timeout_Cycle_Min.Text),
+                TimeoutCountMax = int.Parse(txt_Timeout_Cycle_Max.Text)
+            };
             runParams.RunLimit = (int)numCount.Value;
 
             //var report = new Progress<string>(value => LogWrite(value));
@@ -3471,71 +4050,13 @@ namespace AutoClicker
             {
                 LogWrite("Starting RC");
                 //AgilityTimer.Start(); 
-                workerRC.RunWorkerAsync(runParams);
+                worker_RC.RunWorkerAsync(runParams);
             }
             else
             {
                 LogWrite("Ending RC");
                 //AgilityTimer.Stop();
-                workerRC.CancelAsync();
-            }
-
-
-        }
-
-        private void PopulateRCClicks()
-        {
-            Clicks.Clear();
-            Clicks.Add(new Click(new Point(920, 785), 0, 1000));
-
-            Clicks.Add(new Click(new Point(968, 785), 0, 1000));
-
-            Clicks.Add(new Click(new Point(1018, 785), 1, 2000));
-
-            Clicks.Add(new Click(new Point(977, 880), 0, 1000));
-
-            //run / leave bak
-            Clicks.Add(new Click(new Point(964, 960), 0, 1000));
-
-            //eat
-            Clicks.Add(new Click(new Point(1791, 761), 0, 2000));
-
-            Clicks.Add(new Click(new Point(1837, 755), 0, 2000));
-
-            //continue run
-            Clicks.Add(new Click(new Point(964, 960), 0, 5000));
-
-            Clicks.Add(new Click(new Point(964, 960), 0, 5000));
-
-            Clicks.Add(new Click(new Point(1209, 960), 0, 5000));
-
-            Clicks.Add(new Click(new Point(1529, 486), 0, 7000));
-
-            Clicks.Add(new Click(new Point(1753, 620), 0, 11000));
-
-            Clicks.Add(new Click(new Point(200, 518), 0, 10000));
-
-            Clicks.Add(new Click(new Point(492, 190), 0, 11000));
-
-            Clicks.Add(new Click(new Point(960, 197), 0, 6000));
-
-            Clicks.Add(new Click(new Point(961, 246), 0, 6000));
-
-            Clicks.Add(new Click(new Point(1034, 825), 0, 1000));
-        }
-
-        private void btnWC2_Click(object sender, EventArgs e)
-        {
-            WoodCutOn = !WoodCutOn;
-            if (WoodCutOn)
-            {
-                LogWrite("Staring WoodCutOn!");
-                WoodCutTimer2.Start();
-            }
-            else
-            {
-                WoodCutTimer2.Stop(); // workerSeersAgility.CancelAsync();
-                LogWrite("Ending WoodCutOn!");
+                worker_RC.CancelAsync();
             }
         }
 
@@ -3557,21 +4078,9 @@ namespace AutoClicker
             logClicks = chkClicks.Checked;
         }
 
-        private void btnAutoShoot_Click(object sender, EventArgs e)
+        private void btn_Auto_Attack_Click(object sender, EventArgs e)
         {
-            AutoShootOn = !AutoShootOn;
-            if (AutoShootOn)
-            {
-                LogWrite("Staring AutoShoot!");
-                AutoShootTimer.Start();
-                LogoutTimer.Start();
-            }
-            else
-            {
-                AutoShootTimer.Stop(); // workerSeersAgility.CancelAsync();
-                LogoutTimer.Stop();
-                LogWrite("Ending AutoShoot!");
-            }
+
         }
 
         public void Report(string value)
@@ -3579,13 +4088,14 @@ namespace AutoClicker
             throw new NotImplementedException();
         }
 
-        private async void workerRC_DoWork(object sender, DoWorkEventArgs e)
+        private async void worker_RC_DoWork(object sender, DoWorkEventArgs e)
         {
             var runParams = e.Argument as RunParams<string>;
             //var report = e.Argument as IProgress<string>;
-            var timeoutCount = RandomGenerate.Next(runParams.TimeoutLow, runParams.TimeoutHigh);
             var report = runParams.ReportProgress;
             var runCount = runParams.RunLimit;
+            Timeouts timeouts = runParams.Timeouts;
+            var timeoutCount = RandomGenerate.Next(timeouts.TimeoutCountMin, timeouts.TimeoutCountMax);
             if (runCount == 0)
                 runCount = 99999;
 
@@ -3596,7 +4106,7 @@ namespace AutoClicker
 
             report.Report("Total Runs = " + runCount);
             Thread.Sleep(3000);
-            while (!workerRC.CancellationPending && runCount > 0)
+            while (!worker_RC.CancellationPending && runCount > 0)
             {
                 report.Report(string.Format("Sprint:{0}, Count:{1}", useSprint, sprintCount));
                 await RunRC(report, useSprint, eatFish);
@@ -3615,12 +4125,12 @@ namespace AutoClicker
                 else
                     eatFish = false;
 
-                if(runParams.Timeouts)
+                if (timeouts.Active)
                 {
                     timeoutCount--;
-                    if(timeoutCount <= 0)
+                    if (timeoutCount <= 0)
                     {
-                        timeoutCount = RandomGenerate.Next(runParams.TimeoutLow, runParams.TimeoutHigh);
+                        timeoutCount = RandomGenerate.Next(timeouts.TimeoutCountMin, timeouts.TimeoutCountMax);
                         var timeoutnum = RandomGenerate.Next(20000, 90000);
                         report.Report("Pausing for : " + timeoutnum);
                         report.Report("New count limit : " + timeoutCount);
@@ -3660,7 +4170,7 @@ namespace AutoClicker
 
             var colorRange = 360m * (20 / 100m);
 
-            
+
 
             point = new Point(1754, 161);
             offsetX = RandomGenerate.Next(-5, 5);
@@ -3668,29 +4178,29 @@ namespace AutoClicker
             point.X += offsetX;
             point.Y += offsetY;
             DoMouseClickAsync(report, 0, new Point(point.X, point.Y));
-            Thread.Sleep(RandomGenerate.Next(800,1500));
+            Thread.Sleep(RandomGenerate.Next(800, 1500));
 
             if (runOn)
             {
-                point = MainScreen.FindImage(new Point(1713, 154), new Point(1745, 176), fullEnergy, colorRange);
+                point = MainScreen.FindImage(new Point(1713, 154), new Point(1745, 176), fullEnergy, colorRange, SelectedMonitor);
                 if (point.IsEmpty)
                     return false;
 
                 var attackDot = Color.FromArgb(206, 168, 1);
-                point = MainScreen.FindColorScreenRange(new Point(1746, 156), new Point(1763, 171), attackDot, 1, colorRange);
+                point = MainScreen.FindColorScreenRange(new Point(1746, 156), new Point(1763, 171), attackDot, 1, colorRange, SelectedMonitor);
                 if (point.IsEmpty)
                     return false;
             }
             else
             {
                 var attackDot = Color.FromArgb(171, 172, 162);
-                point = MainScreen.FindColorScreenRange(new Point(1746, 156), new Point(1763, 171), attackDot, 1, colorRange);
+                point = MainScreen.FindColorScreenRange(new Point(1746, 156), new Point(1763, 171), attackDot, 1, colorRange, SelectedMonitor);
                 if (point.IsEmpty)
                     return false;
             }
 
             return true;
-            
+
         }
 
         private void RepairBags(IProgress<string> report)
@@ -3707,7 +4217,7 @@ namespace AutoClicker
             var colorRange = 360m * (0 / 100m);
             Point point;
 
-            point = MainScreen.FindImage(new Point(X2, Y2), new Point(MaxX, MaxY), brokenBag, colorRange);
+            point = MainScreen.FindImage(new Point(X2, Y2), new Point(MaxX, MaxY), brokenBag, colorRange, SelectedMonitor);
             if (point.IsEmpty)
                 return;
 
@@ -3774,12 +4284,12 @@ namespace AutoClicker
             Point point;
 
             //CHeck At STart
-            point = MainScreen.FindColorScreen(new Point(0, 0), new Point(X1, Y1), StartCheck, 8);
+            point = MainScreen.FindColorScreen(new Point(0, 0), new Point(X1, Y1), StartCheck, 8, SelectedMonitor);
             if (point.IsEmpty)
                 return;
 
             //bank
-            point = new Point(1023,426);
+            point = new Point(1023, 426);
             if (!point.IsEmpty)
             {
                 offsetX = RandomGenerate.Next(-6, 6);
@@ -3793,7 +4303,7 @@ namespace AutoClicker
             Thread.Sleep(RandomGenerate.Next(3000, 4000));
 
             //BankCheck
-            point = MainScreen.FindImage(new Point(X1, 0), new Point(X2, Y1), bankCloseButton, colorRange);
+            point = MainScreen.FindImage(new Point(X1, 0), new Point(X2, Y1), bankCloseButton, colorRange, SelectedMonitor);
             if (point.IsEmpty)
                 return;
 
@@ -3821,7 +4331,7 @@ namespace AutoClicker
                 point.X += offsetX;
                 point.Y += offsetY;
                 DoMouseClickAsync(report, 1, new Point(point.X, point.Y));
-  
+
                 Thread.Sleep(RandomGenerate.Next(500, 1200));
 
                 offsetX = RandomGenerate.Next(-8, 8);
@@ -3925,7 +4435,7 @@ namespace AutoClicker
             //First Square  830,260 SOUTH
             //point = MainScreen.FindImage(new Point(600, 350), new Point(750, 500), image, colorRange);
             //DoMouseClick(0, new Point(point.X + offsetX, point.Y + offsetY));
-            point = MainScreen.FindColorScreen(new Point(X1, 100), new Point(X2, Y1), attackDot, 8);
+            point = MainScreen.FindColorScreen(new Point(X1, 100), new Point(X2, Y1), attackDot, 8, SelectedMonitor);
             if (!point.IsEmpty)
             {
                 offsetX = RandomGenerate.Next(-10, 20);
@@ -3941,7 +4451,7 @@ namespace AutoClicker
             //2nd Square 845,197 SOUTH
             //point = MainScreen.FindImage(new Point(600, 350), new Point(750, 500), image, colorRange);
             //DoMouseClick(0, new Point(point.X + offsetX, point.Y + offsetY));
-            point = MainScreen.FindColorScreen(new Point(X1, 100), new Point(X2, Y1), attackDot, 8);
+            point = MainScreen.FindColorScreen(new Point(X1, 100), new Point(X2, Y1), attackDot, 8, SelectedMonitor);
             if (!point.IsEmpty)
             {
                 offsetX = RandomGenerate.Next(-10, 20);
@@ -3957,7 +4467,7 @@ namespace AutoClicker
             //3rd Square 755,180 SOUTH
             //point = MainScreen.FindImage(new Point(600, 350), new Point(750, 500), image, colorRange);
             //DoMouseClick(0, new Point(point.X + offsetX, point.Y + offsetY));
-            point = MainScreen.FindColorScreen(new Point(X1, 0), new Point(X2, Y1), attackDot, 8);
+            point = MainScreen.FindColorScreen(new Point(X1, 0), new Point(X2, Y1), attackDot, 8, SelectedMonitor);
             if (!point.IsEmpty)
             {
                 offsetX = RandomGenerate.Next(-10, 20);
@@ -3973,7 +4483,7 @@ namespace AutoClicker
             //4th Square 106,540  EAST
             //point = MainScreen.FindImage(new Point(600, 350), new Point(750, 500), image, colorRange);
             //DoMouseClick(0, new Point(point.X + offsetX, point.Y + offsetY));
-            point = MainScreen.FindColorScreen(new Point(0, Y1), new Point(X1, Y2), attackDot, 8);
+            point = MainScreen.FindColorScreen(new Point(0, Y1), new Point(X1, Y2), attackDot, 8, SelectedMonitor);
             if (!point.IsEmpty)
             {
                 offsetX = RandomGenerate.Next(2, 20);
@@ -3989,7 +4499,7 @@ namespace AutoClicker
             //Altar 106,540 
             //point = MainScreen.FindImage(new Point(600, 350), new Point(750, 500), image, colorRange);
             //DoMouseClick(0, new Point(point.X + offsetX, point.Y + offsetY));
-            point = MainScreen.FindColorScreen(new Point(0, Y1), new Point(X1, Y2), attackDot, 8);
+            point = MainScreen.FindColorScreen(new Point(0, Y1), new Point(X1, Y2), attackDot, 8, SelectedMonitor);
             if (!point.IsEmpty)
             {
                 offsetX = RandomGenerate.Next(-10, 30);
@@ -4035,7 +4545,7 @@ namespace AutoClicker
             Thread.Sleep(RandomGenerate.Next(500, 1200));
 
             //Altar 765,530
-            point = MainScreen.FindColorScreen(new Point(X1, Y1), new Point(X2, Y2), attackDot, 8);
+            point = MainScreen.FindColorScreen(new Point(X1, Y1), new Point(X2, Y2), attackDot, 8, SelectedMonitor);
             if (!point.IsEmpty)
             {
                 offsetX = RandomGenerate.Next(-10, 30);
@@ -4063,7 +4573,7 @@ namespace AutoClicker
             Thread.Sleep(RandomGenerate.Next(1000, 2000));
 
             //Altar 765,530
-            point = MainScreen.FindColorScreen(new Point(X1, Y1), new Point(X2, Y2), attackDot, 8);
+            point = MainScreen.FindColorScreen(new Point(X1, Y1), new Point(X2, Y2), attackDot, 8, SelectedMonitor);
             if (!point.IsEmpty)
             {
                 offsetX = RandomGenerate.Next(-10, 30);
@@ -4075,7 +4585,7 @@ namespace AutoClicker
             else
                 return;
             Thread.Sleep(RandomGenerate.Next(1000, 2000));
- 
+
         }
 
         private void FinishRC(IProgress<string> report, bool useSprint)
@@ -4116,7 +4626,7 @@ namespace AutoClicker
             Thread.Sleep(RandomGenerate.Next(3500, 5000));
 
             //Tile Up Hill 1260,161
-            point = MainScreen.FindColorScreen(new Point(X2, 0), new Point(MaxX, Y1), attackDot, 8);
+            point = MainScreen.FindColorScreen(new Point(X2, 0), new Point(MaxX, Y1), attackDot, 8, SelectedMonitor);
             if (!point.IsEmpty)
             {
                 offsetX = RandomGenerate.Next(-5, 30);
@@ -4150,7 +4660,7 @@ namespace AutoClicker
             //Thread.Sleep(RandomGenerate.Next(19000, 20000));
 
             //Ladder Up Hill 935,425
-            point = MainScreen.FindColorScreen(new Point(X1, Y1), new Point(X2, Y2), attackDot, 8);
+            point = MainScreen.FindColorScreen(new Point(X1, Y1), new Point(X2, Y2), attackDot, 8, SelectedMonitor);
             if (!point.IsEmpty)
             {
                 offsetX = RandomGenerate.Next(5, 15);
@@ -4164,57 +4674,31 @@ namespace AutoClicker
             Thread.Sleep(RandomGenerate.Next(6000, 8000));
         }
 
-        private void btnMine_Click(object sender, EventArgs e)
-        {
-            var runParams = new RunParams<string>();
-            runParams.ReportProgress = new Progress<string>(value => LogWrite(value));
-            runParams.Timeouts = chkTimeOut.Checked;
-            runParams.TimeoutLow = (int)minRandom.Value;
-            runParams.TimeoutHigh = (int)maxRandom.Value;
-            runParams.RunLimit = (int)numCount.Value;
-
-            //var report = new Progress<string>(value => LogWrite(value));
-
-            RuneCraft = !RuneCraft;
-            if (RuneCraft)
-            {
-                LogWrite("Starting Mining");
-                workerMining.RunWorkerAsync(runParams);
-            }
-            else
-            {
-                LogWrite("Ending Mining");
-                workerMining.CancelAsync();
-            }
-        }
-
-        private void workerMining_DoWork(object sender, DoWorkEventArgs e)
+        private void worker_Mining_DoWork(object sender, DoWorkEventArgs e)
         {
             var runParams = e.Argument as RunParams<string>;
-            //var report = e.Argument as IProgress<string>;
-            var timeoutCount = RandomGenerate.Next(runParams.TimeoutLow, runParams.TimeoutHigh);
             var report = runParams.ReportProgress;
             var runCount = runParams.RunLimit;
+            Timeouts timeouts = runParams.Timeouts;
+            var timeoutCount = RandomGenerate.Next(timeouts.TimeoutCountMin, timeouts.TimeoutCountMax);
             if (runCount == 0)
                 runCount = 99999;
-
+            report.Report("Starting Mining Worker");
             report.Report("Total Runs = " + runCount);
             Thread.Sleep(3000);
 
-            while (!workerMining.CancellationPending && runCount > 0)
+            while (!worker_Mining.CancellationPending && runCount > 0)
             {
-                //await Task.Run(() => CheckFullInv());
-                //await Task.Run(() => MineRock());
                 CheckFullInv();
                 MineRock();
                 runCount--;
 
-                if (runParams.Timeouts)
+                if (timeouts.Active)
                 {
                     timeoutCount--;
                     if (timeoutCount <= 0)
                     {
-                        timeoutCount = RandomGenerate.Next(runParams.TimeoutLow, runParams.TimeoutHigh);
+                        timeoutCount = RandomGenerate.Next(timeouts.TimeoutCountMin, timeouts.TimeoutCountMax);
                         var timeoutnum = RandomGenerate.Next(20000, 90000);
                         report.Report("Pausing for : " + timeoutnum);
                         report.Report("New count limit : " + timeoutCount);
@@ -4223,7 +4707,7 @@ namespace AutoClicker
                 }
             }
 
-            report.Report("Ending Mining");
+            report.Report("Ending Mining Worker");
         }
 
         private void MineRock()
@@ -4231,7 +4715,7 @@ namespace AutoClicker
             var attackDot = Color.FromArgb(255, 0, 255);
             int offsetX = 0;
             int offsetY = 0;
-            Point point = MainScreen.FindColorScreen(new Point(670, 420), new Point(1200, 820), attackDot, 8);
+            Point point = MainScreen.FindColorScreen(new Point(670, 420), new Point(1200, 820), attackDot, 8, SelectedMonitor);
             if (!point.IsEmpty)
             {
                 offsetX = RandomGenerate.Next(0, 20);
@@ -4250,21 +4734,39 @@ namespace AutoClicker
             //return Task.CompletedTask;
         }
 
+        private void MineRock(Bitmap screenShot, Point topLeft, Point bottomRight, decimal colorRange, IProgress<string> report)
+        {
+            Point point = MainScreen.FindColorScreenCenterOut(topLeft, bottomRight, SearchColor, colorRange, 8, SelectedMonitor);
+            if (!point.IsEmpty && (point.X != 0 && point.Y != 0))
+            {
+                Mouse.Mouse.MoveTo(point.X, point.Y);
+
+                Thread.Sleep(100);
+
+                Mouse.Mouse.LeftClick();
+                report.Report("Clicked at X:" + point.X + "  Y:" + point.Y);
+            }
+
+            Thread.Sleep(RandomGenerate.Next(4000, 7000));
+
+            //return Task.CompletedTask;
+        }
+
         private void CheckFullInv()
         {
             int offsetX = 0;
             int offsetY = 0;
             var colorRange = 360m * (10 / 100m);
             var image = Properties.Resources.EmptyInvNew;
-            var point = MainScreen.FindImage(new Point(1850, 953), new Point(1906, 990), image, colorRange);
+            var point = MainScreen.FindImage(new Point(1850, 953), new Point(1906, 990), image, colorRange, SelectedMonitor);
             if (point.IsEmpty)
             {
                 Keyboard.Keyboard.HoldKey(Keys.LShiftKey);
-                for(int i = 0; i < Inventory.Count; i++)
+                for (int i = 0; i < Inventory.Count; i++)
                 {
                     point = Inventory[i];
                     offsetX = RandomGenerate.Next(-5, 5);
-                    if(i % 4 == 0)
+                    if (i % 4 == 0)
                         offsetY = RandomGenerate.Next(-5, 5);
                     point.X += offsetX;
                     point.Y += offsetY + RandomGenerate.Next(-2, 2);
@@ -4279,7 +4781,47 @@ namespace AutoClicker
                 }
                 Keyboard.Keyboard.ReleaseKey(Keys.LShiftKey);
             }
-            //return Task.CompletedTask;
+        }
+
+        private void CheckFullInv(Bitmap screenshot, Point topLeft, Point bottmRight)
+        {
+            int offsetX = 0;
+            int offsetY = 0;
+            var image = Properties.Resources.EmptyInvNew;
+            var point = MainScreen.FindImage(screenshot, topLeft, BottomRight, image, ColorRange, SelectedMonitor);
+            if (point.IsEmpty)
+            {
+                Keyboard.Keyboard.HoldKey(Keys.LShiftKey);
+                for (int i = 0; i < Inventory.Count; i++)
+                {
+                    point = Inventory[i];
+                    offsetX = RandomGenerate.Next(-5, 5);
+                    if (i % 4 == 0)
+                        offsetY = RandomGenerate.Next(-5, 5);
+                    point.X += offsetX;
+                    point.Y += offsetY + RandomGenerate.Next(-2, 2);
+                    Mouse.Mouse.MoveTo(point.X, point.Y);
+
+                    Thread.Sleep(100);
+
+                    Mouse.Mouse.LeftClick();
+
+                    Thread.Sleep(RandomGenerate.Next(300, 800));
+
+                }
+                Keyboard.Keyboard.ReleaseKey(Keys.LShiftKey);
+            }
+        }
+
+        private bool CheckFullBankInv(Bitmap screenshot, Point topLeft, Point bottomRight)
+        {
+            var image = Properties.Resources.EmptyInvNew;
+            var point = MainScreen.FindImage(screenshot, topLeft, bottomRight, image, ColorRange, SelectedMonitor);
+            if (point.IsEmpty || (point.X == -2560 && point.Y == 0) || (point.X == 2560 && point.Y == 0))
+            {
+                return true;
+            }
+            return false;
         }
 
         private void btnSetAlch_Click(object sender, EventArgs e)
@@ -4292,9 +4834,12 @@ namespace AutoClicker
         {
             var runParams = new RunParams<string>();
             runParams.ReportProgress = new Progress<string>(value => LogWrite(value));
-            runParams.Timeouts = chkTimeOut.Checked;
-            runParams.TimeoutLow = (int)minRandom.Value;
-            runParams.TimeoutHigh = (int)maxRandom.Value;
+            runParams.Timeouts = new Timeouts()
+            {
+                Active = chkTimeOut.Checked,
+                TimeoutCountMin = int.Parse(txt_Timeout_Cycle_Min.Text),
+                TimeoutCountMax = int.Parse(txt_Timeout_Cycle_Max.Text)
+            };
             runParams.RunLimit = (int)numCount.Value;
 
             RuneCraft = !RuneCraft;
@@ -4315,9 +4860,10 @@ namespace AutoClicker
         private void workerAlch_DoWork(object sender, DoWorkEventArgs e)
         {
             var runParams = e.Argument as RunParams<string>;
-            var timeoutCount = RandomGenerate.Next(runParams.TimeoutLow, runParams.TimeoutHigh);
             var report = runParams.ReportProgress;
             var runCount = runParams.RunLimit;
+            Timeouts timeouts = runParams.Timeouts;
+            var timeoutCount = RandomGenerate.Next(timeouts.TimeoutCountMin, timeouts.TimeoutCountMax);
             if (runCount == 0)
                 runCount = 99999;
 
@@ -4338,12 +4884,12 @@ namespace AutoClicker
                 Mouse.Mouse.LeftClick();
                 runCount--;
 
-                if (runParams.Timeouts)
+                if (timeouts.Active)
                 {
                     timeoutCount--;
                     if (timeoutCount <= 0)
                     {
-                        timeoutCount = RandomGenerate.Next(runParams.TimeoutLow, runParams.TimeoutHigh);
+                        timeoutCount = RandomGenerate.Next(timeouts.TimeoutCountMin, timeouts.TimeoutCountMax);
                         var timeoutnum = RandomGenerate.Next(10000, 60000);
                         ClickPoint.X = AlchPoint.X + RandomGenerate.Next(-3, 3);
                         ClickPoint.Y = AlchPoint.Y + RandomGenerate.Next(-3, 3);
@@ -4354,7 +4900,7 @@ namespace AutoClicker
                     }
                 }
 
-                if(runCount % 2 == 0)
+                if (runCount % 2 == 0)
                 {
                     var min = 3100 - tempSleep;
                     sleep = RandomGenerate.Next(min, min + 1000);
@@ -4364,12 +4910,595 @@ namespace AutoClicker
                     sleep = RandomGenerate.Next(500, 2000);
                     tempSleep = sleep;
                 }
-                
+
 
                 Thread.Sleep(sleep);
             }
 
             report.Report("Ending Alching");
+        }
+        private void txt_Number_Only_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            if (!char.IsNumber(e.KeyChar) && !char.IsControl(e.KeyChar) && e.KeyChar != '-')
+            {
+                //The char is not a number or a control key
+                //Handle the event so the key press is accepted
+                e.Handled = true;
+                //Get out of there - make it safe to add stuff after the if statement
+                return;
+            }
+        }
+
+        private void worker_Gem_Mining_DoWork(object sender, DoWorkEventArgs e)
+        {
+            var runParams = e.Argument as RunParams<string>;
+            var report = runParams.ReportProgress;
+            var runCount = runParams.RunLimit;
+            var colorRange = runParams.ScreenshotInfo.ColorRange;
+            Timeouts timeouts = runParams.Timeouts;
+            var timeoutCount = RandomGenerate.Next(timeouts.TimeoutCountMin, timeouts.TimeoutCountMax);
+            if (runCount == 0)
+                runCount = 99999;
+
+            var step = 0;
+
+            report.Report("Starting Gem Mining Worker");
+            report.Report("Total Runs = " + runCount);
+            Thread.Sleep(3000);
+
+            while (!worker_Gem_Mining.CancellationPending && runCount > 0)
+            {
+                using (var screenShot = MainScreen.CaptureScreen(SelectedMonitor))
+                {
+                    if (step == 0)
+                    {
+                        if (CheckFullBankInv(screenShot, InvTopLeft, InvBottomRight))
+                        {
+                            step = 1;
+                            continue;
+                        }
+                    }
+                    if (step == 1)
+                    {
+                        if (FindBank(screenShot, TopLeft, BottomRight, colorRange, report))
+                            step = 2;
+                        continue;
+                    }
+                    if (step == 2)
+                    {
+                        if (FindBankAll(screenShot, TopLeft, BottomRight, colorRange, report))
+                            step = 3;
+                        else
+                            step = 1;
+                        continue;
+                    }
+                    if (step == 3)
+                    {
+                        if (CloseBank(screenShot, TopLeft, BottomRight, colorRange, report))
+                        {
+                            runCount--;
+                            step = 0;
+                        }
+
+                        continue;
+                    }
+                    if (step == 0)
+                        MineRock(screenShot, TopLeft, BottomRight, colorRange, report);
+
+
+                    if (timeouts.Active)
+                    {
+                        timeoutCount--;
+                        if (timeoutCount <= 0)
+                        {
+                            timeoutCount = RandomGenerate.Next(timeouts.TimeoutCountMin, timeouts.TimeoutCountMax);
+                            var timeoutnum = RandomGenerate.Next(20000, 90000);
+                            report.Report("Pausing for : " + timeoutnum);
+                            report.Report("New count limit : " + timeoutCount);
+                            Thread.Sleep(timeoutnum);
+                        }
+                    }
+                }
+
+
+            }
+
+            report.Report("Ending Gem Mining Worker");
+        }
+
+        private bool FindBank(Bitmap screenshot, Point topLeft, Point bottmRight, decimal colorRange, IProgress<string> report)
+        {
+            var point = MainScreen.FindColorScreenRange(screenshot, topLeft, bottmRight, SearchColor2, 8, colorRange, SelectedMonitor);
+            if (!point.IsEmpty && (point.X != 0 && point.Y != 0))
+            {
+                Mouse.Mouse.MoveTo(point.X, point.Y);
+
+                Thread.Sleep(100);
+
+                Mouse.Mouse.LeftClick();
+                report.Report("Clicked at X:" + point.X + "  Y:" + point.Y);
+
+                Thread.Sleep(RandomGenerate.Next(6000, 9000));
+                return true;
+            }
+            Thread.Sleep(RandomGenerate.Next(3000, 3000));
+            return false;
+        }
+
+        private bool FindBankAll(Bitmap screenshot, Point topLeft, Point bottmRight, decimal colorRange, IProgress<string> report)
+        {
+            var image = Properties.Resources.Bank_All;
+            var point = MainScreen.FindImage(screenshot, topLeft, bottmRight, image, colorRange, SelectedMonitor);
+            if (!point.IsEmpty && (point.X != 0 && point.Y != 0))
+            {
+                var offsetX = RandomGenerate.Next(0, image.Width);
+                var offsetY = RandomGenerate.Next(0, image.Height);
+
+                Mouse.Mouse.MoveTo(point.X + offsetX, point.Y + offsetY);
+
+                Thread.Sleep(100);
+
+                Mouse.Mouse.LeftClick();
+                report.Report("Clicked at X:" + point.X + "  Y:" + point.Y);
+
+                Thread.Sleep(RandomGenerate.Next(2000, 4000));
+                return true;
+            }
+            Thread.Sleep(RandomGenerate.Next(3000, 3000));
+            return false;
+        }
+
+        private bool CloseBank(Bitmap screenshot, Point topLeft, Point bottmRight, decimal colorRange, IProgress<string> report)
+        {
+            var image = Properties.Resources.BankCloseButton;
+            var point = MainScreen.FindImage(screenshot, topLeft, bottmRight, image, colorRange, SelectedMonitor);
+            //var point = MainScreen.FindColorScreenRange(screenshot, topLeft, BottomRight, SearchColor2, 8, ColorRange, SelectedMonitor);
+            if (!point.IsEmpty && (point.X != 0 && point.Y != 0))
+            {
+                var offsetX = RandomGenerate.Next(0, image.Width);
+                var offsetY = RandomGenerate.Next(0, image.Height);
+                Mouse.Mouse.MoveTo(point.X + offsetX, point.Y + offsetY);
+
+                Thread.Sleep(100);
+
+                Mouse.Mouse.LeftClick();
+                report.Report("Clicked at X:" + point.X + "  Y:" + point.Y);
+
+                Thread.Sleep(RandomGenerate.Next(2000, 4000));
+                return true;
+            }
+            Thread.Sleep(RandomGenerate.Next(3000, 3000));
+            return false;
+        }
+
+        private void btn_Monitor_1_Click(object sender, EventArgs e)
+        {
+            btn_Monitor_1.BackColor = Color.Red;
+            btn_Monitor_2.BackColor = Color.Transparent;
+            btn_Monitor_3.BackColor = Color.Transparent;
+            SelectedMonitor = 1;
+        }
+
+        private void btn_Monitor_2_Click(object sender, EventArgs e)
+        {
+            btn_Monitor_2.BackColor = Color.Red;
+            btn_Monitor_1.BackColor = Color.Transparent;
+            btn_Monitor_3.BackColor = Color.Transparent;
+            SelectedMonitor = 2;
+        }
+
+        private void btn_Monitor_3_Click(object sender, EventArgs e)
+        {
+            btn_Monitor_3.BackColor = Color.Red;
+            btn_Monitor_1.BackColor = Color.Transparent;
+            btn_Monitor_2.BackColor = Color.Transparent;
+            SelectedMonitor = 3;
+        }
+
+        private void btn_Find_Color_Click(object sender, EventArgs e)
+        {
+            FindingColor = !FindingColor;
+            if (FindingColor)
+            {
+                btn_Find_Color.BackColor = Color.Red;
+            }
+            else
+            {
+                btn_Find_Color.BackColor = Color.Transparent;
+            }
+        }
+
+        private void SetGlobalDetails()
+        {
+            if (!string.IsNullOrEmpty(txt_Color_R.Text) || !string.IsNullOrEmpty(txt_Color_G.Text) || !string.IsNullOrEmpty(txt_Color_B.Text))
+            {
+                SearchColor = Color.FromArgb(int.Parse(txt_Color_R.Text), int.Parse(txt_Color_G.Text), int.Parse(txt_Color_B.Text));
+            }
+            else
+            {
+                SearchColor = Color.FromArgb(212, 0, 255);
+            }
+
+            if (!string.IsNullOrEmpty(txt_Color_R_2.Text) || !string.IsNullOrEmpty(txt_Color_G_2.Text) || !string.IsNullOrEmpty(txt_Color_B_2.Text))
+            {
+                SearchColor2 = Color.FromArgb(int.Parse(txt_Color_R_2.Text), int.Parse(txt_Color_G_2.Text), int.Parse(txt_Color_B_2.Text));
+            }
+            else
+            {
+                SearchColor2 = Color.FromArgb(255, 255, 0);
+            }
+
+            if (!string.IsNullOrEmpty(txt_Inv_Top_X.Text) || !string.IsNullOrEmpty(txt_Inv_Top_Y.Text))
+            {
+                InvTopLeft = new Point(int.Parse(txt_Inv_Top_X.Text), int.Parse(txt_Inv_Top_Y.Text));
+            }
+            else
+            {
+                InvTopLeft = new Point(200, 200);
+            }
+
+            if (!string.IsNullOrEmpty(txt_Inv_Bot_X.Text) || !string.IsNullOrEmpty(txt_Inv_Bot_Y.Text))
+            {
+                InvBottomRight = new Point(int.Parse(txt_Inv_Bot_X.Text), int.Parse(txt_Inv_Bot_Y.Text));
+            }
+            else
+            {
+                InvBottomRight = new Point(1200, 900);
+            }
+
+            if (!string.IsNullOrEmpty(txt_Screen_Top_X.Text) || !string.IsNullOrEmpty(txt_Screen_Top_Y.Text))
+            {
+                TopLeft = new Point(int.Parse(txt_Screen_Top_X.Text), int.Parse(txt_Screen_Top_Y.Text));
+            }
+            else
+            {
+                TopLeft = new Point(200, 200);
+            }
+
+            if (!string.IsNullOrEmpty(txt_Screen_Bot_X.Text) || !string.IsNullOrEmpty(txt_Screen_Bot_Y.Text))
+            {
+                BottomRight = new Point(int.Parse(txt_Screen_Bot_X.Text), int.Parse(txt_Screen_Bot_Y.Text));
+            }
+            else
+            {
+                BottomRight = new Point(1200, 900);
+            }
+
+            if (!string.IsNullOrEmpty(txt_Pixel_Skip.Text))
+            {
+                PixelSkip = int.Parse(txt_Pixel_Skip.Text);
+            }
+            else
+            {
+                PixelSkip = 8;
+            }
+
+            TimeoutLengthMin = radio_Short_Timeouts.Checked ? int.Parse(txt_Short_Timeout_Min.Text) : int.Parse(txt_Long_Timeout_Min.Text);
+            TimeoutLengthMax = radio_Short_Timeouts.Checked ? int.Parse(txt_Short_Timeout_Max.Text) : int.Parse(txt_Long_Timeout_Max.Text);
+
+            TopLeft = MainScreen.ModifyFromMonitorPoint(TopLeft, SelectedMonitor);
+            BottomRight = MainScreen.ModifyFromMonitorPoint(BottomRight, SelectedMonitor);
+            InvTopLeft = MainScreen.ModifyFromMonitorPoint(InvTopLeft, SelectedMonitor);
+            InvBottomRight = MainScreen.ModifyFromMonitorPoint(InvBottomRight, SelectedMonitor);
+
+            ColorRange = 360m * (sliderColorRange.Value / 100m);
+        }
+
+        private void chk_End_Timeout_Only_CheckedChanged(object sender, EventArgs e)
+        {
+            CheckBox chkBox = (CheckBox)sender;
+            if (chkBox.Checked)
+            {
+                EndTimeoutsOnly = true;
+            }
+
+            else
+                EndTimeoutsOnly = false;
+        }
+
+
+        private void worker_Normal_Clicks_DoWork(object sender, DoWorkEventArgs e)
+        {
+            var runParams = e.Argument as RunParams<string>;
+            var report = runParams.ReportProgress;
+            var runCount = runParams.RunLimit;
+            Timeouts timeouts = runParams.Timeouts;
+            var timeoutCount = RandomGenerate.Next(timeouts.TimeoutCountMin, timeouts.TimeoutCountMax);
+            var timeoutPos = RandomGenerate.Next(0, Clicks.Count - 1);
+            ScreenshotInfo screenshotInfo = runParams.ScreenshotInfo;
+            var clickList = runParams.ClickList;
+
+            if (runCount == 0)
+                runCount = 99999;
+
+            var step = 0;
+
+
+            report.Report("Starting Normal Clicks Worker");
+            report.Report("Total Runs = " + runCount);
+            Thread.Sleep(3000);
+
+
+            while (!worker_Normal_Clicks.CancellationPending && runCount > 0)
+            {
+                if (timeouts.Active
+                    && !timeouts.EndTimeoutsOnly
+                    && timeoutCount <= 0
+                    && step == timeoutPos)
+                {
+                    timeoutCount = RandomGenerate.Next(timeouts.TimeoutCountMin, timeouts.TimeoutCountMax);
+                    var timeoutnum = RandomGenerate.Next(timeouts.TimeoutLengthMin, timeouts.TimeoutLengthMax);
+                    report.Report("Pausing for : " + timeoutnum);
+                    report.Report("New count limit : " + timeoutCount);
+                    Thread.Sleep(timeoutnum);
+                }
+
+                PerformClick(clickList[step], screenshotInfo, report);
+
+                step++;
+                if (step > clickList.Count - 1)
+                {
+                    runCount--;
+                    step = 0;
+                }
+
+                if (timeouts.Active)
+                {
+                    if(step == 0)
+                        timeoutCount--;
+                    if (timeouts.EndTimeoutsOnly && timeoutCount <= 0)
+                    {
+                        timeoutCount = RandomGenerate.Next(timeouts.TimeoutCountMin, timeouts.TimeoutCountMax);
+                        var timeoutnum = RandomGenerate.Next(timeouts.TimeoutLengthMin, timeouts.TimeoutLengthMax);
+                        report.Report("Pausing for : " + timeoutnum);
+                        report.Report("New count limit : " + timeoutCount);
+                        Thread.Sleep(timeoutnum);
+                    }
+                }
+            }
+
+            report.Report("Ending Normal Clicks Worker");
+        }
+
+        private void worker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
+        {
+            if(RunProgram)
+                RunProgram = !RunProgram;
+            UpdateButtons(CurrentWorker, false);
+        }
+
+        private void PerformClick(Click click, ScreenshotInfo info, IProgress<string> report)
+        {
+            var point = click.ClickPoint;
+            if (click.ClickColor != Color.Empty)
+            {
+                using (var screenShot = MainScreen.CaptureScreen(SelectedMonitor))
+                {
+                    point = MainScreen.FindColorScreenRange(screenShot, TopLeft, BottomRight, click.ClickColor, PixelSkip, ColorRange, SelectedMonitor);
+                }
+            }
+
+            if (!point.IsEmpty && (point.X != 0 && point.Y != 0))
+            {
+                var offsetX = RandomGenerate.Next(0, click.ClickOffset);
+                var offsetY = RandomGenerate.Next(0, click.ClickOffset);
+                Mouse.Mouse.MoveTo(point.X + offsetX, point.Y + offsetY);
+
+                Thread.Sleep(100);
+
+                Mouse.Mouse.LeftClick();
+                report.Report("Clicked at X:" + point.X + "  Y:" + point.Y);
+
+                Thread.Sleep(RandomGenerate.Next((int)click.DelayAfterClick - 200, (int)click.DelayAfterClick + 200));
+            }
+            else
+                Thread.Sleep(RandomGenerate.Next(3000, 3000));
+        }
+
+        private void PerformLeftClick(Point point, IProgress<string> report)
+        {
+            Mouse.Mouse.MoveTo(point.X, point.Y);
+
+            Thread.Sleep(100);
+
+            Mouse.Mouse.LeftClick();
+            if(report != null)
+                report.Report("Clicked at X:" + point.X + "  Y:" + point.Y);
+        }
+
+        private void radio_Short_Timeouts_CheckedChanged(object sender, EventArgs e)
+        {
+            var radio = (RadioButton)sender;
+            if (radio.Checked)
+            {
+                TimeoutLengthMin = int.Parse(txt_Short_Timeout_Min.Text);
+                TimeoutLengthMax = int.Parse(txt_Short_Timeout_Max.Text);
+            }
+            else
+            {
+                TimeoutLengthMin = int.Parse(txt_Long_Timeout_Min.Text);
+                TimeoutLengthMax = int.Parse(txt_Long_Timeout_Max.Text);
+            }
+        }
+
+        private void saveToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (string.IsNullOrEmpty(OpenFile))
+            {
+                saveAsToolStripMenuItem.PerformClick();
+                return;
+            }
+            else
+            {
+                var fileName = Path.GetFileName(OpenFile);
+                if (MessageBox.Show(string.Format("Overwrite current file '{0}' ?", fileName), "Overwrite", MessageBoxButtons.YesNo) == DialogResult.No)
+                    return;
+
+                SaveFile(OpenFile);
+            }
+        }
+
+        private void saveAsToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            var fileName = "";
+            SaveFileDialog sfd = new SaveFileDialog();
+
+            sfd.Title = "Save File Dialog";
+            sfd.InitialDirectory = AppFolder;
+            sfd.Filter = "All files (*.*)|*.*|xml files (*.xml)|*.xml";
+            sfd.FilterIndex = 2;
+            sfd.RestoreDirectory = false;
+
+            if (sfd.ShowDialog() == DialogResult.OK)
+            {
+                LogWrite("Saving " + sfd.FileName);
+                fileName = sfd.FileName;
+                //if ((myStream = sfd.OpenFile()) != null)
+                //{
+                //    // Code to write the stream goes here.
+                //    myStream.Close();
+                //}
+                SaveFile(fileName);
+                OpenFile = fileName;
+            }
+        }
+
+        private void loadToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            var fileName = "";
+            var fd = new OpenFileDialog();
+            fd.Title = "Open File Dialog";
+            fd.InitialDirectory = AppFolder;
+            fd.Filter = "All files (*.*)|*.*|xml files (*.xml)|*.xml";
+            fd.FilterIndex = 2;
+            fd.RestoreDirectory = false;
+
+            if (fd.ShowDialog() == DialogResult.OK)
+            {
+                LogWrite("Loading " + fd.FileName);
+                fileName = fd.FileName;
+                Clicks.Clear();
+                using (StreamReader reader = new StreamReader(fileName))
+                {
+
+                    var data = reader.ReadToEnd();
+                    var list = FromXML<List<Click>>(data);
+                    foreach(var click in list)
+                    {
+                        Clicks.Add(click);
+                    }
+                }
+            }
+                
+        }
+
+        private void btn_Add_Click_Click(object sender, EventArgs e)
+        {
+            Clicks.Add(new Click(Clicks.Count, Point.Empty, 0, 0, ClickOffset));
+        }
+
+        private void btn_Move_Click_Up_Click(object sender, EventArgs e)
+        {
+            if (!SelectFullRow())
+                return;
+            var selectedRow = dg_Clicks.SelectedRows[0];
+            var click = (Click)selectedRow.DataBoundItem;
+            if (click.ClickSequence == 0)
+                return;
+            var index = Clicks.IndexOf(click);
+            var swapClick = Clicks[index - 1];
+            var temp = click.ClickSequence;
+            click.ClickSequence = swapClick.ClickSequence;
+            swapClick.ClickSequence = temp;
+            Clicks.RemoveAt(index);
+            Clicks.Insert(index - 1, click);
+
+            dg_Clicks.ClearSelection();
+            dg_Clicks.Rows[index - 1].Selected = true;
+
+        }
+
+        private void btn_Move_Click_Down_Click(object sender, EventArgs e)
+        {
+            if (!SelectFullRow())
+                return;
+            var selectedRow = dg_Clicks.SelectedRows[0];
+            var click = (Click)selectedRow.DataBoundItem;
+            if (click.ClickSequence == Clicks.Count - 1)
+                return;
+            var index = Clicks.IndexOf(click);
+            var swapClick = Clicks[index + 1];
+            var temp = click.ClickSequence;
+            click.ClickSequence = swapClick.ClickSequence;
+            swapClick.ClickSequence = temp;
+
+            Clicks.RemoveAt(index);
+            Clicks.Insert(index + 1, click);
+
+            dg_Clicks.ClearSelection();
+            dg_Clicks.Rows[index + 1].Selected = true;
+        }
+
+        private bool SelectFullRow()
+        {
+            if(dg_Clicks.SelectedRows.Count > 0)
+                return true;
+            if (dg_Clicks.SelectedCells.Count > 0)
+            {
+                var selectedRow = dg_Clicks.SelectedCells[0].OwningRow;
+                dg_Clicks.Rows[selectedRow.Index].Selected = true;
+                return true;
+            }
+            else
+            {
+                MessageBox.Show("Please select a row");
+                return false;
+            }
+        }
+
+        private void SaveFile(string filename)
+        {
+            using (StreamWriter myStream = new StreamWriter(filename, false))
+            {
+                var data = ToXML(Clicks);
+                myStream.Write(data);
+                myStream.Close();
+            }
+        }
+
+        private Click CsvToClick(string data)
+        {
+            var values = data.Split(',');
+            var points = Regex.Replace(values[3], @"[\{\}a-zA-Z=]", "").Split(',');
+            Click click = new Click()
+            {
+                ClickSequence = int.Parse(values[0]),
+                DelayAfterClick = long.Parse(values[1]),
+                ClickType = int.Parse(values[2]),
+                ClickPoint = new Point(int.Parse(points[0]), int.Parse(points[1]))
+
+            };
+            return click;
+
+        }
+
+        private static T FromXML<T>(string xml)
+        {
+            using (StringReader stringReader = new StringReader(xml))
+            {
+                XmlSerializer serializer = new XmlSerializer(typeof(T));
+                return (T)serializer.Deserialize(stringReader);
+            }
+        }
+
+        private string ToXML<T>(T obj)
+        {
+            using (StringWriter stringWriter = new StringWriter(new StringBuilder()))
+            {
+                XmlSerializer xmlSerializer = new XmlSerializer(typeof(T));
+                xmlSerializer.Serialize(stringWriter, obj);
+                return stringWriter.ToString();
+            }
         }
     }
 }
