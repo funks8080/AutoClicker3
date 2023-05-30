@@ -193,7 +193,7 @@ namespace AutoClicker.ImageFinder
 
         public static Point FindColorScreenRange(Bitmap screenShot, Point topLeft, Point bottomRight, Color color, int pixelSkip, decimal colorRange, int monitor)
         {
-            var imagePoint = new Point();
+            Point imagePoint = Point.Empty;
 
             var foundMatch = false;
 
@@ -205,8 +205,7 @@ namespace AutoClicker.ImageFinder
                     //    Console.WriteLine("TEST");
                     if (PixelCompare(screenShot.GetPixel(c, r), color, colorRange))
                     {
-                        imagePoint.X = c;
-                        imagePoint.Y = r;
+                        imagePoint = new Point(c, r);
                         foundMatch = true;
                         break;
                     }

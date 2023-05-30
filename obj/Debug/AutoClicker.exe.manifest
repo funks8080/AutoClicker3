@@ -3,7 +3,7 @@
   <asmv1:assemblyIdentity name="AutoClicker.exe" version="2.0.0.4" publicKeyToken="0000000000000000" language="neutral" processorArchitecture="x86" type="win32" />
   <application />
   <entryPoint>
-    <assemblyIdentity name="AutoClicker" version="1.0.8542.40837" language="neutral" processorArchitecture="x86" />
+    <assemblyIdentity name="AutoClicker" version="1.0.8549.40744" language="neutral" processorArchitecture="x86" />
     <commandLine file="AutoClicker.exe" parameters="" />
   </entryPoint>
   <trustInfo>
@@ -42,14 +42,14 @@
     </dependentAssembly>
   </dependency>
   <dependency>
-    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="AutoClicker.exe" size="1126400">
-      <assemblyIdentity name="AutoClicker" version="1.0.8542.40837" language="neutral" processorArchitecture="x86" />
+    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="AutoClicker.exe" size="1134592">
+      <assemblyIdentity name="AutoClicker" version="1.0.8549.40744" language="neutral" processorArchitecture="x86" />
       <hash>
         <dsig:Transforms>
           <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
         </dsig:Transforms>
         <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
-        <dsig:DigestValue>Adsxi45o2AB857sRfAfmd/PcUgVXK9reLgpk+Dg5Tw0=</dsig:DigestValue>
+        <dsig:DigestValue>jV+P2JaW/ZiQMl7GarbFwTCWV1/pNcQ1XwRwJJI49M0=</dsig:DigestValue>
       </hash>
     </dependentAssembly>
   </dependency>
