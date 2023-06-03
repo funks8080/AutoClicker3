@@ -5349,6 +5349,7 @@ namespace AutoClicker
                 {
                     timeoutCount = RandomGenerate.Next(timeouts.TimeoutCountMin, timeouts.TimeoutCountMax);
                     var timeoutnum = RandomGenerate.Next(timeouts.TimeoutLengthMin, timeouts.TimeoutLengthMax);
+                    timeoutPos = RandomGenerate.Next(0, Clicks.Count - 1);
                     report.Report("Pausing for : " + timeoutnum);
                     report.Report("New count limit : " + timeoutCount);
                     Thread.Sleep(timeoutnum);
@@ -5382,6 +5383,7 @@ namespace AutoClicker
                     {
                         timeoutCount = RandomGenerate.Next(timeouts.TimeoutCountMin, timeouts.TimeoutCountMax);
                         var timeoutnum = RandomGenerate.Next(timeouts.TimeoutLengthMin, timeouts.TimeoutLengthMax);
+                        timeoutPos = RandomGenerate.Next(0, Clicks.Count - 1);
                         report.Report("Pausing for : " + timeoutnum);
                         report.Report("New count limit : " + timeoutCount);
                         Thread.Sleep(timeoutnum);
@@ -5400,6 +5402,10 @@ namespace AutoClicker
                     return;
                 if (clickScript.ResultAction == Action.STOP)
                     step = -1;
+                else if(clickScript.ResultAction == Action.PRESS_KEY)
+                {
+
+                }
                 else if (clickScript.ResultAction == Action.GOTO)
                 {
                     if (clickScript.GoToSequence == 0)
@@ -5444,58 +5450,73 @@ namespace AutoClicker
                     checkOnly = true;
                 
             }
+
             var point = click.ClickPoint;
-            if (!click.ClickColor.IsEmpty)
+
+            if (click.ClickType == 3)
             {
-                using (var screenShot = MainScreen.CaptureScreen(SelectedMonitor))
-                {
-                    point = MainScreen.FindColorScreenRange(screenShot, topLeftPoint, botRigthPoint, click.ClickColor, PixelSkip, ColorRange, SelectedMonitor);
+                if (click.ClickScript != null && click.ClickScript.PressKey != Keys.None)
+                    SendKeys.SendWait(click.ClickScript.PressKey.ToString());
+                report.Report(string.Format("Step {0} : Key pressed: {1} ", click.ClickSequence, click.ClickScript.PressKey.ToString()));
 
-                    if(point.IsEmpty && !click.ClickColor2.IsEmpty)
-                    {
-                        point = MainScreen.FindColorScreenRange(screenShot, topLeftPoint, botRigthPoint, click.ClickColor2, PixelSkip, ColorRange, SelectedMonitor);
-                    }
-                }
-            }
-            else if (!string.IsNullOrEmpty(click.ClickImagePath))
-            {
-                using (var screenShot = MainScreen.CaptureScreen(SelectedMonitor))
-                {
-                    point = MainScreen.FindImage(screenShot, topLeftPoint, botRigthPoint, click.ClickImage, ImageRange, SelectedMonitor);
-                }
-            }
-
-            if (!point.IsEmpty || click.ClickEmptyPoint)
-            {
-                if (!checkOnly)
-                {
-                    if (!click.ClickEmptyPoint)
-                    {
-                        var offsetX = RandomGenerate.Next(0, click.ClickOffset);
-                        var offsetY = RandomGenerate.Next(0, click.ClickOffset);
-                        Mouse.Mouse.MoveTo(point.X + offsetX, point.Y + offsetY);
-                        Thread.Sleep(100);
-                    }
-                   
-
-                    Mouse.Mouse.LeftClick();
-                    report.Report(string.Format("Step {0} : Clicked at X:{1} Y:{2}", click.ClickSequence, point.X, point.Y));
-
-                    Thread.Sleep(RandomGenerate.Next((int)click.DelayAfterClick - 200, (int)click.DelayAfterClick + 200));
-                }
-                else
-                {
-                    report.Report(string.Format("Step {0} : Check found at X:{1} Y:{2}", click.ClickSequence, point.X, point.Y));
-                    if(click.DelayAfterClick != 0)
-                    {
-                        Thread.Sleep(RandomGenerate.Next((int)click.DelayAfterClick - 200, (int)click.DelayAfterClick + 200));
-                    }
-                }
-
+                Thread.Sleep(RandomGenerate.Next((int)click.DelayAfterClick - 200, (int)click.DelayAfterClick + 200));
                 return true;
             }
-            //else
-            //    Thread.Sleep(1000);
+            else
+            {
+
+                if (!click.ClickColor.IsEmpty)
+                {
+                    using (var screenShot = MainScreen.CaptureScreen(SelectedMonitor))
+                    {
+                        point = MainScreen.FindColorScreenRange(screenShot, topLeftPoint, botRigthPoint, click.ClickColor, PixelSkip, ColorRange, SelectedMonitor);
+
+                        if (point.IsEmpty && !click.ClickColor2.IsEmpty)
+                        {
+                            point = MainScreen.FindColorScreenRange(screenShot, topLeftPoint, botRigthPoint, click.ClickColor2, PixelSkip, ColorRange, SelectedMonitor);
+                        }
+                    }
+                }
+                else if (!string.IsNullOrEmpty(click.ClickImagePath))
+                {
+                    using (var screenShot = MainScreen.CaptureScreen(SelectedMonitor))
+                    {
+                        point = MainScreen.FindImage(screenShot, topLeftPoint, botRigthPoint, click.ClickImage, ImageRange, SelectedMonitor);
+                    }
+                }
+
+                if (!point.IsEmpty || click.ClickEmptyPoint)
+                {
+                    if (!checkOnly)
+                    {
+                        if (!click.ClickEmptyPoint)
+                        {
+                            point.X += RandomGenerate.Next(-click.ClickOffset, click.ClickOffset);
+                            point.Y += RandomGenerate.Next(-click.ClickOffset, click.ClickOffset);
+                            Mouse.Mouse.MoveTo(point.X, point.Y);
+                            Thread.Sleep(100);
+                        }
+
+                        if(click.ClickType == 0)
+                            Mouse.Mouse.LeftClick();
+                        else if(click.ClickType == 1)
+                            Mouse.Mouse.RightClick();
+                        report.Report(string.Format("Step {0} : Clicked at X:{1} Y:{2}", click.ClickSequence, point.X, point.Y));
+
+                        Thread.Sleep(RandomGenerate.Next((int)click.DelayAfterClick - 200, (int)click.DelayAfterClick + 200));
+                    }
+                    else
+                    {
+                        report.Report(string.Format("Step {0} : Check found at X:{1} Y:{2}", click.ClickSequence, point.X, point.Y));
+                        if (click.DelayAfterClick != 0)
+                        {
+                            Thread.Sleep(RandomGenerate.Next((int)click.DelayAfterClick - 200, (int)click.DelayAfterClick + 200));
+                        }
+                    }
+
+                    return true;
+                }
+            }
 
             return false;
         }
@@ -5603,17 +5624,14 @@ namespace AutoClicker
         {
             Clicks.Add(new Click(Clicks.Count, Point.Empty, 0, 0, ClickOffset)
             {
-                //ClickScript = new UserScript()
-                //{
-                //    ClickResult = 0,
-                //    ResultAction = 0,
-                //    ClickOptions = new ClickOptions()
-                //    {
-                //        SearchAreaTopLeft = new Point(0, 0),
-                //        SearchAreaBottomRight = new Point(0, 0)
-                //    },
-                //    GoToSequence = 2
-                //}
+                ClickScript = new UserScript()
+                {
+                    ClickResult = Result.EMPTY,
+                    ResultAction = Action.EMPTY,
+                    GoToSequence = 2,
+                    PressKey = Keys.D3,
+                    CheckOnlyNoClick = false
+                }
             }) ;
         }
 
