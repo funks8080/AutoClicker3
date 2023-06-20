@@ -10,12 +10,8 @@ namespace AutoClicker
     {
         public IProgress<T> ReportProgress { get; set; }
         public Timeouts Timeouts { get; set; }
-        //public bool Timeouts { get; set; }
         public int RunLimit { get; set; }
-
         public List<Click> ClickList { get; set; }
-
-        public ScreenshotInfo ScreenshotInfo { get; set; }
         public int ClickOffset { get; set; }
 
     }

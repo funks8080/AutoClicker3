@@ -4,41 +4,22 @@ using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
-using System.Runtime.InteropServices;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using AutoClicker.ImageFinder;
 using gma.System.Windows;
-using AutoClicker.Mouse;
-using tessnet2;
 using System.ComponentModel;
-using System.Diagnostics.Eventing.Reader;
-using System.Data.SqlClient;
-using static System.Net.Mime.MediaTypeNames;
-using System.Runtime.Remoting.Contexts;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement.Window;
-using System.Drawing.Imaging;
-using System.Runtime.CompilerServices;
-using System.Text.RegularExpressions;
 using System.Text;
 using System.Xml.Serialization;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement.TrackBar;
 
 namespace AutoClicker 
 {
     class MainForm : System.Windows.Forms.Form, IProgress<string>
     {
-        private int delayTime = 1000;
-        //private Tesseract ocr = new Tesseract();
         private System.ComponentModel.IContainer components = null;
-        private Button buttonRecord;
-        private Button btn_Start;
         private Label labelMousePosition;
         private TextBox textBox;
         private bool RunProgram;
-        private int EatFailCount;
-        private int EatFailCountMax = 10;
         private bool logClicks = true;
         private Color SearchColor;
         private Color SearchColor2;
@@ -47,31 +28,17 @@ namespace AutoClicker
         private Point BottomRight;
         private Point InvTopLeft;
         private Point InvBottomRight;
-        private int Absorb_offsetX;
-        private int Absorb_offsetY;
         private decimal ColorRange;
         private decimal ImageRange;
         private int SelectedMonitor = 2;
-        private int RandomTimeoutStart;
-        private int RandomTimeoutEnd;
         private int PixelSkip = 10;
         private int TimeoutLengthMin;
         private int TimeoutLengthMax;
         private bool FindingColor;
 
-        private int TotalInventoryClickCount;
-        private int CurrentInventoryClickCount;
         private static string FilePath = "c:\\AppData\\AutoClicker\\Inventory.txt";
         private static string AppFolder = @"c:\AppData\AutoClicker\";
         private string OpenFile;
-        private bool agilOn = false;
-        private bool FishOn = false;
-        private bool AutoShootOn = false;
-        private bool WoodCutOn = false;
-        private bool RuneCraft = false;
-        private bool Dropping;
-        private bool InfiniteLoop;
-        private bool TimedOut;
         private bool HideButtons;
         private bool Ctrl;
         private bool SetupInventory;
@@ -80,60 +47,28 @@ namespace AutoClicker
         private bool DropInverse;
         private bool LogInfo;
         private bool RecordClicks;
-        private bool NMZEnabled;
-        private bool PickPocket;
-        private bool Woodcutting;
         private bool SettingAlchPoint;
         private int RandomTimeoutCount;
-        private int TimeoutPos;
         private int ClickOffset;
-        private int DropClickPos;
         private int ClickCountPos;
         private int IterationCount;
-        private TrackBar ActiveSlider;
         private Stopwatch ClickStopwatch;
         private BindingList<Click> Clicks;
         private List<Click> InventoryClicks;
-        private List<Point> Inventory;
-        private System.Windows.Forms.Timer DrinkTimer;
-        private System.Windows.Forms.Timer PrayerTimer;
-        private System.Windows.Forms.Timer OverloadTimer;
-        private System.Windows.Forms.Timer LogoutTimer;
-        private System.Windows.Forms.Timer EatTimer;
-        private System.Windows.Forms.Timer PickPocketTimer;
-        private System.Windows.Forms.Timer WoodcutTimer;
-        private System.Windows.Forms.Timer InvFullTimer;
-        private System.Windows.Forms.Timer AgilityTimer;
-        private System.Windows.Forms.Timer BarbFishTimer;
-        private System.Windows.Forms.Timer RuneCraftTimer;
         private Random RandomGenerate;
 
-        private Label ActiveLabel;
         private Label label1;
         private Label label2;
-        private Label trackLabel1;
-        private Label lblClickSeconds;
         private GroupBox groupBox2;
         private CheckBox chkDropInverse;
         private GroupBox groupBox3;
-        private TrackBar sliderClicks;
         private NumericUpDown numCount;
         private CheckBox chkLog;
-        private RadioButton radioCycles;
-        private RadioButton radioClicks;
-        private Label lblCycleSeconds;
-        private TrackBar sliderCycles;
-        private Label label5;
-        private Label label6;
-        private Label label3;
-        private Button btnSetupInventory;
-        private Button btnSingleClickInv;
         private Label lblClickOffsetNumber;
         private Label label7;
         private Label lblClickOffset;
         private TrackBar sliderClickOffset;
         private CheckBox chkTimeOut;
-        private Button btnHide;
         private ContextMenuStrip contextMenuStrip1;
         private MenuStrip menuStrip1;
         private ToolStripMenuItem fileToolStripMenuItem;
@@ -146,25 +81,16 @@ namespace AutoClicker
         private Label label8;
         private Label label4;
         private NumericUpDown numInventoryCount;
-        private Button btnDropInventory;
         private GroupBox groupBox1;
-        private Button btn_Find_Image;
         private Label lblColorRange;
-        private BackgroundWorker workerSeersAgility;
-        private BackgroundWorker workerCanifisAgility;
-        private BackgroundWorker workerBarbFish;
         private CheckBox chkClicks;
-        private BackgroundWorker worker_RC;
-        private BackgroundWorker worker_Mining;
         private BackgroundWorker worker_Gem_Mining;
         private BackgroundWorker worker_Auto_Attack;
-        private BackgroundWorker worker_Woodcut;
         private TrackBar sliderColorRange;
         private BackgroundWorker workerAlch;
         private CheckBox chk_End_Timeout_Only;
         private TabPage ClickTab;
         private TabPage Buttons;
-        private Button btn_Find_Color;
         private GroupBox groupBox7;
         private Label label19;
         private Label label20;
@@ -173,10 +99,21 @@ namespace AutoClicker
         private TextBox txt_Color_G_2;
         private TextBox txt_Color_R_2;
         private Label label18;
+
+        private Button buttonRecord;
+        private Button btn_Start;
+        private Button btn_Find_Image;
+        private Button btnHide;
+        private Button btnSetupInventory;
+        private Button btnSingleClickInv;
         private Button btn_Monitor_3;
         private Button btn_Monitor_2;
         private Button btn_Monitor_1;
         private Button btn_Gem_Mine;
+        private Button btnStartAlch;
+        private Button btnSetAlch;
+        private Button btn_Auto_Attack;
+        private Button btn_Find_Color;
         private GroupBox groupBox6;
         private TextBox txt_Inv_Bot_Y;
         private TextBox txt_Inv_Bot_X;
@@ -198,17 +135,6 @@ namespace AutoClicker
         private TextBox txt_Color_B;
         private TextBox txt_Color_G;
         private TextBox txt_Color_R;
-        private Button btnStartAlch;
-        private Button btnSetAlch;
-        private Button btn_Mine;
-        private Button btn_Auto_Attack;
-        private Button btnCanAgi;
-        private Button btn_Woodcut;
-        private Button btnRC;
-        private Button btnBarbFish;
-        private Button btnSeersAgil;
-        private Button btnPickPocket;
-        private Button btnNightmare;
         private TabControl TabController;
         private DataGridView dg_Clicks;
         private Button btn_Add_Click;
@@ -252,7 +178,6 @@ namespace AutoClicker
         private TextBox txt_Color_A;
         private Point AlchPoint;
 
-        Func<string, string> CurrentFunction;
         private GroupBox groupBox10;
         private Button btn_Copy_Color;
         private GroupBox groupBox11;
@@ -276,11 +201,6 @@ namespace AutoClicker
         {
             try
             {
-                RandomTimeoutStart = 5000;
-                RandomTimeoutEnd = 30000;
-                TotalInventoryClickCount = 0;
-                CurrentInventoryClickCount = 0;
-                TimedOut = false;
                 HideButtons = false;
                 RandomTimeoutCount = 0;
                 UseRandomTimeouts = false;
@@ -290,33 +210,20 @@ namespace AutoClicker
                 DropInverse = false;
                 LogInfo = true;
                 Ctrl = false;
-                DropClickPos = 0;
                 ClickCountPos = 0;
                 Clicks = new BindingList<Click>();
-                Inventory = new List<Point>();
                 InventoryClicks = new List<Click>();
                 RecordClicks = false;
                 RunProgram = false;
                 RandomGenerate = new Random();
                 IterationCount = 0;
-                InfiniteLoop = false;
                 InitializeComponent();
                 this.btn_Start.Click += new System.EventHandler((sender, e) => ButtonStart(sender, e, null));
                 this.btn_Gem_Mine.Click += new System.EventHandler((sender, e) => ButtonStart(sender, e, worker_Gem_Mining));
-                this.btn_Mine.Click += new System.EventHandler((sender, e) => ButtonStart(sender, e, worker_Mining));
                 this.btn_Auto_Attack.Click += new System.EventHandler((sender, e) => ButtonStart(sender, e, worker_Auto_Attack));
-                this.btn_Woodcut.Click += new System.EventHandler((sender, e) => ButtonStart(sender, e, worker_Woodcut));
-                sliderCycles.Enabled = false;
-                ActiveLabel = lblClickSeconds;
-                ActiveSlider = sliderClicks;
                 stopToolStripMenuItem.Enabled = false;
-                Dropping = false;
-                NMZEnabled = false;
-                PickPocket = false;
-                Woodcutting = false;
                 AlchPoint = new Point();
                 SettingAlchPoint = false;
-                //ocr.Init(@"E:\AutoClicker\AutoClicker3\tessdata", "eng", false);
                 dg_Clicks.AutoGenerateColumns = false;
                 dg_Clicks.DataSource = Clicks;
                 dg_Clicks.Columns[0].DataPropertyName = "ClickSequence";
@@ -351,21 +258,8 @@ namespace AutoClicker
             this.labelMousePosition = new System.Windows.Forms.Label();
             this.btn_Start = new System.Windows.Forms.Button();
             this.buttonRecord = new System.Windows.Forms.Button();
-            this.LogoutTimer = new System.Windows.Forms.Timer(this.components);
-            this.DrinkTimer = new System.Windows.Forms.Timer(this.components);
-            this.PrayerTimer = new System.Windows.Forms.Timer(this.components);
-            this.OverloadTimer = new System.Windows.Forms.Timer(this.components);
-            this.EatTimer = new System.Windows.Forms.Timer(this.components);
-            this.PickPocketTimer = new System.Windows.Forms.Timer(this.components);
-            this.WoodcutTimer = new System.Windows.Forms.Timer(this.components);
-            this.InvFullTimer = new System.Windows.Forms.Timer(this.components);
-            this.AgilityTimer = new System.Windows.Forms.Timer(this.components);
-            this.BarbFishTimer = new System.Windows.Forms.Timer(this.components);
-            this.RuneCraftTimer = new System.Windows.Forms.Timer(this.components);
             this.label1 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
-            this.trackLabel1 = new System.Windows.Forms.Label();
-            this.lblClickSeconds = new System.Windows.Forms.Label();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
             this.groupBox8 = new System.Windows.Forms.GroupBox();
             this.label26 = new System.Windows.Forms.Label();
@@ -389,21 +283,12 @@ namespace AutoClicker
             this.label7 = new System.Windows.Forms.Label();
             this.lblClickOffset = new System.Windows.Forms.Label();
             this.sliderClickOffset = new System.Windows.Forms.TrackBar();
-            this.label6 = new System.Windows.Forms.Label();
-            this.label3 = new System.Windows.Forms.Label();
             this.numCount = new System.Windows.Forms.NumericUpDown();
-            this.radioCycles = new System.Windows.Forms.RadioButton();
-            this.radioClicks = new System.Windows.Forms.RadioButton();
-            this.lblCycleSeconds = new System.Windows.Forms.Label();
-            this.sliderCycles = new System.Windows.Forms.TrackBar();
-            this.label5 = new System.Windows.Forms.Label();
-            this.sliderClicks = new System.Windows.Forms.TrackBar();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.lblTotalInventory = new System.Windows.Forms.Label();
             this.label8 = new System.Windows.Forms.Label();
             this.label4 = new System.Windows.Forms.Label();
             this.numInventoryCount = new System.Windows.Forms.NumericUpDown();
-            this.btnDropInventory = new System.Windows.Forms.Button();
             this.chkDropInverse = new System.Windows.Forms.CheckBox();
             this.btnSetupInventory = new System.Windows.Forms.Button();
             this.btnSingleClickInv = new System.Windows.Forms.Button();
@@ -426,21 +311,27 @@ namespace AutoClicker
             this.saveToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.saveAsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.loadToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.workerSeersAgility = new System.ComponentModel.BackgroundWorker();
-            this.workerCanifisAgility = new System.ComponentModel.BackgroundWorker();
-            this.workerBarbFish = new System.ComponentModel.BackgroundWorker();
             this.chkClicks = new System.Windows.Forms.CheckBox();
-            this.worker_RC = new System.ComponentModel.BackgroundWorker();
-            this.worker_Mining = new System.ComponentModel.BackgroundWorker();
             this.worker_Gem_Mining = new System.ComponentModel.BackgroundWorker();
             this.worker_Auto_Attack = new System.ComponentModel.BackgroundWorker();
-            this.worker_Woodcut = new System.ComponentModel.BackgroundWorker();
             this.workerAlch = new System.ComponentModel.BackgroundWorker();
             this.ClickTab = new System.Windows.Forms.TabPage();
             this.btn_Move_Click_Down = new System.Windows.Forms.Button();
             this.btn_Move_Click_Up = new System.Windows.Forms.Button();
             this.btn_Add_Click = new System.Windows.Forms.Button();
             this.dg_Clicks = new System.Windows.Forms.DataGridView();
+            this.Click_Sequence = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.Click_Name = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.Click_Delay = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.Click_Type = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.Click_X = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.Click_Y = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.Click_Offset = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.Click_Empty_Point = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.Click_Color = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.Click_Color_2 = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.Click_Image = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.Click_Script = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.Buttons = new System.Windows.Forms.TabPage();
             this.groupBox11 = new System.Windows.Forms.GroupBox();
             this.slider_Image_Range = new System.Windows.Forms.TrackBar();
@@ -485,15 +376,7 @@ namespace AutoClicker
             this.txt_Color_R = new System.Windows.Forms.TextBox();
             this.btnStartAlch = new System.Windows.Forms.Button();
             this.btnSetAlch = new System.Windows.Forms.Button();
-            this.btn_Mine = new System.Windows.Forms.Button();
             this.btn_Auto_Attack = new System.Windows.Forms.Button();
-            this.btnCanAgi = new System.Windows.Forms.Button();
-            this.btn_Woodcut = new System.Windows.Forms.Button();
-            this.btnRC = new System.Windows.Forms.Button();
-            this.btnBarbFish = new System.Windows.Forms.Button();
-            this.btnSeersAgil = new System.Windows.Forms.Button();
-            this.btnPickPocket = new System.Windows.Forms.Button();
-            this.btnNightmare = new System.Windows.Forms.Button();
             this.groupBox9 = new System.Windows.Forms.GroupBox();
             this.btn_Copy_Color = new System.Windows.Forms.Button();
             this.label30 = new System.Windows.Forms.Label();
@@ -508,25 +391,11 @@ namespace AutoClicker
             this.TabController = new System.Windows.Forms.TabControl();
             this.worker_Normal_Clicks = new System.ComponentModel.BackgroundWorker();
             this.worker_Inventory_Clicks = new System.ComponentModel.BackgroundWorker();
-            this.Click_Sequence = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.Click_Name = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.Click_Delay = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.Click_Type = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.Click_X = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.Click_Y = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.Click_Offset = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.Click_Empty_Point = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.Click_Color = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.Click_Color_2 = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.Click_Image = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.Click_Script = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.groupBox2.SuspendLayout();
             this.groupBox8.SuspendLayout();
             this.groupBox3.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.sliderClickOffset)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numCount)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.sliderCycles)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.sliderClicks)).BeginInit();
             this.groupBox1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numInventoryCount)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.sliderColorRange)).BeginInit();
@@ -589,61 +458,6 @@ namespace AutoClicker
             this.buttonRecord.Text = "Record Clicks";
             this.buttonRecord.Click += new System.EventHandler(this.ButtonRecord);
             // 
-            // LogoutTimer
-            // 
-            this.LogoutTimer.Interval = 19800000;
-            this.LogoutTimer.Tick += new System.EventHandler(this.LogoutTimer_Tick);
-            // 
-            // DrinkTimer
-            // 
-            this.DrinkTimer.Interval = 43000;
-            this.DrinkTimer.Tick += new System.EventHandler(this.NMZDrinkTimer_Tick);
-            // 
-            // PrayerTimer
-            // 
-            this.PrayerTimer.Interval = 43000;
-            this.PrayerTimer.Tick += new System.EventHandler(this.NMZPrayerTimer_Tick);
-            // 
-            // OverloadTimer
-            // 
-            this.OverloadTimer.Interval = 302000;
-            this.OverloadTimer.Tick += new System.EventHandler(this.NMZOverloadTimer_Tick);
-            // 
-            // EatTimer
-            // 
-            this.EatTimer.Interval = 30000;
-            this.EatTimer.Tick += new System.EventHandler(this.EatTimer_Tick);
-            // 
-            // PickPocketTimer
-            // 
-            this.PickPocketTimer.Interval = 15000;
-            this.PickPocketTimer.Tick += new System.EventHandler(this.PickPocketTimer_Tick);
-            // 
-            // WoodcutTimer
-            // 
-            this.WoodcutTimer.Interval = 15000;
-            this.WoodcutTimer.Tick += new System.EventHandler(this.WoodcutTimer_Tick);
-            // 
-            // InvFullTimer
-            // 
-            this.InvFullTimer.Interval = 30000;
-            this.InvFullTimer.Tick += new System.EventHandler(this.InvFullTimer_Tick);
-            // 
-            // AgilityTimer
-            // 
-            this.AgilityTimer.Interval = 46000;
-            this.AgilityTimer.Tick += new System.EventHandler(this.AgilityTimer_Tick);
-            // 
-            // BarbFishTimer
-            // 
-            this.BarbFishTimer.Interval = 15000;
-            this.BarbFishTimer.Tick += new System.EventHandler(this.BarbFishTimer_Tick);
-            // 
-            // RuneCraftTimer
-            // 
-            this.RuneCraftTimer.Interval = 79000;
-            this.RuneCraftTimer.Tick += new System.EventHandler(this.RuneCraftTimer_Tick);
-            // 
             // label1
             // 
             this.label1.AutoSize = true;
@@ -662,25 +476,6 @@ namespace AutoClicker
             this.label2.Size = new System.Drawing.Size(67, 13);
             this.label2.TabIndex = 6;
             this.label2.Text = "(0 for infinite)";
-            // 
-            // trackLabel1
-            // 
-            this.trackLabel1.AutoSize = true;
-            this.trackLabel1.Location = new System.Drawing.Point(299, 114);
-            this.trackLabel1.Name = "trackLabel1";
-            this.trackLabel1.Size = new System.Drawing.Size(74, 13);
-            this.trackLabel1.TabIndex = 9;
-            this.trackLabel1.Text = "Second Delay";
-            // 
-            // lblClickSeconds
-            // 
-            this.lblClickSeconds.AutoSize = true;
-            this.lblClickSeconds.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblClickSeconds.Location = new System.Drawing.Point(327, 91);
-            this.lblClickSeconds.Name = "lblClickSeconds";
-            this.lblClickSeconds.Size = new System.Drawing.Size(14, 16);
-            this.lblClickSeconds.TabIndex = 10;
-            this.lblClickSeconds.Text = "1";
             // 
             // groupBox2
             // 
@@ -882,19 +677,9 @@ namespace AutoClicker
             this.groupBox3.Controls.Add(this.label7);
             this.groupBox3.Controls.Add(this.lblClickOffset);
             this.groupBox3.Controls.Add(this.sliderClickOffset);
-            this.groupBox3.Controls.Add(this.label6);
-            this.groupBox3.Controls.Add(this.label3);
             this.groupBox3.Controls.Add(this.numCount);
             this.groupBox3.Controls.Add(this.label1);
-            this.groupBox3.Controls.Add(this.radioCycles);
             this.groupBox3.Controls.Add(this.label2);
-            this.groupBox3.Controls.Add(this.radioClicks);
-            this.groupBox3.Controls.Add(this.lblCycleSeconds);
-            this.groupBox3.Controls.Add(this.sliderCycles);
-            this.groupBox3.Controls.Add(this.label5);
-            this.groupBox3.Controls.Add(this.lblClickSeconds);
-            this.groupBox3.Controls.Add(this.sliderClicks);
-            this.groupBox3.Controls.Add(this.trackLabel1);
             this.groupBox3.Location = new System.Drawing.Point(6, 120);
             this.groupBox3.Name = "groupBox3";
             this.groupBox3.Size = new System.Drawing.Size(383, 282);
@@ -906,7 +691,7 @@ namespace AutoClicker
             // 
             this.lblClickOffsetNumber.AutoSize = true;
             this.lblClickOffsetNumber.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblClickOffsetNumber.Location = new System.Drawing.Point(327, 233);
+            this.lblClickOffsetNumber.Location = new System.Drawing.Point(327, 92);
             this.lblClickOffsetNumber.Name = "lblClickOffsetNumber";
             this.lblClickOffsetNumber.Size = new System.Drawing.Size(14, 16);
             this.lblClickOffsetNumber.TabIndex = 23;
@@ -915,7 +700,7 @@ namespace AutoClicker
             // label7
             // 
             this.label7.AutoSize = true;
-            this.label7.Location = new System.Drawing.Point(319, 258);
+            this.label7.Location = new System.Drawing.Point(319, 117);
             this.label7.Name = "label7";
             this.label7.Size = new System.Drawing.Size(34, 13);
             this.label7.TabIndex = 22;
@@ -925,7 +710,7 @@ namespace AutoClicker
             // 
             this.lblClickOffset.AutoSize = true;
             this.lblClickOffset.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblClickOffset.Location = new System.Drawing.Point(26, 214);
+            this.lblClickOffset.Location = new System.Drawing.Point(26, 73);
             this.lblClickOffset.Name = "lblClickOffset";
             this.lblClickOffset.Size = new System.Drawing.Size(85, 16);
             this.lblClickOffset.TabIndex = 21;
@@ -934,31 +719,13 @@ namespace AutoClicker
             // sliderClickOffset
             // 
             this.sliderClickOffset.LargeChange = 1;
-            this.sliderClickOffset.Location = new System.Drawing.Point(12, 233);
+            this.sliderClickOffset.Location = new System.Drawing.Point(12, 92);
             this.sliderClickOffset.Name = "sliderClickOffset";
             this.sliderClickOffset.Size = new System.Drawing.Size(286, 45);
             this.sliderClickOffset.TabIndex = 20;
             this.sliderClickOffset.TickStyle = System.Windows.Forms.TickStyle.Both;
             this.sliderClickOffset.Value = 3;
             this.sliderClickOffset.Scroll += new System.EventHandler(this.sliderClickOffset_Scroll);
-            // 
-            // label6
-            // 
-            this.label6.AutoSize = true;
-            this.label6.Location = new System.Drawing.Point(185, 144);
-            this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(82, 13);
-            this.label6.TabIndex = 19;
-            this.label6.Text = "(User click time)";
-            // 
-            // label3
-            // 
-            this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(185, 68);
-            this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(87, 13);
-            this.label3.TabIndex = 18;
-            this.label3.Text = "(Static click time)";
             // 
             // numCount
             // 
@@ -972,84 +739,12 @@ namespace AutoClicker
             this.numCount.Size = new System.Drawing.Size(65, 20);
             this.numCount.TabIndex = 7;
             // 
-            // radioCycles
-            // 
-            this.radioCycles.AutoSize = true;
-            this.radioCycles.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.radioCycles.Location = new System.Drawing.Point(12, 140);
-            this.radioCycles.Name = "radioCycles";
-            this.radioCycles.Size = new System.Drawing.Size(171, 20);
-            this.radioCycles.TabIndex = 17;
-            this.radioCycles.TabStop = true;
-            this.radioCycles.Text = "Time between cycles";
-            this.radioCycles.UseVisualStyleBackColor = true;
-            // 
-            // radioClicks
-            // 
-            this.radioClicks.AutoSize = true;
-            this.radioClicks.Checked = true;
-            this.radioClicks.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.radioClicks.Location = new System.Drawing.Point(12, 64);
-            this.radioClicks.Name = "radioClicks";
-            this.radioClicks.Size = new System.Drawing.Size(166, 20);
-            this.radioClicks.TabIndex = 16;
-            this.radioClicks.TabStop = true;
-            this.radioClicks.Text = "Time between clicks";
-            this.radioClicks.UseVisualStyleBackColor = true;
-            this.radioClicks.CheckedChanged += new System.EventHandler(this.radioClicks_CheckedChanged);
-            // 
-            // lblCycleSeconds
-            // 
-            this.lblCycleSeconds.AutoSize = true;
-            this.lblCycleSeconds.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblCycleSeconds.Location = new System.Drawing.Point(329, 169);
-            this.lblCycleSeconds.Name = "lblCycleSeconds";
-            this.lblCycleSeconds.Size = new System.Drawing.Size(14, 16);
-            this.lblCycleSeconds.TabIndex = 14;
-            this.lblCycleSeconds.Text = "1";
-            // 
-            // sliderCycles
-            // 
-            this.sliderCycles.Location = new System.Drawing.Point(12, 166);
-            this.sliderCycles.Maximum = 200;
-            this.sliderCycles.Minimum = 1;
-            this.sliderCycles.Name = "sliderCycles";
-            this.sliderCycles.Size = new System.Drawing.Size(286, 45);
-            this.sliderCycles.TabIndex = 12;
-            this.sliderCycles.TickFrequency = 25;
-            this.sliderCycles.TickStyle = System.Windows.Forms.TickStyle.Both;
-            this.sliderCycles.Value = 10;
-            this.sliderCycles.Scroll += new System.EventHandler(this.sliderCycles_Scroll);
-            // 
-            // label5
-            // 
-            this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(301, 192);
-            this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(74, 13);
-            this.label5.TabIndex = 13;
-            this.label5.Text = "Second Delay";
-            // 
-            // sliderClicks
-            // 
-            this.sliderClicks.Location = new System.Drawing.Point(12, 88);
-            this.sliderClicks.Maximum = 100;
-            this.sliderClicks.Minimum = 1;
-            this.sliderClicks.Name = "sliderClicks";
-            this.sliderClicks.Size = new System.Drawing.Size(284, 45);
-            this.sliderClicks.TabIndex = 8;
-            this.sliderClicks.TickFrequency = 25;
-            this.sliderClicks.TickStyle = System.Windows.Forms.TickStyle.Both;
-            this.sliderClicks.Value = 10;
-            this.sliderClicks.Scroll += new System.EventHandler(this.sliderClicks_Scroll);
-            // 
             // groupBox1
             // 
             this.groupBox1.Controls.Add(this.lblTotalInventory);
             this.groupBox1.Controls.Add(this.label8);
             this.groupBox1.Controls.Add(this.label4);
             this.groupBox1.Controls.Add(this.numInventoryCount);
-            this.groupBox1.Controls.Add(this.btnDropInventory);
             this.groupBox1.Controls.Add(this.chkDropInverse);
             this.groupBox1.Controls.Add(this.btnSetupInventory);
             this.groupBox1.Controls.Add(this.btnSingleClickInv);
@@ -1102,16 +797,6 @@ namespace AutoClicker
             this.numInventoryCount.Size = new System.Drawing.Size(64, 20);
             this.numInventoryCount.TabIndex = 24;
             this.numInventoryCount.ValueChanged += new System.EventHandler(this.numInventoryCount_ValueChanged);
-            // 
-            // btnDropInventory
-            // 
-            this.btnDropInventory.Location = new System.Drawing.Point(236, 72);
-            this.btnDropInventory.Name = "btnDropInventory";
-            this.btnDropInventory.Size = new System.Drawing.Size(137, 23);
-            this.btnDropInventory.TabIndex = 14;
-            this.btnDropInventory.Text = "Drop Inventory";
-            this.btnDropInventory.UseVisualStyleBackColor = true;
-            this.btnDropInventory.Click += new System.EventHandler(this.btnDropInventory_Click);
             // 
             // chkDropInverse
             // 
@@ -1317,27 +1002,6 @@ namespace AutoClicker
             this.loadToolStripMenuItem.Text = "Load";
             this.loadToolStripMenuItem.Click += new System.EventHandler(this.loadToolStripMenuItem_Click);
             // 
-            // workerSeersAgility
-            // 
-            this.workerSeersAgility.WorkerReportsProgress = true;
-            this.workerSeersAgility.WorkerSupportsCancellation = true;
-            this.workerSeersAgility.DoWork += new System.ComponentModel.DoWorkEventHandler(this.workerSeersAgility_DoWork);
-            this.workerSeersAgility.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.workerSeersAgility_RunWorkerCompleted);
-            // 
-            // workerCanifisAgility
-            // 
-            this.workerCanifisAgility.WorkerReportsProgress = true;
-            this.workerCanifisAgility.WorkerSupportsCancellation = true;
-            this.workerCanifisAgility.DoWork += new System.ComponentModel.DoWorkEventHandler(this.workerCanifisAgility_DoWork);
-            this.workerCanifisAgility.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.workerCanifisAgility_RunWorkerCompleted);
-            // 
-            // workerBarbFish
-            // 
-            this.workerBarbFish.WorkerReportsProgress = true;
-            this.workerBarbFish.WorkerSupportsCancellation = true;
-            this.workerBarbFish.DoWork += new System.ComponentModel.DoWorkEventHandler(this.workerBarbFish_DoWork);
-            this.workerBarbFish.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.workerBarbFish_RunWorkerCompleted);
-            // 
             // chkClicks
             // 
             this.chkClicks.AutoSize = true;
@@ -1350,18 +1014,6 @@ namespace AutoClicker
             this.chkClicks.Text = "Log Clicks";
             this.chkClicks.UseVisualStyleBackColor = true;
             this.chkClicks.CheckedChanged += new System.EventHandler(this.chkClicks_CheckedChanged);
-            // 
-            // worker_RC
-            // 
-            this.worker_RC.WorkerReportsProgress = true;
-            this.worker_RC.WorkerSupportsCancellation = true;
-            this.worker_RC.DoWork += new System.ComponentModel.DoWorkEventHandler(this.worker_RC_DoWork);
-            // 
-            // worker_Mining
-            // 
-            this.worker_Mining.WorkerReportsProgress = true;
-            this.worker_Mining.WorkerSupportsCancellation = true;
-            this.worker_Mining.DoWork += new System.ComponentModel.DoWorkEventHandler(this.worker_Mining_DoWork);
             // 
             // worker_Gem_Mining
             // 
@@ -1449,6 +1101,76 @@ namespace AutoClicker
             this.dg_Clicks.Size = new System.Drawing.Size(594, 469);
             this.dg_Clicks.TabIndex = 0;
             // 
+            // Click_Sequence
+            // 
+            this.Click_Sequence.HeaderText = "#";
+            this.Click_Sequence.Name = "Click_Sequence";
+            this.Click_Sequence.Width = 30;
+            // 
+            // Click_Name
+            // 
+            this.Click_Name.HeaderText = "Name";
+            this.Click_Name.Name = "Click_Name";
+            // 
+            // Click_Delay
+            // 
+            this.Click_Delay.HeaderText = "Delay";
+            this.Click_Delay.Name = "Click_Delay";
+            this.Click_Delay.Width = 60;
+            // 
+            // Click_Type
+            // 
+            this.Click_Type.HeaderText = "Button";
+            this.Click_Type.Name = "Click_Type";
+            this.Click_Type.Width = 50;
+            // 
+            // Click_X
+            // 
+            this.Click_X.HeaderText = "X";
+            this.Click_X.Name = "Click_X";
+            this.Click_X.Width = 50;
+            // 
+            // Click_Y
+            // 
+            this.Click_Y.HeaderText = "Y";
+            this.Click_Y.Name = "Click_Y";
+            this.Click_Y.Width = 50;
+            // 
+            // Click_Offset
+            // 
+            this.Click_Offset.HeaderText = "Offset";
+            this.Click_Offset.Name = "Click_Offset";
+            this.Click_Offset.Width = 50;
+            // 
+            // Click_Empty_Point
+            // 
+            this.Click_Empty_Point.HeaderText = "Click When Point is Empty";
+            this.Click_Empty_Point.Name = "Click_Empty_Point";
+            // 
+            // Click_Color
+            // 
+            this.Click_Color.HeaderText = "Primary Color (A,R,G,B)";
+            this.Click_Color.Name = "Click_Color";
+            this.Click_Color.Width = 150;
+            // 
+            // Click_Color_2
+            // 
+            this.Click_Color_2.HeaderText = "Second Color (A,R,G,B)";
+            this.Click_Color_2.Name = "Click_Color_2";
+            this.Click_Color_2.Width = 150;
+            // 
+            // Click_Image
+            // 
+            this.Click_Image.HeaderText = "Image";
+            this.Click_Image.Name = "Click_Image";
+            this.Click_Image.Width = 300;
+            // 
+            // Click_Script
+            // 
+            this.Click_Script.HeaderText = "Click Script";
+            this.Click_Script.Name = "Click_Script";
+            this.Click_Script.Width = 200;
+            // 
             // Buttons
             // 
             this.Buttons.Controls.Add(this.groupBox11);
@@ -1467,15 +1189,7 @@ namespace AutoClicker
             this.Buttons.Controls.Add(this.btn_Find_Image);
             this.Buttons.Controls.Add(this.btnStartAlch);
             this.Buttons.Controls.Add(this.btnSetAlch);
-            this.Buttons.Controls.Add(this.btn_Mine);
             this.Buttons.Controls.Add(this.btn_Auto_Attack);
-            this.Buttons.Controls.Add(this.btnCanAgi);
-            this.Buttons.Controls.Add(this.btn_Woodcut);
-            this.Buttons.Controls.Add(this.btnRC);
-            this.Buttons.Controls.Add(this.btnBarbFish);
-            this.Buttons.Controls.Add(this.btnSeersAgil);
-            this.Buttons.Controls.Add(this.btnPickPocket);
-            this.Buttons.Controls.Add(this.btnNightmare);
             this.Buttons.Location = new System.Drawing.Point(4, 22);
             this.Buttons.Name = "Buttons";
             this.Buttons.Size = new System.Drawing.Size(605, 523);
@@ -1909,15 +1623,6 @@ namespace AutoClicker
             this.btnSetAlch.UseVisualStyleBackColor = true;
             this.btnSetAlch.Click += new System.EventHandler(this.btnSetAlch_Click);
             // 
-            // btn_Mine
-            // 
-            this.btn_Mine.Location = new System.Drawing.Point(16, 238);
-            this.btn_Mine.Name = "btn_Mine";
-            this.btn_Mine.Size = new System.Drawing.Size(75, 23);
-            this.btn_Mine.TabIndex = 27;
-            this.btn_Mine.Text = "Mining";
-            this.btn_Mine.UseVisualStyleBackColor = true;
-            // 
             // btn_Auto_Attack
             // 
             this.btn_Auto_Attack.Location = new System.Drawing.Point(102, 89);
@@ -1927,75 +1632,6 @@ namespace AutoClicker
             this.btn_Auto_Attack.Text = "AutoShoot";
             this.btn_Auto_Attack.UseVisualStyleBackColor = true;
             this.btn_Auto_Attack.Click += new System.EventHandler(this.btn_Auto_Attack_Click);
-            // 
-            // btnCanAgi
-            // 
-            this.btnCanAgi.Location = new System.Drawing.Point(102, 178);
-            this.btnCanAgi.Name = "btnCanAgi";
-            this.btnCanAgi.Size = new System.Drawing.Size(75, 23);
-            this.btnCanAgi.TabIndex = 25;
-            this.btnCanAgi.Text = "Canifis Agi";
-            this.btnCanAgi.UseVisualStyleBackColor = true;
-            this.btnCanAgi.Click += new System.EventHandler(this.btnCanAgi_Click);
-            // 
-            // btn_Woodcut
-            // 
-            this.btn_Woodcut.Location = new System.Drawing.Point(102, 50);
-            this.btn_Woodcut.Name = "btn_Woodcut";
-            this.btn_Woodcut.Size = new System.Drawing.Size(75, 23);
-            this.btn_Woodcut.TabIndex = 24;
-            this.btn_Woodcut.Text = "Woodcut";
-            this.btn_Woodcut.UseVisualStyleBackColor = true;
-            // 
-            // btnRC
-            // 
-            this.btnRC.Location = new System.Drawing.Point(16, 208);
-            this.btnRC.Name = "btnRC";
-            this.btnRC.Size = new System.Drawing.Size(75, 23);
-            this.btnRC.TabIndex = 23;
-            this.btnRC.Text = "RC";
-            this.btnRC.UseVisualStyleBackColor = true;
-            this.btnRC.Click += new System.EventHandler(this.btnRC_Click);
-            // 
-            // btnBarbFish
-            // 
-            this.btnBarbFish.Location = new System.Drawing.Point(102, 15);
-            this.btnBarbFish.Name = "btnBarbFish";
-            this.btnBarbFish.Size = new System.Drawing.Size(75, 23);
-            this.btnBarbFish.TabIndex = 22;
-            this.btnBarbFish.Text = "Barb Fish";
-            this.btnBarbFish.UseVisualStyleBackColor = true;
-            this.btnBarbFish.Click += new System.EventHandler(this.btnBarbFish_Click);
-            // 
-            // btnSeersAgil
-            // 
-            this.btnSeersAgil.Location = new System.Drawing.Point(16, 178);
-            this.btnSeersAgil.Name = "btnSeersAgil";
-            this.btnSeersAgil.Size = new System.Drawing.Size(75, 23);
-            this.btnSeersAgil.TabIndex = 21;
-            this.btnSeersAgil.Text = "Seers Agility";
-            this.btnSeersAgil.UseVisualStyleBackColor = true;
-            this.btnSeersAgil.Click += new System.EventHandler(this.btnSeersAgil_Click);
-            // 
-            // btnPickPocket
-            // 
-            this.btnPickPocket.Location = new System.Drawing.Point(16, 89);
-            this.btnPickPocket.Name = "btnPickPocket";
-            this.btnPickPocket.Size = new System.Drawing.Size(75, 23);
-            this.btnPickPocket.TabIndex = 19;
-            this.btnPickPocket.Text = "Pick Pocket";
-            this.btnPickPocket.UseVisualStyleBackColor = true;
-            this.btnPickPocket.Click += new System.EventHandler(this.btnPickPocket_Click);
-            // 
-            // btnNightmare
-            // 
-            this.btnNightmare.Location = new System.Drawing.Point(16, 15);
-            this.btnNightmare.Name = "btnNightmare";
-            this.btnNightmare.Size = new System.Drawing.Size(75, 23);
-            this.btnNightmare.TabIndex = 17;
-            this.btnNightmare.Text = "Nightmare";
-            this.btnNightmare.UseVisualStyleBackColor = true;
-            this.btnNightmare.Click += new System.EventHandler(this.btnNightmare_Click);
             // 
             // groupBox9
             // 
@@ -2131,76 +1767,6 @@ namespace AutoClicker
             this.worker_Inventory_Clicks.WorkerSupportsCancellation = true;
             this.worker_Inventory_Clicks.DoWork += new System.ComponentModel.DoWorkEventHandler(this.worker_Inventory_Clicks_DoWork);
             // 
-            // Click_Sequence
-            // 
-            this.Click_Sequence.HeaderText = "#";
-            this.Click_Sequence.Name = "Click_Sequence";
-            this.Click_Sequence.Width = 30;
-            // 
-            // Click_Name
-            // 
-            this.Click_Name.HeaderText = "Name";
-            this.Click_Name.Name = "Click_Name";
-            // 
-            // Click_Delay
-            // 
-            this.Click_Delay.HeaderText = "Delay";
-            this.Click_Delay.Name = "Click_Delay";
-            this.Click_Delay.Width = 60;
-            // 
-            // Click_Type
-            // 
-            this.Click_Type.HeaderText = "Button";
-            this.Click_Type.Name = "Click_Type";
-            this.Click_Type.Width = 50;
-            // 
-            // Click_X
-            // 
-            this.Click_X.HeaderText = "X";
-            this.Click_X.Name = "Click_X";
-            this.Click_X.Width = 50;
-            // 
-            // Click_Y
-            // 
-            this.Click_Y.HeaderText = "Y";
-            this.Click_Y.Name = "Click_Y";
-            this.Click_Y.Width = 50;
-            // 
-            // Click_Offset
-            // 
-            this.Click_Offset.HeaderText = "Offset";
-            this.Click_Offset.Name = "Click_Offset";
-            this.Click_Offset.Width = 50;
-            // 
-            // Click_Empty_Point
-            // 
-            this.Click_Empty_Point.HeaderText = "Click When Point is Empty";
-            this.Click_Empty_Point.Name = "Click_Empty_Point";
-            // 
-            // Click_Color
-            // 
-            this.Click_Color.HeaderText = "Primary Color (A,R,G,B)";
-            this.Click_Color.Name = "Click_Color";
-            this.Click_Color.Width = 150;
-            // 
-            // Click_Color_2
-            // 
-            this.Click_Color_2.HeaderText = "Second Color (A,R,G,B)";
-            this.Click_Color_2.Name = "Click_Color_2";
-            this.Click_Color_2.Width = 150;
-            // 
-            // Click_Image
-            // 
-            this.Click_Image.HeaderText = "Image";
-            this.Click_Image.Name = "Click_Image";
-            this.Click_Image.Width = 300;
-            // 
-            // Click_Script
-            // 
-            this.Click_Script.HeaderText = "Click Script";
-            this.Click_Script.Name = "Click_Script";
-            this.Click_Script.Width = 200;
-            // 
             // MainForm
             // 
             this.AutoScaleBaseSize = new System.Drawing.Size(5, 13);
@@ -2227,8 +1793,6 @@ namespace AutoClicker
             this.groupBox3.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.sliderClickOffset)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numCount)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.sliderCycles)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.sliderClicks)).EndInit();
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numInventoryCount)).EndInit();
@@ -2352,7 +1916,6 @@ namespace AutoClicker
                     TimeoutLengthMax = TimeoutLengthMax
                 };
                 runParams.RunLimit = (int)numCount.Value;
-                runParams.ScreenshotInfo = new ScreenshotInfo() { ColorRange = ColorRange };
                 runParams.ClickList = Clicks.ToList(); ;
                 CurrentWorker.RunWorkerAsync(runParams);
             }
@@ -2441,7 +2004,6 @@ namespace AutoClicker
 
                 if (SetupInventory)
                 {
-                    Inventory.Add(Cursor.Position);
                     InventoryClicks.Add(new Click()
                     {
                         ClickPoint = Cursor.Position,
@@ -2471,34 +2033,16 @@ namespace AutoClicker
                 switch (e.KeyCode)
                 {
                     case Keys.D1:
-                        //StartAutoClicker();
                         this.btn_Start.PerformClick();
-                        Ctrl = false;
-                        break;
-                    case Keys.D2:
-                        Ctrl = false;
-                        break;
-                    case Keys.D3:
-                        if (PickPocketTimer.Enabled)
-                        {
-                            LogWrite("End PickPocket");
-                            StopAutoClicker();
-                        }
-                        else
-                        {
-                            LogWrite("Start PickPocket");
-                            btnPickPocket.PerformClick();
-                        }
-                        Ctrl = false;
                         break;
                     case Keys.L:
                         chkLog.Checked = !chkLog.Checked;
                         break;
-                    case Keys.LShiftKey:
-                    case Keys.RShiftKey:
-                        //ClickInventory(true);
+                    default:
                         break;
                 }
+
+                Ctrl = false;
             }
             else
             {
@@ -2508,553 +2052,20 @@ namespace AutoClicker
                     case Keys.RControlKey:
                         Ctrl = true;
                         break;
-                    case Keys.Add:
-                        ActiveSlider.Value++;
-                        UpdateTrack();
-                        break;
-                    case Keys.Subtract:
-                        ActiveSlider.Value--;
-                        UpdateTrack();
-                        break;
                 }
             }
 
-        }
-
-        private void LogoutTimer_Tick(object sender, EventArgs e)
-        {
-            StopAutoClicker();
-        }
-        
-        private void NMZPrayerTimer_Tick(object sender, EventArgs e)
-        {
-            var delay = RandomGenerate.Next(1200, 2000);
-            long milliseconds = DateTimeOffset.Now.ToUnixTimeMilliseconds();
-            var secondClick = false;
-            DoMouseClick(0, new Point(1746, 133));
-            while (!secondClick)
-            {
-                if (DateTimeOffset.Now.ToUnixTimeMilliseconds() - milliseconds >= delay)
-                {
-                    secondClick = true;
-                    DoMouseClick(0, new Point(1746, 133));
-                }
-
-            }
-            PrayerTimer.Interval = RandomGenerate.Next(45000, 55000);
-            LogWrite("Next prayer tick: " + PrayerTimer.Interval);
-        }
-
-        private void EatTimer_Tick(object sender, EventArgs e)
-        {
-            //Rectangle cloneRect = new Rectangle(1710, 94, 20, 14);
-            //var screeshot = MainScreen.CaptureScreen();
-            ////var health = screeshot.
-            //System.Drawing.Imaging.PixelFormat format = screeshot.PixelFormat;
-            //Bitmap image = screeshot.Clone(cloneRect, format);
-            //Bitmap imageClone = new Bitmap(image);
-            //var time = DateTime.Now.ToString("h.mm.ss");
-
-            //Convert(imageClone, false);
-            //var image2 = new Bitmap(imageClone, imageClone.Width * 3, imageClone.Height * 3);
-            //Convert2(image2, false);
-
-            ////ocr.SetVariable("tessedit_char_whitelist", "0123456789");
-            //var result = ocr.DoOCR(image2, Rectangle.Empty);
-            //int hp = 0;
-            //var success = int.TryParse(result[0].Text, out hp);
-            //if (!success)
-            //{
-            //    Bitmap imageClone2 = new Bitmap(image);
-            //    Convert(imageClone, true);
-            //    image2 = new Bitmap(imageClone, imageClone.Width * 3, imageClone.Height * 3);
-            //    Convert2(image2, false);
-            //    result = ocr.DoOCR(image2, Rectangle.Empty);
-            //    success = int.TryParse(result[0].Text, out hp);
-            //    if (!success)
-            //    if (!success)
-            //    {
-            //        EatFailCount++;
-
-            //        LogWrite("EAT FAIL: " + EatFailCount);
-            //        if (EatFailCount >= EatFailCountMax)
-            //            StopAutoClicker();
-            //        return;
-            //    }
-            //}
-            //EatFailCount = 0;
-            //if (hp <= 30)
-            //{
-            //    if (CurrentInventoryClickCount >= TotalInventoryClickCount || hp < 10)
-            //    {
-            //        StopAutoClicker();
-            //        return;
-            //    }
-            //    PickPocketTimer.Stop();
-            //    long milliseconds = DateTimeOffset.Now.ToUnixTimeMilliseconds();
-            //    while(DateTimeOffset.Now.ToUnixTimeMilliseconds() - milliseconds < 1500)
-            //    {
-
-            //    }
-
-            //    var point = Inventory[CurrentInventoryClickCount];
-            //    DoMouseClick(0, point);
-            //    CurrentInventoryClickCount++;
-            //    LogWrite("Eating");
-            //    PickPocketTimer.Start();
-
-            //}
-            //else
-            //    LogWrite("HP Safe");
-
-            //screeshot = null;
-            //image2 = null;
-            //image = null;
-            //imageClone = null;
-
-        }
-
-        private void PickPocketTimer_Tick(object sender, EventArgs e)
-        {
-            //450,330
-
-            if (UseRandomTimeouts)
-            {
-                if (TimedOut)
-                {
-                    PickPocketTimer.Interval = 15000;
-                    TimedOut = false;
-                }
-                else
-                {
-                    RandomTimeoutCount--;
-                    if (RandomTimeoutCount <= 0)
-                    {
-                        //RapidClickTimer.Stop();
-                        RandomTimeoutCount = GetRandomTimeoutCount();
-                        PickPocketTimer.Interval = GetRandomTimeout();
-                        LogWrite("Hit Timeout for : " + PickPocketTimer.Interval);
-                        LogWrite("New count : " + RandomTimeoutCount);
-
-                        TimedOut = true;
-                        return;
-                    }
-                }
-            }
-
-            var origMousePoint = Mouse.Mouse.GetLocation();
-            var heartImage = Properties.Resources.HealthHeart2;
-            var imageList = new List<Bitmap>() { Properties.Resources.Gold20, Properties.Resources.Gold21,
-                                                 Properties.Resources.Gold22, Properties.Resources.Gold23,
-                                                 Properties.Resources.Gold24, Properties.Resources.Gold25,
-                                                 Properties.Resources.Gold26, Properties.Resources.Gold27, Properties.Resources.Gold28};
-            var colorRange = 360m * (20 / 100m); //sliderColorRange.Value
-
-            var healthBar = Color.FromArgb(225, 35, 0);
-
-            LogWrite("Checking for coin bag");
-            var screenShot = MainScreen.CaptureScreen(SelectedMonitor);
-            var lowerX = screenShot.Width / 4;
-            var lowerY = screenShot.Height / 4;
-            Point point = MainScreen.FindImageFromList(screenShot, new Point(screenShot.Width - lowerX, screenShot.Height / 2), new Point(screenShot.Width, screenShot.Height), imageList, colorRange);
-            if (!point.IsEmpty)
-            {
-                //RapidClickTimer.Stop();
-                point.X += 10;
-                point.Y += 20;
-                LogWrite("FOUND");
-                DoMouseClick(0, point);
-
-                Thread.Sleep(RandomGenerate.Next(500, 2000));
-
-                Mouse.Mouse.MoveTo(origMousePoint.X + RandomGenerate.Next(-5, 5), origMousePoint.Y + RandomGenerate.Next(-5, 5));
-            }
-
-            if (!MainScreen.FindColorPointRange(screenShot, AlchPoint, healthBar, colorRange))
-            {
-                EatFailCount++;
-                //RapidClickTimer.Stop();
-                if (CurrentInventoryClickCount >= TotalInventoryClickCount && EatFailCount < 9)
-                {
-                    EatFailCount = 9;
-                }
-                else
-                {
-                    point = Inventory[CurrentInventoryClickCount];
-                    CurrentInventoryClickCount++;
-                    point.X += 10;
-                    point.Y += 10;
-                    LogWrite("FOUND");
-                    DoMouseClick(0, point);
-                }
-
-
-                Thread.Sleep(RandomGenerate.Next(500, 2000));
-
-                Mouse.Mouse.MoveTo(origMousePoint.X + RandomGenerate.Next(-5, 5), origMousePoint.Y + RandomGenerate.Next(-5, 5));
-            }
-            else
-            {
-                EatFailCount = 0;
-            }
-
-            if (EatFailCount >= EatFailCountMax)
-            {
-                StopAutoClicker();
-                return;
-            }
-
-
-            //if (!RapidClickTimer.Enabled)
-            //RapidClickTimer.Start();
-        }
-
-        private void WoodcutTimer_Tick(object sender, EventArgs e)
-        {
-            //950, 420
-            var y = 420;
-            var x = 950;
-            long milliseconds = DateTimeOffset.Now.ToUnixTimeMilliseconds();
-            var colorRange = 360m * (sliderColorRange.Value / 100m);
-            var image = Properties.Resources.Woodcut;
-            DoMouseClick(1, new Point(x, y));
-            while (DateTimeOffset.Now.ToUnixTimeMilliseconds() - milliseconds < 1500)
-            {
-
-            }
-            var point = MainScreen.FindImage(new Point(750, 300), new Point(delayTime, 500), image, colorRange, SelectedMonitor);
-
-            point.X += image.Width / 2;
-            point.Y += image.Height / 2;
-
-            DoMouseClick(0, point);
-        }
-
-        private void InvFullTimer_Tick(object sender, EventArgs e)
-        {
-            //1835,925
-            //1900,990
-            var colorRange = 360m * (sliderColorRange.Value / 100m);
-            var image = Properties.Resources.Empty_Inv_Space;
-            var point = MainScreen.FindImage(new Point(1835, 925), new Point(1900, 990), image, colorRange, SelectedMonitor);
-            if (point.IsEmpty)
-            {
-                WoodcutTimer.Stop();
-                ClickInventory(true);
-                WoodcutTimer.Start();
-            }
-
-        }
-        private void NMZDrinkTimer_Tick(object sender, EventArgs e)
-        {
-            var screenshot = MainScreen.CaptureScreen(SelectedMonitor);
-            FindAbsorbPotion(screenshot);
-            //long milliseconds = DateTimeOffset.Now.ToUnixTimeMilliseconds();
-            //var secondClick = false;
-            //while (!secondClick)
-            //{
-            //    if (DateTimeOffset.Now.ToUnixTimeMilliseconds() - milliseconds >= delayTime)
-            //    {
-            //        secondClick = true;
-            //        FindOverloadPotion(screenshot);
-            //    }
-
-            //}
-            DrinkTimer.Interval = RandomGenerate.Next(60000, 240000);
-            LogWrite("Next drink tick: " + DrinkTimer.Interval);
-            System.GC.Collect();
-
-            //LogWrite(String.Format("X:{0} Y:{1}", point.X, point.Y));
-        }
-        private void FindOverloadPotion(Bitmap screenshot)
-        {
-            LogWrite("Checking for overload");
-
-            var image = Properties.Resources.Over_1;
-            var offsetX = image.Width / 2;
-            var offsetY = image.Height / 2;
-
-            var colorRange = 360m * (sliderColorRange.Value / 100m);
-            var point = MainScreen.FindInInventory(Properties.Resources.Over_1, screenshot, colorRange);
-            if (!point.IsEmpty)
-            {
-                point.X += offsetX;
-                point.Y += offsetY;
-                LogWrite("found 1 dose");
-                DoMouseClick(0, point);
-                return;
-            }
-            point = MainScreen.FindInInventory(Properties.Resources.Over_2, screenshot, colorRange);
-            if (!point.IsEmpty)
-            {
-                point.X += offsetX;
-                point.Y += offsetY;
-                LogWrite("found 2 dose");
-                DoMouseClick(0, point);
-                return;
-            }
-            point = MainScreen.FindInInventory(Properties.Resources.Over_3, screenshot, colorRange);
-            if (!point.IsEmpty)
-            {
-                point.X += offsetX;
-                point.Y += offsetY;
-                LogWrite("found 3 dose");
-                DoMouseClick(0, point);
-                return;
-            }
-            point = MainScreen.FindInInventory(Properties.Resources.Over_4, screenshot, colorRange);
-            if (!point.IsEmpty)
-            {
-                point.X += offsetX;
-                point.Y += offsetY;
-                LogWrite("found 4 dose");
-                DoMouseClick(0, point);
-                return;
-            }
-        }
-
-        private void FindAbsorbPotion(Bitmap screenshot)
-        {
-            LogWrite("Checking for absorb");
-
-
-
-            var colorRange = 360m * (sliderColorRange.Value / 100m);
-            var point = MainScreen.FindInInventory(Properties.Resources.Absorb_1, screenshot, colorRange);
-            if (!point.IsEmpty)
-            {
-                point.X += Absorb_offsetX;
-                point.Y += Absorb_offsetY;
-                LogWrite("found 1 dose");
-                DoMouseClick(0, point);
-                return;
-            }
-            point = MainScreen.FindInInventory(Properties.Resources.Absorb_2, screenshot, colorRange);
-            if (!point.IsEmpty)
-            {
-                point.X += Absorb_offsetX;
-                point.Y += Absorb_offsetY;
-                LogWrite("found 2 dose");
-                DoMouseClick(0, point);
-                return;
-            }
-            point = MainScreen.FindInInventory(Properties.Resources.Absorb_3, screenshot, colorRange);
-            if (!point.IsEmpty)
-            {
-                point.X += Absorb_offsetX;
-                point.Y += Absorb_offsetY;
-                LogWrite("found 3 dose");
-                DoMouseClick(0, point);
-                return;
-            }
-            point = MainScreen.FindInInventory(Properties.Resources.Absorb_4, screenshot, colorRange);
-            if (!point.IsEmpty)
-            {
-                point.X += Absorb_offsetX;
-                point.Y += Absorb_offsetY;
-                LogWrite("found 4 dose");
-                DoMouseClick(0, point);
-                return;
-            }
-        }
-
-        private void NMZOverloadTimer_Tick(object sender, EventArgs e)
-        {
-            LogWrite("Checking for overload");
-            var screenshot = MainScreen.CaptureScreen(SelectedMonitor);
-
-            var image = Properties.Resources.Over_1;
-            var offsetX = image.Width / 2;
-            var offsetY = image.Height / 2;
-
-            var colorRange = 360m * (sliderColorRange.Value / 100m);
-            var point = MainScreen.FindInInventory(Properties.Resources.Over_1, screenshot, colorRange);
-            if (!point.IsEmpty)
-            {
-                point.X += offsetX;
-                point.Y += offsetY;
-                LogWrite("found 1 dose");
-                DoMouseClick(0, point);
-                return;
-            }
-            point = MainScreen.FindInInventory(Properties.Resources.Over_2, screenshot, colorRange);
-            if (!point.IsEmpty)
-            {
-                point.X += offsetX;
-                point.Y += offsetY;
-                LogWrite("found 2 dose");
-                DoMouseClick(0, point);
-                return;
-            }
-            point = MainScreen.FindInInventory(Properties.Resources.Over_3, screenshot, colorRange);
-            if (!point.IsEmpty)
-            {
-                point.X += offsetX;
-                point.Y += offsetY;
-                LogWrite("found 3 dose");
-                DoMouseClick(0, point);
-                return;
-            }
-            point = MainScreen.FindInInventory(Properties.Resources.Over_4, screenshot, colorRange);
-            if (!point.IsEmpty)
-            {
-                point.X += offsetX;
-                point.Y += offsetY;
-                LogWrite("found 4 dose");
-                DoMouseClick(0, point);
-                return;
-            }
-            //LogWrite(String.Format("X:{0} Y:{1}", point.X, point.Y));
-        }
-
-        public void DoMouseClick(int mouseButton, Point point)
-        {
-            if (point != Point.Empty)
-            {
-                point.X += GetRandomOffset();
-                point.Y += GetRandomOffset();
-                if (logClicks)
-                    LogWrite("Clicked at X:" + point.X + "  Y:" + point.Y);
-                Mouse.Mouse.MoveTo(point.X, point.Y);
-            }
-
-            long milliseconds = DateTimeOffset.Now.ToUnixTimeMilliseconds();
-            while (DateTimeOffset.Now.ToUnixTimeMilliseconds() - milliseconds <= 200)
-            {
-
-            }
-            //Thread.Sleep(200);
-            switch (mouseButton)
-            {
-                case 0:
-                    Mouse.Mouse.LeftClick();
-                    break;
-                case 1:
-                    Mouse.Mouse.RightClick();
-                    break;
-            }
-        }
-
-        public void DoMouseClickNew(int mouseButton, Point point)
-        {
-            if (point != Point.Empty)
-            {
-                point.X += GetRandomOffset();
-                point.Y += GetRandomOffset();
-                if (logClicks)
-                    LogWrite("Clicked at X:" + point.X + "  Y:" + point.Y);
-                Mouse.Mouse.MoveTo(point.X, point.Y);
-            }
-
-            //Thread.Sleep(200);
-            switch (mouseButton)
-            {
-                case 0:
-                    Mouse.Mouse.LeftClick();
-                    break;
-                case 1:
-                    Mouse.Mouse.RightClick();
-                    break;
-            }
-        }
-
-        public void DoMouseClickAsync(IProgress<string> report, int mouseButton, Point point)
-        {
-            if (point != Point.Empty)
-            {
-                point.X += GetRandomOffset();
-                point.Y += GetRandomOffset();
-                report.Report("Clicked at X:" + point.X + "  Y:" + point.Y);
-                Mouse.Mouse.MoveTo(point.X, point.Y);
-            }
-
-            long milliseconds = DateTimeOffset.Now.ToUnixTimeMilliseconds();
-            while (DateTimeOffset.Now.ToUnixTimeMilliseconds() - milliseconds <= 200)
-            {
-
-            }
-            //Thread.Sleep(200);
-            switch (mouseButton)
-            {
-                case 0:
-                    Mouse.Mouse.LeftClick();
-                    break;
-                case 1:
-                    Mouse.Mouse.RightClick();
-                    break;
-            }
-        }
-
-        public int GetRandomOffset()
-        {
-            return RandomGenerate.Next(0, ClickOffset * 2) - ClickOffset;
         }
 
         public void StopAutoClicker()
         {
-            BarbFishTimer.Stop();
-            LogoutTimer.Stop();
-            PrayerTimer.Stop();
-            OverloadTimer.Stop();
-            DrinkTimer.Stop();
-            EatTimer.Stop();
-            PickPocketTimer.Stop();
-            WoodcutTimer.Stop();
-            InvFullTimer.Stop();
-            sliderClicks.Enabled = true;
             numCount.Enabled = true;
             buttonRecord.Enabled = true;
             RunProgram = false;
-            NMZEnabled = false;
-            PickPocket = false;
-            Woodcutting = false;
             workerAlch.CancelAsync();
 
             btn_Start.Text = "Start";
             LogWrite("Stopping Auto Clicker");
-        }
-
-        private void sliderClicks_Scroll(object sender, EventArgs e)
-        {
-            UpdateTrack();
-        }
-
-        private int GetInterval()
-        {
-            var max = (int)(ActiveSlider.Value * 1.1 * 100);
-            var min = (int)(ActiveSlider.Value * 0.9 * 100);
-            return RandomGenerate.Next(min, max); //(int)((ActiveSlider.Value / 10.0) * delayTime);
-        }
-
-        private void UpdateTrack()
-        {
-            var interval = GetInterval();
-            ActiveLabel.Text = (ActiveSlider.Value / 10.0).ToString();
-        }
-
-        private void sliderCycles_Scroll(object sender, EventArgs e)
-        {
-            UpdateTrack();
-        }
-
-        private void radioClicks_CheckedChanged(object sender, EventArgs e)
-        {
-            var radio = (RadioButton)sender;
-            if (radio.Checked)
-            {
-                sliderCycles.Enabled = false;
-                sliderClicks.Enabled = true;
-                ActiveSlider = sliderClicks;
-                ActiveLabel = lblClickSeconds;
-            }
-            else
-            {
-                sliderCycles.Enabled = true;
-                sliderClicks.Enabled = false;
-                ActiveSlider = sliderCycles;
-                ActiveLabel = lblCycleSeconds;
-            }
-
         }
 
         private void chkLog_CheckedChanged(object sender, EventArgs e)
@@ -3106,7 +2117,7 @@ namespace AutoClicker
                 DropInverse = false;
         }
 
-        private void ClickInventory(bool dropping)
+        private void ClickInventory()
         {
             if (InventoryClicks.Count < 1)
             {
@@ -3281,34 +2292,26 @@ namespace AutoClicker
         private void DisableAll()
         {
             btn_Start.Enabled = false;
-            //buttonRecord.Enabled = false;
             chkLog.Enabled = false;
             chkDropInverse.Enabled = false;
-            radioClicks.Enabled = false;
-            radioCycles.Enabled = false;
             btnSetupInventory.Enabled = false;
             btnSingleClickInv.Enabled = false;
-            btnDropInventory.Enabled = false;
             btn_Find_Color.Enabled = false;
         }
 
         private void EnableAll()
         {
             btn_Start.Enabled = true;
-            //buttonRecord.Enabled = true;
             chkLog.Enabled = true;
             chkDropInverse.Enabled = true;
-            radioClicks.Enabled = true;
-            radioCycles.Enabled = true;
             btnSetupInventory.Enabled = true;
             btnSingleClickInv.Enabled = true;
-            btnDropInventory.Enabled = true;
             btn_Find_Color.Enabled = true;
         }
 
         private void btnSingleClickInv_Click(object sender, EventArgs e)
         {
-            ClickInventory(false);
+            ClickInventory();
         }
 
         private void sliderClickOffset_Scroll(object sender, EventArgs e)
@@ -3375,9 +2378,9 @@ namespace AutoClicker
             using (System.IO.StreamWriter file =
                 new System.IO.StreamWriter(FilePath, false))
             {
-                foreach (var point in Inventory)
+                foreach (var click in InventoryClicks)
                 {
-                    file.WriteLine(String.Format("{0}:{1}", point.X, point.Y));
+                    file.WriteLine(String.Format("{0}:{1}", click.ClickPoint.X, click.ClickPoint.Y));
                 }
 
             }
@@ -3432,11 +2435,6 @@ namespace AutoClicker
             }
         }
 
-        private void btnDropInventory_Click(object sender, EventArgs e)
-        {
-            ClickInventory(true);
-        }
-
         private void numInventoryCount_ValueChanged(object sender, EventArgs e)
         {
             NumericUpDown counter = (NumericUpDown)sender;
@@ -3467,489 +2465,14 @@ namespace AutoClicker
             var colorRange = 360m * (sliderColorRange.Value / 100m);
             var point = MainScreen.FindImage(new Point(5, 35), new Point(1910, 990), image, colorRange, SelectedMonitor);
 
-            LogWrite(String.Format("X:{0} Y:{1}", point.X, point.Y));
+            LogWrite(string.Format("X:{0} Y:{1}", point.X, point.Y));
 
-            //Mouse.Mouse.MoveTo(point.X + offsetX, point.Y + offsetY);
-            DoMouseClick(1, new Point(point.X + offsetX, point.Y + offsetY));
+            PerformLeftClick(new Point(point.X + offsetX, point.Y + offsetY), null);
         }
 
         private void sliderColorRange_Scroll(object sender, EventArgs e)
         {
             lblColorRange.Text = (100 - sliderColorRange.Value).ToString() + "%";
-        }
-
-        private void btnNightmare_Click(object sender, EventArgs e)
-        {
-            if (NMZEnabled)
-            {
-                LogWrite("Stopping Nightmare Zone!");
-                StopAutoClicker();
-                btn_Start.Enabled = true;
-                return;
-            }
-
-            InitializeNightmareValues();
-            btn_Start.Enabled = false;
-            LogWrite("Starting Nightmare Zone!");
-
-            PrayerTimer.Start();
-            LogoutTimer.Start();
-            //OverloadTimer.Start();
-            long milliseconds = DateTimeOffset.Now.ToUnixTimeMilliseconds();
-            var secondStart = false;
-            while (!secondStart)
-            {
-                if (DateTimeOffset.Now.ToUnixTimeMilliseconds() - milliseconds >= 6000)
-                {
-                    secondStart = true;
-
-                    DrinkTimer.Start();
-                }
-            }
-            NMZEnabled = true;
-        }
-
-        private void InitializeNightmareValues()
-        {
-            var image = Properties.Resources.Absorb_1;
-            var Absorb_offsetX = image.Width / 2;
-            var Absorb_offsetY = image.Height / 2;
-        }
-
-        private void btnPickPocket_Click(object sender, EventArgs e)
-        {
-
-            //var colorRange = 360m * (sliderColorRange.Value / 100m);
-            //LogWrite(colorRange.ToString());
-            if (Inventory.Count < 1)
-            {
-                MessageBox.Show("Need to setup inventory first.");
-                return;
-            }
-
-            if (PickPocket)
-            {
-                StopAutoClicker();
-                return;
-            }
-
-            LogWrite("Starting Pickpocket!");
-            EatFailCount = 0;
-            CurrentInventoryClickCount = 2;
-            TotalInventoryClickCount = (int)numInventoryCount.Value;
-            //EatTimer.Start();
-            PickPocketTimer.Interval = 15000;
-            PickPocketTimer.Start();
-            PickPocket = true;
-
-
-        }
-        private void Convert(Bitmap image, bool widen)
-        {
-            //Bitmap image = orig;
-            Color match = Color.FromArgb(39, 104, 90, 75);
-            Color black = Color.FromArgb(0, 0, 0);
-            Color white = Color.FromArgb(255, 255, 255);
-            Color yellow = Color.FromArgb(255, 241, 0);
-            for (int x = 0; x < image.Width; x++)
-            {
-                for (int y = 0; y < image.Height; y++)
-                {
-                    Color gotColor = image.GetPixel(x, y);
-                    if (MainScreen.ColorDiff(gotColor, black) < 0.05m)
-                    {
-                        image.SetPixel(x, y, white);
-                        //image.SetPixel(x - 1, y, white);
-                    }
-                    else if (MainScreen.ColorDiff(gotColor, match) < 0.05m)
-                    {
-                        image.SetPixel(x, y, white);
-                        //image.SetPixel(x - 1, y, white);
-                    }
-                    else
-                    {
-                        image.SetPixel(x, y, black);
-                        if (widen && x - 1 > 0)
-                            image.SetPixel(x - 1, y, black);
-                    }
-                }
-            }
-        }
-        private void Convert2(Bitmap image, bool widen)
-        {
-            //Bitmap image = orig;
-            Color match = Color.FromArgb(39, 104, 90, 75);
-            Color black = Color.FromArgb(0, 0, 0);
-            Color white = Color.FromArgb(255, 255, 255);
-            Color yellow = Color.FromArgb(255, 241, 0);
-            for (int x = 0; x < image.Width; x++)
-            {
-                for (int y = 0; y < image.Height; y++)
-                {
-                    Color gotColor = image.GetPixel(x, y);
-                    if (MainScreen.ColorDiff(gotColor, black) < 250m)
-                    {
-                        image.SetPixel(x, y, black);
-                        if (widen)
-                            image.SetPixel(x - 1, y, black);
-                    }
-                    else
-                    {
-                        //Console.WriteLine("Other: " + MainScreen.ColorDiff(gotColor, black));
-                        image.SetPixel(x, y, white);
-                    }
-                }
-            }
-        }
-
-        private void btnSeersAgil_Click(object sender, EventArgs e)
-        {
-            //var screenshot = MainScreen.CaptureScreen();
-
-            var report = new Progress<string>(value => LogWrite(value));
-
-            agilOn = !agilOn;
-            if (agilOn)
-            {
-                LogWrite("Starting Seers Agility");
-                //AgilityTimer.Start(); 
-                workerSeersAgility.RunWorkerAsync(report);
-            }
-            else
-            {
-                LogWrite("Ending Seers Agility");
-                //AgilityTimer.Stop();
-                workerSeersAgility.CancelAsync();
-            }
-
-
-        }
-
-        private async void workerSeersAgility_DoWork(object sender, System.ComponentModel.DoWorkEventArgs e)
-        {
-            //var image = Properties.Resources.Capture;
-            //var offsetX = image.Width / 2;
-            //var offsetY = image.Height / 2;
-
-            //var colorRange = 360m * (20 / 100m);
-            //Point point;
-
-            ////bank
-            //point = MainScreen.FindImage(new Point(950, 350), new Point(1150, 450), image, colorRange);
-            //DoMouseClick(0, new Point(point.X + offsetX, point.Y + offsetY));
-            //Thread.Sleep(RandomGenerate.Next(7000,8500));
-            ////First Ledge
-            //point = MainScreen.FindImage(new Point(600, 350), new Point(750, 500), image, colorRange);
-            //DoMouseClick(0, new Point(point.X + offsetX, point.Y + offsetY));
-            //Thread.Sleep(RandomGenerate.Next(7000, 8500));
-            ////tight rope
-            //point = MainScreen.FindImage(new Point(800, 650), new Point(900, 750), image, colorRange);
-            //DoMouseClick(0, new Point(point.X + offsetX, point.Y + offsetY));
-            //Thread.Sleep(RandomGenerate.Next(10000, 12000));
-            ////Second Ledge
-            //point = MainScreen.FindImage(new Point(900, 600), new Point(1150, 700), image, colorRange);
-            //DoMouseClick(0, new Point(point.X + offsetX, point.Y + offsetY));
-            //Thread.Sleep(RandomGenerate.Next(5000, 6500));
-            ////Third Ledge
-            //point = MainScreen.FindImage(new Point(550, 575), new Point(750, 675), image, colorRange);
-            //DoMouseClick(0, new Point(point.X + offsetX, point.Y + offsetY));
-            //Thread.Sleep(RandomGenerate.Next(6000, 8000));
-            ////Finish
-            //point = MainScreen.FindImage(new Point(950, 500), new Point(1050, 700), image, colorRange);
-            //DoMouseClick(0, new Point(point.X + offsetX, point.Y + offsetY));
-            //Thread.Sleep(RandomGenerate.Next(4000, 5500));
-
-            ////LogWrite(String.Format("X:{0} Y:{1}", point.X, point.Y));
-
-            ////Teleport
-            //point = new Point(1867, 817);
-            //DoMouseClick(0, new Point(point.X + offsetX, point.Y + offsetY));
-
-            //Thread.Sleep(RandomGenerate.Next(3500,6500));
-
-
-            var report = e.Argument as IProgress<string>;
-
-            while (!workerSeersAgility.CancellationPending)
-            {
-                await RunSeersAgility(report);
-            }
-
-
-        }
-
-        private Task RunSeersAgility(IProgress<string> report)
-        {
-            report.Report("TEST");
-            //await Task.Run(() => RunSeersCourse(report));
-            RunSeersCourse(report);
-
-
-            Thread.Sleep(RandomGenerate.Next(4000, 5500));
-            //LogWrite(String.Format("X:{0} Y:{1}", point.X, point.Y));
-
-            //Teleport
-            Point point = new Point(1867, 817);
-            point.X += RandomGenerate.Next(-3, 3);
-            point.Y += RandomGenerate.Next(-3, 3);
-            DoMouseClickAsync(report, 0, new Point(point.X, point.Y));
-
-            Thread.Sleep(RandomGenerate.Next(3500, 6500));
-
-            return Task.CompletedTask;
-        }
-
-        private void RunSeersCourse(IProgress<string> report)
-        {
-            report.Report("TEST2");
-            var MaxX = Screen.PrimaryScreen.Bounds.Width;
-            var MaxY = Screen.PrimaryScreen.Bounds.Height;
-            var MidX = Screen.PrimaryScreen.Bounds.Width / 2;
-            var MidY = Screen.PrimaryScreen.Bounds.Height / 2;
-            var offsetX = 0;
-            var offsetY = 0;
-            var attackDot = Color.FromArgb(180, 255, 0, 255);
-
-            //workerBarbFish.RunWorkerAsync();
-            report.Report("Check For Targets");
-            //var screenShot = MainScreen.CaptureScreen();
-
-            var colorRange = 360m * (35 / 100m);
-
-            Point point;
-
-            //bank
-            //point = MainScreen.FindImage(new Point(950, 350), new Point(1150, 450), image, colorRange);
-            //DoMouseClick(0, new Point(point.X + offsetX, point.Y + offsetY));
-            point = MainScreen.FindColorScreenRange(new Point(MidX, 0), new Point(MaxX, MidY), attackDot, 8, colorRange, SelectedMonitor);
-            if (!point.IsEmpty)
-            {
-                offsetX = RandomGenerate.Next(-5, 15);
-                offsetY = RandomGenerate.Next(-5, 15);
-                point.X += offsetX;
-                point.Y += offsetY;
-                DoMouseClickAsync(report, 0, new Point(point.X, point.Y));
-            }
-            else
-                return;
-            Thread.Sleep(RandomGenerate.Next(7000, 8500));
-
-            //First Ledge
-            //point = MainScreen.FindImage(new Point(600, 350), new Point(750, 500), image, colorRange);
-            //DoMouseClick(0, new Point(point.X + offsetX, point.Y + offsetY));
-            point = MainScreen.FindColorScreenRange(new Point(0, 0), new Point(MidX, MidY), attackDot, 8, colorRange, SelectedMonitor);
-            if (!point.IsEmpty)
-            {
-                offsetX = RandomGenerate.Next(-5, 15);
-                offsetY = RandomGenerate.Next(-5, 15);
-                point.X += offsetX;
-                point.Y += offsetY;
-                DoMouseClickAsync(report, 0, new Point(point.X, point.Y));
-            }
-            else
-                return;
-            Thread.Sleep(RandomGenerate.Next(7000, 8500));
-
-            //tight rope
-            //point = MainScreen.FindImage(new Point(800, 650), new Point(900, 750), image, colorRange);
-            //DoMouseClick(0, new Point(point.X + offsetX, point.Y + offsetY));
-            point = MainScreen.FindColorScreenRange(new Point(0, MidY), new Point(MidX, MaxY), attackDot, 8, colorRange, SelectedMonitor);
-            if (!point.IsEmpty)
-            {
-                offsetX = RandomGenerate.Next(-5, 15);
-                offsetY = RandomGenerate.Next(-5, 15);
-                point.X += offsetX;
-                point.Y += offsetY;
-                DoMouseClickAsync(report, 0, new Point(point.X, point.Y));
-            }
-            else
-                return;
-            Thread.Sleep(RandomGenerate.Next(10000, 12000));
-
-            //Second Ledge
-            //point = MainScreen.FindImage(new Point(900, 600), new Point(1150, 700), image, colorRange);
-            //DoMouseClick(0, new Point(point.X + offsetX, point.Y + offsetY));
-            point = MainScreen.FindColorScreenRange(new Point(MidX, MidY), new Point(MaxX, MaxY), attackDot, 8, colorRange, SelectedMonitor);
-            if (!point.IsEmpty)
-            {
-                offsetX = RandomGenerate.Next(-5, 15);
-                offsetY = RandomGenerate.Next(-5, 15);
-                point.X += offsetX;
-                point.Y += offsetY;
-                DoMouseClickAsync(report, 0, new Point(point.X, point.Y));
-            }
-            else
-                return;
-            Thread.Sleep(RandomGenerate.Next(5000, 6500));
-
-            //Third Ledge
-            //point = MainScreen.FindImage(new Point(550, 575), new Point(750, 675), image, colorRange);
-            //DoMouseClick(0, new Point(point.X + offsetX, point.Y + offsetY));
-            point = MainScreen.FindColorScreenRange(new Point(0, MidY), new Point(MidX, MaxY), attackDot, 8, colorRange, SelectedMonitor);
-            if (!point.IsEmpty)
-            {
-                offsetX = RandomGenerate.Next(-5, 15);
-                offsetY = RandomGenerate.Next(-5, 15);
-                point.X += offsetX;
-                point.Y += offsetY;
-                DoMouseClickAsync(report, 0, new Point(point.X, point.Y));
-            }
-            else
-                return;
-            Thread.Sleep(RandomGenerate.Next(6000, 8000));
-
-            //Finish
-            //point = MainScreen.FindImage(new Point(950, 500), new Point(1050, 700), image, colorRange);
-            //DoMouseClick(0, new Point(point.X + offsetX, point.Y + offsetY));
-            point = MainScreen.FindColorScreenRange(new Point(MidX, MidY), new Point(MaxX, MaxY), attackDot, 8, colorRange, SelectedMonitor);
-            if (!point.IsEmpty)
-            {
-                offsetX = RandomGenerate.Next(-5, 15);
-                offsetY = RandomGenerate.Next(-5, 15);
-                point.X += offsetX;
-                point.Y += offsetY;
-                DoMouseClickAsync(report, 0, new Point(point.X, point.Y));
-            }
-            else
-                return;
-        }
-
-        private void PopulateSeersAgilityClicks()
-        {
-            Clicks.Clear();
-            Clicks.Add(new Click(0, new Point(920, 785), 0, 1000, ClickOffset));
-
-            Clicks.Add(new Click(1, new Point(968, 785), 0, 1000, ClickOffset));
-
-            Clicks.Add(new Click(2, new Point(1018, 785), 1, 2000, ClickOffset));
-
-            Clicks.Add(new Click(3, new Point(977, 880), 0, 1000, ClickOffset));
-
-            //run / leave bak
-            Clicks.Add(new Click(4, new Point(964, 960), 0, 1000, ClickOffset));
-
-            //eat
-            Clicks.Add(new Click(5, new Point(1791, 761), 0, 2000, ClickOffset));
-
-            Clicks.Add(new Click(6, new Point(1837, 755), 0, 2000, ClickOffset));
-
-            //continue run
-            Clicks.Add(new Click(7, new Point(964, 960), 0, 5000, ClickOffset));
-
-            Clicks.Add(new Click(8, new Point(964, 960), 0, 5000, ClickOffset));
-
-            Clicks.Add(new Click(9, new Point(1209, 960), 0, 5000, ClickOffset));
-
-            Clicks.Add(new Click(10, new Point(1529, 486), 0, 7000, ClickOffset));
-
-            Clicks.Add(new Click(11, new Point(1753, 620), 0, 11000, ClickOffset));
-
-            Clicks.Add(new Click(12, new Point(200, 518), 0, 10000, ClickOffset));
-
-            Clicks.Add(new Click(13, new Point(492, 190), 0, 11000, ClickOffset));
-
-            Clicks.Add(new Click(14, new Point(960, 197), 0, 6000, ClickOffset));
-
-            Clicks.Add(new Click(15, new Point(961, 246), 0, 6000, ClickOffset));
-
-            Clicks.Add(new Click(16, new Point(1034, 825), 0, 1000, ClickOffset));
-        }
-
-        private void workerSeersAgility_ProgressChanged(object sender, ProgressChangedEventArgs e)
-        {
-            //this.progressBar1.Value = e.ProgressPercentage;
-        }
-
-        private void workerSeersAgility_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
-        {
-            //this.progressBar1.Value = e.ProgressPercentage;
-            LogWrite("Seers Lap Complete");
-
-            if (UseRandomTimeouts)
-            {
-                RandomTimeoutCount--;
-                if (RandomTimeoutCount <= 0)
-                {
-                    LogWrite("Doing Timeout");
-                    RandomTimeoutCount = GetRandomTimeoutCount();
-                    long milliseconds = DateTimeOffset.Now.ToUnixTimeMilliseconds();
-                    long timeout = GetRandomTimeout() + milliseconds;
-                    while (timeout > DateTimeOffset.Now.ToUnixTimeMilliseconds())
-                    {
-
-                    }
-                }
-            }
-
-            if (agilOn)
-            {
-
-                workerSeersAgility.RunWorkerAsync();
-            }
-
-
-            System.GC.Collect();
-        }
-
-        private void workerCanifisAgility_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
-        {
-            //this.progressBar1.Value = e.ProgressPercentage;
-            System.GC.Collect();
-        }
-
-        private void AgilityTimer_Tick(object sender, EventArgs e)
-        {
-
-            workerSeersAgility.RunWorkerAsync();
-
-        }
-
-        private void BarbFishTimer_Tick(object sender, EventArgs e)
-        {
-
-            //workerBarbFish.RunWorkerAsync();
-            LogWrite("Check Fishing");
-            var screenShot = MainScreen.CaptureScreen(SelectedMonitor);
-            var image = Properties.Resources.NotFishing;
-            var colorRange = 360m * (20 / 100m); //sliderColorRange.Value
-            Point point;
-
-            point = MainScreen.FindImage(screenShot, new Point(1530, 80), new Point(1700, 120), image, colorRange, SelectedMonitor);
-            if (!point.IsEmpty)
-            {
-                image = Properties.Resources.EmptyInvSpace;
-                point = MainScreen.FindImage(screenShot, new Point(1850, 940), new Point(1900, 985), image, colorRange, SelectedMonitor);
-                if (point.IsEmpty)
-                {
-                    ClickInventory(true);
-                }
-                else
-                {
-                    image = Properties.Resources.BarbFish11;
-                    point = MainScreen.FindImage(screenShot, new Point(5, 35), new Point(1910, 990), image, colorRange, SelectedMonitor);
-                    if (point.IsEmpty)
-                    {
-                        image = Properties.Resources.BarbFish12;
-                        point = MainScreen.FindImage(screenShot, new Point(5, 35), new Point(1910, 990), image, colorRange, SelectedMonitor);
-                    }
-                    if (point.IsEmpty)
-                    {
-                        image = Properties.Resources.BarbFish13;
-                        point = MainScreen.FindImage(screenShot, new Point(5, 35), new Point(1910, 990), image, colorRange, SelectedMonitor);
-                    }
-                    if (point.IsEmpty)
-                    {
-                        image = Properties.Resources.BarbFish;
-                        point = MainScreen.FindImage(screenShot, new Point(5, 35), new Point(1910, 990), image, colorRange, SelectedMonitor);
-                    }
-                    var offsetX = image.Width / 2;
-                    var offsetY = image.Height / 2;
-                    DoMouseClick(0, new Point(point.X + offsetX, point.Y + offsetY));
-                }
-            }
-            System.GC.Collect();
-            LogWrite("Fish Ended");
-
         }
 
         private void worker_Auto_Attack_DoWork(object sender, DoWorkEventArgs e)
@@ -4006,242 +2529,6 @@ namespace AutoClicker
 
         }
 
-        private void Worker_Woodcut_DoWork(object sender, DoWorkEventArgs e)
-        {
-            var runParams = e.Argument as RunParams<string>;
-            var report = runParams.ReportProgress;
-            var runCount = runParams.RunLimit;
-            Timeouts timeouts = runParams.Timeouts;
-            var timeoutCount = RandomGenerate.Next(timeouts.TimeoutCountMin, timeouts.TimeoutCountMax);
-            var timeoutPos = RandomGenerate.Next(0, Clicks.Count - 1);
-
-            report.Report("Starting Woodcut Worker");
-            report.Report("Total Runs = " + runCount);
-            Thread.Sleep(3000);
-
-
-            while (!worker_Normal_Clicks.CancellationPending && runCount > 0)
-            {
-                LogWrite("Check Woodcut");
-                using (var screenShot = MainScreen.CaptureScreen(SelectedMonitor))
-                {
-                    var image = Properties.Resources.WCOK;
-                    Point point;
-
-                    point = MainScreen.FindImage(screenShot, new Point(90, 50), new Point(135, 80), image, ColorRange, SelectedMonitor);
-                    if (point.IsEmpty)
-                    {
-                        image = Properties.Resources.EmptyInvSpace;
-                        point = MainScreen.FindImage(screenShot, new Point(1850, 940), new Point(1900, 985), image, ColorRange, SelectedMonitor);
-                        if (point.IsEmpty)
-                        {
-                            ClickInventory(true);
-                        }
-                        else
-                        {
-                            image = Properties.Resources.Woodcut1;
-                            point = MainScreen.FindImage(screenShot, new Point(800, 400), new Point(1100, 700), image, ColorRange, SelectedMonitor);
-                            if (point.IsEmpty)
-                            {
-                                image = Properties.Resources.Woodcut2;
-                                point = MainScreen.FindImage(screenShot, new Point(800, 400), new Point(1100, 700), image, ColorRange, SelectedMonitor);
-                            }
-                            var offsetX = image.Width / 2;
-                            var offsetY = image.Height / 2;
-                            PerformLeftClick(new Point(point.X + offsetX, point.Y + offsetY), report);
-                        }
-                    }
-                }
-            }
-
-            report.Report("Ending Woodcut Worker");
-        }
-
-        private void RuneCraftTimer_Tick(object sender, EventArgs e)
-        {
-            //click in bank
-            Clicks.Add(new Click(0, new Point(920, 785), 0, 1000, ClickOffset));
-
-            Clicks.Add(new Click(1, new Point(968, 785), 0, 1000, ClickOffset));
-
-            Clicks.Add(new Click(2, new Point(1018, 785), 1, 2000, ClickOffset));
-
-            Clicks.Add(new Click(3, new Point(977, 880), 0, 1000, ClickOffset));
-
-            //run / leave bak
-            Clicks.Add(new Click(4, new Point(964, 960), 0, 1000, ClickOffset));
-
-            //eat
-            Clicks.Add(new Click(5, new Point(1791, 761), 0, 2000, ClickOffset));
-
-            Clicks.Add(new Click(6, new Point(1837, 755), 0, 2000, ClickOffset));
-
-            //continue run
-            Clicks.Add(new Click(7, new Point(964, 960), 0, 5000, ClickOffset));
-
-            Clicks.Add(new Click(8, new Point(964, 960), 0, 5000, ClickOffset));
-
-            Clicks.Add(new Click(9, new Point(1209, 960), 0, 5000, ClickOffset));
-
-            Clicks.Add(new Click(10, new Point(1529, 486), 0, 7000, ClickOffset));
-
-            Clicks.Add(new Click(11, new Point(1753, 620), 0, 11000, ClickOffset));
-
-            Clicks.Add(new Click(12, new Point(200, 518), 0, 10000, ClickOffset));
-
-            Clicks.Add(new Click(13, new Point(492, 190), 0, 11000, ClickOffset));
-
-            Clicks.Add(new Click(14, new Point(960, 197), 0, 6000, ClickOffset));
-
-            Clicks.Add(new Click(15, new Point(961, 246), 0, 6000, ClickOffset));
-
-            Clicks.Add(new Click(16, new Point(1034, 825), 0, 1000, ClickOffset));
-            //Thread.Sleep(1000);
-        }
-        private void workerBarbFish_DoWork(object sender, System.ComponentModel.DoWorkEventArgs e)
-        {
-            LogWrite("Check Fishing");
-            var screenShot = MainScreen.CaptureScreen(SelectedMonitor);
-            var image = Properties.Resources.NotFishing;
-            var colorRange = 360m * (10 / 100m);
-            Point point;
-
-            point = MainScreen.FindImage(screenShot, new Point(1530, 80), new Point(1700, 120), image, colorRange, SelectedMonitor);
-            if (!point.IsEmpty)
-            {
-                image = Properties.Resources.Empty_Inv_Space;
-                point = MainScreen.FindImage(screenShot, new Point(1855, 950), new Point(1900, 985), image, colorRange, SelectedMonitor);
-                if (point.IsEmpty)
-                {
-                    ClickInventory(true);
-                }
-                else
-                {
-                    image = Properties.Resources.BarbFish11;
-                    point = MainScreen.FindImage(screenShot, new Point(5, 35), new Point(1910, 990), image, colorRange, SelectedMonitor);
-                    var offsetX = image.Width / 2;
-                    var offsetY = image.Height / 2;
-                    DoMouseClick(0, new Point(point.X + offsetX, point.Y + offsetY));
-                }
-            }
-            LogWrite("Fish Ended");
-        }
-
-        private void workerBarbFish_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
-        {
-            //this.progressBar1.Value = e.ProgressPercentage;
-            System.GC.Collect();
-        }
-
-        private void workerCanifisAgility_DoWork(object sender, System.ComponentModel.DoWorkEventArgs e)
-        {
-            var image = Properties.Resources.Capture;
-            var offsetX = image.Width / 2;
-            var offsetY = image.Height / 2;
-
-            var colorRange = 360m * (18 / 100m);
-            Point point;
-
-            //Climb
-            //point = MainScreen.FindImage(new Point(740, 330), new Point(930, 440), image, colorRange);
-            DoMouseClick(0, new Point(770, 350));
-            Thread.Sleep(8000);
-            //First Ledge
-            point = MainScreen.FindImage(new Point(900, 290), new Point(980, 400), image, colorRange, SelectedMonitor);
-            DoMouseClick(0, new Point(point.X + offsetX, point.Y + offsetY));
-            Thread.Sleep(5500);
-            //Second Ledge
-            point = MainScreen.FindImage(new Point(750, 480), new Point(800, 575), image, colorRange, SelectedMonitor);
-            DoMouseClick(0, new Point(point.X + offsetX, point.Y + offsetY));
-            Thread.Sleep(5500);
-            //Third Ledge
-            point = MainScreen.FindImage(new Point(700, 650), new Point(750, 750), image, colorRange, SelectedMonitor);
-            DoMouseClick(0, new Point(point.X + offsetX, point.Y + offsetY));
-            Thread.Sleep(6000);
-            //Fourth Ledge
-            point = MainScreen.FindImage(new Point(880, 740), new Point(945, 850), image, colorRange, SelectedMonitor);
-            DoMouseClick(0, new Point(point.X + offsetX, point.Y + offsetY));
-            Thread.Sleep(5500);
-            //Polevault
-            point = MainScreen.FindImage(new Point(980, 600), new Point(1060, 660), image, colorRange, SelectedMonitor);
-            DoMouseClick(0, new Point(point.X + offsetX, point.Y + offsetY));
-            Thread.Sleep(7500);
-
-            point = MainScreen.FindImage(new Point(1300, 500), new Point(1570, 600), image, colorRange, SelectedMonitor);
-            if (point.IsEmpty) {
-                point = new Point(1500, 570);
-            }
-            DoMouseClick(0, new Point(point.X + offsetX, point.Y + offsetY));
-            Thread.Sleep(6500);
-
-            point = MainScreen.FindImage(new Point(930, 330), new Point(980, 380), image, colorRange, SelectedMonitor);
-            DoMouseClick(0, new Point(point.X + offsetX, point.Y + offsetY));
-            Thread.Sleep(5000);
-
-            //LogWrite(String.Format("X:{0} Y:{1}", point.X, point.Y));
-
-            //Teleport
-        }
-
-        private void btnBarbFish_Click(object sender, EventArgs e)
-        {
-            FishOn = !FishOn;
-            if (FishOn)
-            {
-                LogWrite("Staring Barb Fish!");
-                BarbFishTimer.Start();
-                LogoutTimer.Start();
-            }
-            else
-            {
-                BarbFishTimer.Stop(); // workerSeersAgility.CancelAsync();
-                LogWrite("Ending Barb Fish!");
-            }
-
-        }
-
-        private void btnRC_Click(object sender, EventArgs e)
-        {
-            var runParams = new RunParams<string>();
-            runParams.ReportProgress = new Progress<string>(value => LogWrite(value));
-            runParams.Timeouts = new Timeouts()
-            {
-                Active = chkTimeOut.Enabled,
-                TimeoutCountMin = int.Parse(txt_Timeout_Cycle_Min.Text),
-                TimeoutCountMax = int.Parse(txt_Timeout_Cycle_Max.Text)
-            };
-            runParams.RunLimit = (int)numCount.Value;
-
-            //var report = new Progress<string>(value => LogWrite(value));
-
-            RuneCraft = !RuneCraft;
-            if (RuneCraft)
-            {
-                LogWrite("Starting RC");
-                //AgilityTimer.Start(); 
-                worker_RC.RunWorkerAsync(runParams);
-            }
-            else
-            {
-                LogWrite("Ending RC");
-                //AgilityTimer.Stop();
-                worker_RC.CancelAsync();
-            }
-        }
-
-        private void btnCanAgi_Click(object sender, EventArgs e)
-        {
-            //var screenshot = MainScreen.CaptureScreen();
-            agilOn = !agilOn;
-            if (agilOn)
-            {
-                AgilityTimer.Start();
-                workerCanifisAgility.RunWorkerAsync();
-            }
-            else
-                AgilityTimer.Stop(); // workerSeersAgility.CancelAsync();
-        }
-
         private void chkClicks_CheckedChanged(object sender, EventArgs e)
         {
             logClicks = chkClicks.Checked;
@@ -4256,79 +2543,7 @@ namespace AutoClicker
         {
             throw new NotImplementedException();
         }
-
-        private async void worker_RC_DoWork(object sender, DoWorkEventArgs e)
-        {
-            var runParams = e.Argument as RunParams<string>;
-            //var report = e.Argument as IProgress<string>;
-            var report = runParams.ReportProgress;
-            var runCount = runParams.RunLimit;
-            Timeouts timeouts = runParams.Timeouts;
-            var timeoutCount = RandomGenerate.Next(timeouts.TimeoutCountMin, timeouts.TimeoutCountMax);
-            if (runCount == 0)
-                runCount = 99999;
-
-            var eatFish = false;
-            var useSprint = true;
-            var sprintCount = 3;
-            //var flipSprint = false;
-
-            report.Report("Total Runs = " + runCount);
-            Thread.Sleep(3000);
-            while (!worker_RC.CancellationPending && runCount > 0)
-            {
-                report.Report(string.Format("Sprint:{0}, Count:{1}", useSprint, sprintCount));
-                await RunRC(report, useSprint, eatFish);
-                runCount--;
-                sprintCount--;
-                if (sprintCount <= 0)
-                {
-                    if (ToggleRun(report, !useSprint))
-                    {
-                        useSprint = !useSprint;
-                        sprintCount = useSprint ? 3 : 2;
-                    }
-                }
-                if (runCount % 3 == 0)
-                    eatFish = true;
-                else
-                    eatFish = false;
-
-                if (timeouts.Active)
-                {
-                    timeoutCount--;
-                    if (timeoutCount <= 0)
-                    {
-                        timeoutCount = RandomGenerate.Next(timeouts.TimeoutCountMin, timeouts.TimeoutCountMax);
-                        var timeoutnum = RandomGenerate.Next(20000, 90000);
-                        report.Report("Pausing for : " + timeoutnum);
-                        report.Report("New count limit : " + timeoutCount);
-                        Thread.Sleep(timeoutnum);
-                    }
-                }
-            }
-
-            report.Report("Ending RC");
-        }
-
-        private Task RunRC(IProgress<string> report, bool useSprint, bool eatFish)
-        {
-            //await Task.Run(() => RunSeersCourse(report));
-            //if(flipSprint)
-            //    ToggleRun(report);
-
-            //1713,154
-            //1745,176
-
-            RepairBags(report);
-
-            RunRCCourse(report, useSprint, eatFish);
-
-            FinishRC(report, useSprint);
-
-            return Task.CompletedTask;
-        }
-
+        
         private bool ToggleRun(IProgress<string> report, bool runOn)
         {
             var offsetX = 0;
@@ -4339,14 +2554,12 @@ namespace AutoClicker
 
             var colorRange = 360m * (20 / 100m);
 
-
-
             point = new Point(1754, 161);
             offsetX = RandomGenerate.Next(-5, 5);
             offsetY = RandomGenerate.Next(-5, 5);
             point.X += offsetX;
             point.Y += offsetY;
-            DoMouseClickAsync(report, 0, new Point(point.X, point.Y));
+            PerformLeftClick(new Point(point.X, point.Y), report);
             Thread.Sleep(RandomGenerate.Next(800, 1500));
 
             if (runOn)
@@ -4372,537 +2585,6 @@ namespace AutoClicker
 
         }
 
-        private void RepairBags(IProgress<string> report)
-        {
-            var offsetX = 0;
-            var offsetY = 0;
-            var MaxX = Screen.PrimaryScreen.Bounds.Width;
-            var MaxY = Screen.PrimaryScreen.Bounds.Height;
-            var X1 = Screen.PrimaryScreen.Bounds.Width / 3;
-            var Y1 = Screen.PrimaryScreen.Bounds.Height / 3;
-            var X2 = (Screen.PrimaryScreen.Bounds.Width / 3) * 2;
-            var Y2 = (Screen.PrimaryScreen.Bounds.Height / 3) * 2;
-            var brokenBag = Properties.Resources.BrokenBag;
-            var colorRange = 360m * (0 / 100m);
-            Point point;
-
-            point = MainScreen.FindImage(new Point(X2, Y2), new Point(MaxX, MaxY), brokenBag, colorRange, SelectedMonitor);
-            if (point.IsEmpty)
-                return;
-
-            //Open Spells
-            Keyboard.Keyboard.Send(Keyboard.Keyboard.ScanCodeShort.F2);
-
-            Thread.Sleep(RandomGenerate.Next(1000, 2000));
-
-            //NPC Contact Spell
-            point = new Point(1736, 773);
-            offsetX = RandomGenerate.Next(-5, 5);
-            offsetY = RandomGenerate.Next(-5, 5);
-            point.X += offsetX;
-            point.Y += offsetY;
-            DoMouseClickAsync(report, 0, new Point(point.X, point.Y));
-
-            Thread.Sleep(RandomGenerate.Next(1000, 1500));
-
-            //Dark Mage
-            point = new Point(841, 387);
-            offsetX = RandomGenerate.Next(-10, 10);
-            offsetY = RandomGenerate.Next(-10, 10);
-            point.X += offsetX;
-            point.Y += offsetY;
-            DoMouseClickAsync(report, 0, new Point(point.X, point.Y));
-
-            Thread.Sleep(RandomGenerate.Next(5000, 6500));
-
-            Keyboard.Keyboard.Send(Keyboard.Keyboard.ScanCodeShort.SPACE);
-
-            Thread.Sleep(RandomGenerate.Next(800, 1500));
-
-            Keyboard.Keyboard.Send(Keyboard.Keyboard.ScanCodeShort.SPACE);
-
-            Thread.Sleep(RandomGenerate.Next(800, 1500));
-
-            Keyboard.Keyboard.Send(Keyboard.Keyboard.ScanCodeShort.SPACE);
-
-            Thread.Sleep(RandomGenerate.Next(800, 1500));
-
-            //Open Inv
-            Keyboard.Keyboard.Send(Keyboard.Keyboard.ScanCodeShort.F1);
-
-            Thread.Sleep(RandomGenerate.Next(1000, 2000));
-        }
-
-        private void RunRCCourse(IProgress<string> report, bool useSprint, bool eatFish)
-        {
-            var sprintMult = useSprint ? 0.5 : 1;
-            var MaxX = Screen.PrimaryScreen.Bounds.Width;
-            var MaxY = Screen.PrimaryScreen.Bounds.Height;
-            var X1 = Screen.PrimaryScreen.Bounds.Width / 3;
-            var Y1 = Screen.PrimaryScreen.Bounds.Height / 3;
-            var X2 = (Screen.PrimaryScreen.Bounds.Width / 3) * 2;
-            var Y2 = (Screen.PrimaryScreen.Bounds.Height / 3) * 2;
-            var offsetX = 0;
-            var offsetY = 0;
-            var attackDot = Color.FromArgb(255, 0, 255);
-            var StartCheck = Color.FromArgb(241, 198, 10);
-            var bankCloseButton = Properties.Resources.BankCloseButton;
-
-            var colorRange = 360m * (0 / 100m);
-
-            Point point;
-
-            //CHeck At STart
-            point = MainScreen.FindColorScreen(new Point(0, 0), new Point(X1, Y1), StartCheck, 8, SelectedMonitor);
-            if (point.IsEmpty)
-                return;
-
-            //bank
-            point = new Point(1023, 426);
-            if (!point.IsEmpty)
-            {
-                offsetX = RandomGenerate.Next(-6, 6);
-                offsetY = RandomGenerate.Next(-6, 6);
-                point.X += offsetX;
-                point.Y += offsetY;
-                DoMouseClickAsync(report, 0, new Point(point.X, point.Y));
-            }
-            else
-                return;
-            Thread.Sleep(RandomGenerate.Next(3000, 4000));
-
-            //BankCheck
-            point = MainScreen.FindImage(new Point(X1, 0), new Point(X2, Y1), bankCloseButton, colorRange, SelectedMonitor);
-            if (point.IsEmpty)
-                return;
-
-            //Deposit All 
-            point = new Point(1035, 830);
-            if (!point.IsEmpty)
-            {
-                offsetX = RandomGenerate.Next(-10, 10);
-                offsetY = RandomGenerate.Next(-10, 10);
-                point.X += offsetX;
-                point.Y += offsetY;
-                DoMouseClickAsync(report, 0, new Point(point.X, point.Y));
-            }
-            else
-                return;
-            Thread.Sleep(RandomGenerate.Next(1000, 2000));
-
-            if (eatFish)
-            {
-                //Withdraw Fish
-                point = new Point(726, 219);
-
-                offsetX = RandomGenerate.Next(-8, 8);
-                offsetY = RandomGenerate.Next(-8, 8);
-                point.X += offsetX;
-                point.Y += offsetY;
-                DoMouseClickAsync(report, 1, new Point(point.X, point.Y));
-
-                Thread.Sleep(RandomGenerate.Next(500, 1200));
-
-                offsetX = RandomGenerate.Next(-8, 8);
-                offsetY = RandomGenerate.Next(37, 43);
-                point.X += offsetX;
-                point.Y += offsetY;
-                DoMouseClickAsync(report, 0, new Point(point.X, point.Y));
-
-                Thread.Sleep(RandomGenerate.Next(500, 1200));
-            }
-
-            //Withdraw All 
-            point = new Point(680, 216);
-            if (!point.IsEmpty)
-            {
-                offsetX = RandomGenerate.Next(-10, 10);
-                offsetY = RandomGenerate.Next(-10, 10);
-                point.X += offsetX;
-                point.Y += offsetY;
-                DoMouseClickAsync(report, 0, new Point(point.X, point.Y));
-            }
-            else
-                return;
-            Thread.Sleep(RandomGenerate.Next(1000, 2000));
-
-            //Fill Bag 1 
-            point = new Point(1750, 755);
-            if (!point.IsEmpty)
-            {
-                offsetX = RandomGenerate.Next(-8, 8);
-                offsetY = RandomGenerate.Next(-8, 8);
-                point.X += offsetX;
-                point.Y += offsetY;
-                DoMouseClickAsync(report, 0, new Point(point.X, point.Y));
-            }
-            else
-                return;
-            Thread.Sleep(RandomGenerate.Next(500, 1200));
-
-            //Fill Bag 2
-            point = new Point(1792, 755);
-            if (!point.IsEmpty)
-            {
-                offsetX = RandomGenerate.Next(-8, 8);
-                offsetY = RandomGenerate.Next(-8, 8);
-                point.X += offsetX;
-                point.Y += offsetY;
-                DoMouseClickAsync(report, 0, new Point(point.X, point.Y));
-            }
-            else
-                return;
-            Thread.Sleep(RandomGenerate.Next(500, 1200));
-
-            //Fill Bag 3 
-            point = new Point(1833, 755);
-            if (!point.IsEmpty)
-            {
-                offsetX = RandomGenerate.Next(-8, 8);
-                offsetY = RandomGenerate.Next(-8, 8);
-                point.X += offsetX;
-                point.Y += offsetY;
-                DoMouseClickAsync(report, 0, new Point(point.X, point.Y));
-            }
-            else
-                return;
-            Thread.Sleep(RandomGenerate.Next(500, 1200));
-
-            //Withdraw All 
-            point = new Point(680, 216);
-            if (!point.IsEmpty)
-            {
-                offsetX = RandomGenerate.Next(-10, 10);
-                offsetY = RandomGenerate.Next(-10, 10);
-                point.X += offsetX;
-                point.Y += offsetY;
-                DoMouseClickAsync(report, 0, new Point(point.X, point.Y));
-            }
-            else
-                return;
-            Thread.Sleep(RandomGenerate.Next(1000, 2000));
-
-            Keyboard.Keyboard.Send(Keyboard.Keyboard.ScanCodeShort.ESCAPE);
-
-            Thread.Sleep(RandomGenerate.Next(1500, 2000));
-
-            if (eatFish)
-            {
-                //Eat Fish
-                point = new Point(1878, 758);
-                if (!point.IsEmpty)
-                {
-                    offsetX = RandomGenerate.Next(-8, 8);
-                    offsetY = RandomGenerate.Next(-8, 8);
-                    point.X += offsetX;
-                    point.Y += offsetY;
-                    DoMouseClickAsync(report, 0, new Point(point.X, point.Y));
-                }
-                Thread.Sleep(RandomGenerate.Next(500, 1200));
-            }
-
-            //First Square  830,260 SOUTH
-            //point = MainScreen.FindImage(new Point(600, 350), new Point(750, 500), image, colorRange);
-            //DoMouseClick(0, new Point(point.X + offsetX, point.Y + offsetY));
-            point = MainScreen.FindColorScreen(new Point(X1, 100), new Point(X2, Y1), attackDot, 8, SelectedMonitor);
-            if (!point.IsEmpty)
-            {
-                offsetX = RandomGenerate.Next(-10, 20);
-                offsetY = RandomGenerate.Next(-10, 20);
-                point.X += offsetX;
-                point.Y += offsetY;
-                DoMouseClickAsync(report, 0, new Point(point.X, point.Y));
-            }
-            else
-                return;
-            Thread.Sleep(RandomGenerate.Next((int)(9500 * sprintMult), (int)(10500 * sprintMult)));
-
-            //2nd Square 845,197 SOUTH
-            //point = MainScreen.FindImage(new Point(600, 350), new Point(750, 500), image, colorRange);
-            //DoMouseClick(0, new Point(point.X + offsetX, point.Y + offsetY));
-            point = MainScreen.FindColorScreen(new Point(X1, 100), new Point(X2, Y1), attackDot, 8, SelectedMonitor);
-            if (!point.IsEmpty)
-            {
-                offsetX = RandomGenerate.Next(-10, 20);
-                offsetY = RandomGenerate.Next(-10, 20);
-                point.X += offsetX;
-                point.Y += offsetY;
-                DoMouseClickAsync(report, 0, new Point(point.X, point.Y));
-            }
-            else
-                return;
-            Thread.Sleep(RandomGenerate.Next((int)(12000 * sprintMult), (int)(13000 * sprintMult)));
-
-            //3rd Square 755,180 SOUTH
-            //point = MainScreen.FindImage(new Point(600, 350), new Point(750, 500), image, colorRange);
-            //DoMouseClick(0, new Point(point.X + offsetX, point.Y + offsetY));
-            point = MainScreen.FindColorScreen(new Point(X1, 0), new Point(X2, Y1), attackDot, 8, SelectedMonitor);
-            if (!point.IsEmpty)
-            {
-                offsetX = RandomGenerate.Next(-10, 20);
-                offsetY = RandomGenerate.Next(-10, 20);
-                point.X += offsetX;
-                point.Y += offsetY;
-                DoMouseClickAsync(report, 0, new Point(point.X, point.Y));
-            }
-            else
-                return;
-            Thread.Sleep(RandomGenerate.Next((int)(13000 * sprintMult), (int)(14500 * sprintMult)));
-
-            //4th Square 106,540  EAST
-            //point = MainScreen.FindImage(new Point(600, 350), new Point(750, 500), image, colorRange);
-            //DoMouseClick(0, new Point(point.X + offsetX, point.Y + offsetY));
-            point = MainScreen.FindColorScreen(new Point(0, Y1), new Point(X1, Y2), attackDot, 8, SelectedMonitor);
-            if (!point.IsEmpty)
-            {
-                offsetX = RandomGenerate.Next(2, 20);
-                offsetY = RandomGenerate.Next(-10, 20);
-                point.X += offsetX;
-                point.Y += offsetY;
-                DoMouseClickAsync(report, 0, new Point(point.X, point.Y));
-            }
-            else
-                return;
-            Thread.Sleep(RandomGenerate.Next((int)(15000 * sprintMult), (int)(16000 * sprintMult)));
-
-            //Altar 106,540 
-            //point = MainScreen.FindImage(new Point(600, 350), new Point(750, 500), image, colorRange);
-            //DoMouseClick(0, new Point(point.X + offsetX, point.Y + offsetY));
-            point = MainScreen.FindColorScreen(new Point(0, Y1), new Point(X1, Y2), attackDot, 8, SelectedMonitor);
-            if (!point.IsEmpty)
-            {
-                offsetX = RandomGenerate.Next(-10, 30);
-                offsetY = RandomGenerate.Next(-10, 30);
-                point.X += offsetX;
-                point.Y += offsetY;
-                DoMouseClickAsync(report, 0, new Point(point.X, point.Y));
-            }
-            else
-                return;
-
-            Thread.Sleep(RandomGenerate.Next((int)(14000 * sprintMult), (int)(16000 * sprintMult)));
-            //Altar Casting
-            Thread.Sleep(RandomGenerate.Next(2000, 3000));
-
-
-            //Empty Bag 1 
-            point = new Point(1750, 755);
-            if (!point.IsEmpty)
-            {
-                offsetX = RandomGenerate.Next(-8, 8);
-                offsetY = RandomGenerate.Next(-8, 8);
-                point.X += offsetX;
-                point.Y += offsetY;
-                DoMouseClickAsync(report, 0, new Point(point.X, point.Y));
-            }
-            else
-                return;
-            Thread.Sleep(RandomGenerate.Next(500, 1200));
-
-            //Empty Bag 2
-            point = new Point(1792, 755);
-            if (!point.IsEmpty)
-            {
-                offsetX = RandomGenerate.Next(-8, 8);
-                offsetY = RandomGenerate.Next(-8, 8);
-                point.X += offsetX;
-                point.Y += offsetY;
-                DoMouseClickAsync(report, 0, new Point(point.X, point.Y));
-            }
-            else
-                return;
-            Thread.Sleep(RandomGenerate.Next(500, 1200));
-
-            //Altar 765,530
-            point = MainScreen.FindColorScreen(new Point(X1, Y1), new Point(X2, Y2), attackDot, 8, SelectedMonitor);
-            if (!point.IsEmpty)
-            {
-                offsetX = RandomGenerate.Next(-10, 30);
-                offsetY = RandomGenerate.Next(-10, 30);
-                point.X += offsetX;
-                point.Y += offsetY;
-                DoMouseClickAsync(report, 0, new Point(point.X, point.Y));
-            }
-            else
-                return;
-            Thread.Sleep(RandomGenerate.Next(3000, 4000));
-
-            //Empty Bag 3 
-            point = new Point(1833, 755);
-            if (!point.IsEmpty)
-            {
-                offsetX = RandomGenerate.Next(-8, 8);
-                offsetY = RandomGenerate.Next(-8, 8);
-                point.X += offsetX;
-                point.Y += offsetY;
-                DoMouseClickAsync(report, 0, new Point(point.X, point.Y));
-            }
-            else
-                return;
-            Thread.Sleep(RandomGenerate.Next(1000, 2000));
-
-            //Altar 765,530
-            point = MainScreen.FindColorScreen(new Point(X1, Y1), new Point(X2, Y2), attackDot, 8, SelectedMonitor);
-            if (!point.IsEmpty)
-            {
-                offsetX = RandomGenerate.Next(-10, 30);
-                offsetY = RandomGenerate.Next(-10, 30);
-                point.X += offsetX;
-                point.Y += offsetY;
-                DoMouseClickAsync(report, 0, new Point(point.X, point.Y));
-            }
-            else
-                return;
-            Thread.Sleep(RandomGenerate.Next(1000, 2000));
-
-        }
-
-        private void FinishRC(IProgress<string> report, bool useSprint)
-        {
-            var sprintMult = useSprint ? 0.5 : 1;
-            var MaxX = Screen.PrimaryScreen.Bounds.Width;
-            var MaxY = Screen.PrimaryScreen.Bounds.Height;
-            var X1 = Screen.PrimaryScreen.Bounds.Width / 3;
-            var Y1 = Screen.PrimaryScreen.Bounds.Height / 3;
-            var X2 = (Screen.PrimaryScreen.Bounds.Width / 3) * 2;
-            var Y2 = (Screen.PrimaryScreen.Bounds.Height / 3) * 2;
-            var offsetX = 0;
-            var offsetY = 0;
-            var attackDot = Color.FromArgb(255, 0, 255);
-            Point point;
-
-            Thread.Sleep(RandomGenerate.Next(1000, 2000));
-
-            //Open Magic
-            //Keyboard.Keyboard.PressKey(Keys.F2);
-            Keyboard.Keyboard.Send(Keyboard.Keyboard.ScanCodeShort.F2);
-
-
-            Thread.Sleep(RandomGenerate.Next(1000, 2000));
-
-            //Teleport
-            point = new Point(1774, 798);
-            if (!point.IsEmpty)
-            {
-                offsetX = RandomGenerate.Next(-5, 5);
-                offsetY = RandomGenerate.Next(-5, 5);
-                point.X += offsetX;
-                point.Y += offsetY;
-                DoMouseClickAsync(report, 0, new Point(point.X, point.Y));
-            }
-            else
-                return;
-            Thread.Sleep(RandomGenerate.Next(3500, 5000));
-
-            //Tile Up Hill 1260,161
-            point = MainScreen.FindColorScreen(new Point(X2, 0), new Point(MaxX, Y1), attackDot, 8, SelectedMonitor);
-            if (!point.IsEmpty)
-            {
-                offsetX = RandomGenerate.Next(-5, 30);
-                offsetY = RandomGenerate.Next(-5, 30);
-                point.X += offsetX;
-                point.Y += offsetY;
-                DoMouseClickAsync(report, 0, new Point(point.X, point.Y));
-            }
-            else
-                return;
-
-            Thread.Sleep(RandomGenerate.Next(2000, 3000));
-
-            //Open Inv
-            Keyboard.Keyboard.Send(Keyboard.Keyboard.ScanCodeShort.F1);
-
-            Thread.Sleep(RandomGenerate.Next((int)(17000 * sprintMult), (int)(19000 * sprintMult)));
-
-            ////Altar Up Hill 838,420
-            //point = MainScreen.FindColorScreenRange(new Point(X2, 0), new Point(MaxX, Y1), attackDot, 8, colorRange);
-            //if (!point.IsEmpty)
-            //{
-            //    offsetX = RandomGenerate.Next(-5, 5);
-            //    offsetY = RandomGenerate.Next(-5, 5);
-            //    point.X += offsetX;
-            //    point.Y += offsetY;
-            //    DoMouseClickAsync(report, 0, new Point(point.X, point.Y));
-            //}
-            //else
-            //    return;
-            //Thread.Sleep(RandomGenerate.Next(19000, 20000));
-
-            //Ladder Up Hill 935,425
-            point = MainScreen.FindColorScreen(new Point(X1, Y1), new Point(X2, Y2), attackDot, 8, SelectedMonitor);
-            if (!point.IsEmpty)
-            {
-                offsetX = RandomGenerate.Next(5, 15);
-                offsetY = RandomGenerate.Next(8, 15);
-                point.X += offsetX;
-                point.Y += offsetY;
-                DoMouseClickAsync(report, 0, new Point(point.X, point.Y));
-            }
-            else
-                return;
-            Thread.Sleep(RandomGenerate.Next(6000, 8000));
-        }
-
-        private void worker_Mining_DoWork(object sender, DoWorkEventArgs e)
-        {
-            var runParams = e.Argument as RunParams<string>;
-            var report = runParams.ReportProgress;
-            var runCount = runParams.RunLimit;
-            Timeouts timeouts = runParams.Timeouts;
-            var timeoutCount = RandomGenerate.Next(timeouts.TimeoutCountMin, timeouts.TimeoutCountMax);
-            if (runCount == 0)
-                runCount = 99999;
-            report.Report("Starting Mining Worker");
-            report.Report("Total Runs = " + runCount);
-            Thread.Sleep(3000);
-
-            while (!worker_Mining.CancellationPending && runCount > 0)
-            {
-                CheckFullInv();
-                MineRock();
-                runCount--;
-
-                if (timeouts.Active)
-                {
-                    timeoutCount--;
-                    if (timeoutCount <= 0)
-                    {
-                        timeoutCount = RandomGenerate.Next(timeouts.TimeoutCountMin, timeouts.TimeoutCountMax);
-                        var timeoutnum = RandomGenerate.Next(20000, 90000);
-                        report.Report("Pausing for : " + timeoutnum);
-                        report.Report("New count limit : " + timeoutCount);
-                        Thread.Sleep(timeoutnum);
-                    }
-                }
-            }
-
-            report.Report("Ending Mining Worker");
-        }
-
-        private void MineRock()
-        {
-            var attackDot = Color.FromArgb(255, 0, 255);
-            int offsetX = 0;
-            int offsetY = 0;
-            Point point = MainScreen.FindColorScreen(new Point(670, 420), new Point(1200, 820), attackDot, 8, SelectedMonitor);
-            if (!point.IsEmpty)
-            {
-                offsetX = RandomGenerate.Next(0, 20);
-                offsetY = RandomGenerate.Next(25, 50);
-                point.X += offsetX;
-                point.Y += offsetY;
-                Mouse.Mouse.MoveTo(point.X, point.Y);
-
-                Thread.Sleep(100);
-
-                Mouse.Mouse.LeftClick();
-            }
-
-            Thread.Sleep(RandomGenerate.Next(2000, 3500));
-
-            //return Task.CompletedTask;
-        }
-
         private void MineRock(Bitmap screenShot, Point topLeft, Point bottomRight, decimal colorRange, IProgress<string> report)
         {
             Point point = MainScreen.FindColorScreenCenterOut(topLeft, bottomRight, SearchColor, colorRange, 8, SelectedMonitor);
@@ -4917,69 +2599,6 @@ namespace AutoClicker
             }
 
             Thread.Sleep(RandomGenerate.Next(4000, 7000));
-
-            //return Task.CompletedTask;
-        }
-
-        private void CheckFullInv()
-        {
-            int offsetX = 0;
-            int offsetY = 0;
-            var colorRange = 360m * (10 / 100m);
-            var image = Properties.Resources.EmptyInvNew;
-            var point = MainScreen.FindImage(new Point(1850, 953), new Point(1906, 990), image, colorRange, SelectedMonitor);
-            if (point.IsEmpty)
-            {
-                Keyboard.Keyboard.HoldKey(Keys.LShiftKey);
-                for (int i = 0; i < Inventory.Count; i++)
-                {
-                    point = Inventory[i];
-                    offsetX = RandomGenerate.Next(-5, 5);
-                    if (i % 4 == 0)
-                        offsetY = RandomGenerate.Next(-5, 5);
-                    point.X += offsetX;
-                    point.Y += offsetY + RandomGenerate.Next(-2, 2);
-                    Mouse.Mouse.MoveTo(point.X, point.Y);
-
-                    Thread.Sleep(100);
-
-                    Mouse.Mouse.LeftClick();
-
-                    Thread.Sleep(RandomGenerate.Next(300, 800));
-
-                }
-                Keyboard.Keyboard.ReleaseKey(Keys.LShiftKey);
-            }
-        }
-
-        private void CheckFullInv(Bitmap screenshot, Point topLeft, Point bottmRight)
-        {
-            int offsetX = 0;
-            int offsetY = 0;
-            var image = Properties.Resources.EmptyInvNew;
-            var point = MainScreen.FindImage(screenshot, topLeft, BottomRight, image, ColorRange, SelectedMonitor);
-            if (point.IsEmpty)
-            {
-                Keyboard.Keyboard.HoldKey(Keys.LShiftKey);
-                for (int i = 0; i < Inventory.Count; i++)
-                {
-                    point = Inventory[i];
-                    offsetX = RandomGenerate.Next(-5, 5);
-                    if (i % 4 == 0)
-                        offsetY = RandomGenerate.Next(-5, 5);
-                    point.X += offsetX;
-                    point.Y += offsetY + RandomGenerate.Next(-2, 2);
-                    Mouse.Mouse.MoveTo(point.X, point.Y);
-
-                    Thread.Sleep(100);
-
-                    Mouse.Mouse.LeftClick();
-
-                    Thread.Sleep(RandomGenerate.Next(300, 800));
-
-                }
-                Keyboard.Keyboard.ReleaseKey(Keys.LShiftKey);
-            }
         }
 
         private bool CheckFullBankInv(Bitmap screenshot, Point topLeft, Point bottomRight)
@@ -5011,14 +2630,13 @@ namespace AutoClicker
             };
             runParams.RunLimit = (int)numCount.Value;
 
-            RuneCraft = !RuneCraft;
-            if (RuneCraft)
+            if (!workerAlch.IsBusy)
             {
                 LogWrite("Starting Alching");
                 RunProgram = true;
                 workerAlch.RunWorkerAsync(runParams);
             }
-            else
+            else if(workerAlch.IsBusy && !workerAlch.CancellationPending)
             {
                 RunProgram = false;
                 LogWrite("Ending Alching");
@@ -5103,7 +2721,6 @@ namespace AutoClicker
             var runParams = e.Argument as RunParams<string>;
             var report = runParams.ReportProgress;
             var runCount = runParams.RunLimit;
-            var colorRange = runParams.ScreenshotInfo.ColorRange;
             Timeouts timeouts = runParams.Timeouts;
             var timeoutCount = RandomGenerate.Next(timeouts.TimeoutCountMin, timeouts.TimeoutCountMax);
             if (runCount == 0)
@@ -5375,7 +2992,6 @@ namespace AutoClicker
             Timeouts timeouts = runParams.Timeouts;
             var timeoutCount = RandomGenerate.Next(timeouts.TimeoutCountMin, timeouts.TimeoutCountMax);
             var timeoutPos = RandomGenerate.Next(0, Clicks.Count - 1);
-            ScreenshotInfo screenshotInfo = runParams.ScreenshotInfo;
             var clickList = runParams.ClickList;
             bool result = false;
 
@@ -5405,7 +3021,7 @@ namespace AutoClicker
                     Thread.Sleep(timeoutnum);
                 }
 
-                result = PerformClick(clickList[step], screenshotInfo, report);
+                result = PerformClick(clickList[step], report);
 
                 if(clickList[step].ClickScript != null)
                 {
@@ -5484,7 +3100,7 @@ namespace AutoClicker
             UpdateButtons(CurrentWorker, false);
         }
 
-        private bool PerformClick(Click click, ScreenshotInfo info, IProgress<string> report)
+        private bool PerformClick(Click click, IProgress<string> report)
         {
             var topLeftPoint = TopLeft;
             var botRigthPoint = BottomRight;
@@ -5588,7 +3204,7 @@ namespace AutoClicker
             while (!worker_Inventory_Clicks.CancellationPending)
             {
                
-                result = PerformClick(clickList[step], null, report);
+                result = PerformClick(clickList[step], report);
 
                 step++;
 
@@ -5697,7 +3313,6 @@ namespace AutoClicker
 
                 OpenFile = fileName;
             }
-                
         }
 
         private void btn_Add_Click_Click(object sender, EventArgs e)

@@ -145,9 +145,6 @@
     <Reference Include="System.Xml">
       <Name>System.XML</Name>
     </Reference>
-    <Reference Include="tessnet2_32, Version=2.0.4.0, Culture=neutral, PublicKeyToken=1550524b5ba07e29, processorArchitecture=x86">
-      <HintPath>packages\NuGet.Tessnet2.1.1.1\lib\net45\tessnet2_32.dll</HintPath>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AssemblyInfo.cs">
@@ -162,7 +159,6 @@
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="Mouse\Mouse.cs" />
-    <Compile Include="Ocr.cs" />
     <Compile Include="PictureDictionary.cs" />
     <Compile Include="Properties\Potions.Designer.cs">
       <AutoGen>True</AutoGen>
@@ -180,7 +176,6 @@
       <DependentUpon>Woodcutting.resx</DependentUpon>
     </Compile>
     <Compile Include="RunParams.cs" />
-    <Compile Include="ScreenshotInfo.cs" />
     <Compile Include="Timeouts.cs" />
     <Compile Include="UserActivityHook.cs">
       <SubType>Code</SubType>
@@ -332,14 +327,6 @@
     <Resource Include="Images\Absorb_4.png" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Content\tessdata\eng.DangAmbigs" />
-    <Content Include="Content\tessdata\eng.freq-dawg" />
-    <Content Include="Content\tessdata\eng.inttemp" />
-    <Content Include="Content\tessdata\eng.normproto" />
-    <Content Include="Content\tessdata\eng.pffmtable" />
-    <Content Include="Content\tessdata\eng.unicharset" />
-    <Content Include="Content\tessdata\eng.user-words" />
-    <Content Include="Content\tessdata\eng.word-dawg" />
     <None Include="Resources\Bank_All.bmp" />
     <None Include="Resources\100Energy.PNG" />
     <None Include="Resources\EmptyInvNew.PNG" />

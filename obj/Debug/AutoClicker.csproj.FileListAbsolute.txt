@@ -193,7 +193,6 @@ F:\CodeRepo\GitHub\AutoClicker3\bin\Debug\System.Diagnostics.DiagnosticSource.dl
 F:\CodeRepo\GitHub\AutoClicker3\bin\Debug\System.Memory.dll
 F:\CodeRepo\GitHub\AutoClicker3\bin\Debug\System.Numerics.Vectors.dll
 F:\CodeRepo\GitHub\AutoClicker3\bin\Debug\System.Runtime.CompilerServices.Unsafe.dll
-F:\CodeRepo\GitHub\AutoClicker3\bin\Debug\tessnet2_32.dll
 F:\CodeRepo\GitHub\AutoClicker3\bin\Debug\System.Buffers.xml
 F:\CodeRepo\GitHub\AutoClicker3\bin\Debug\System.Diagnostics.DiagnosticSource.xml
 F:\CodeRepo\GitHub\AutoClicker3\bin\Debug\System.Memory.xml
