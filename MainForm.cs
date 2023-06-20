@@ -23,6 +23,7 @@ using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 using System.Text;
 using System.Xml.Serialization;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement.TrackBar;
 
 namespace AutoClicker 
 {
@@ -92,13 +93,12 @@ namespace AutoClicker
         private TrackBar ActiveSlider;
         private Stopwatch ClickStopwatch;
         private BindingList<Click> Clicks;
+        private List<Click> InventoryClicks;
         private List<Point> Inventory;
         private System.Windows.Forms.Timer DrinkTimer;
         private System.Windows.Forms.Timer PrayerTimer;
         private System.Windows.Forms.Timer OverloadTimer;
         private System.Windows.Forms.Timer LogoutTimer;
-        private System.Windows.Forms.Timer ClickTimer;
-        private System.Windows.Forms.Timer DropTimer;
         private System.Windows.Forms.Timer EatTimer;
         private System.Windows.Forms.Timer PickPocketTimer;
         private System.Windows.Forms.Timer WoodcutTimer;
@@ -213,6 +213,7 @@ namespace AutoClicker
         private DataGridView dg_Clicks;
         private Button btn_Add_Click;
         private BackgroundWorker worker_Normal_Clicks;
+        private BackgroundWorker worker_Inventory_Clicks;
         private Label label10;
         private TextBox txt_Pixel_Skip;
         private RadioButton radio_Long_Timeouts;
@@ -293,6 +294,7 @@ namespace AutoClicker
                 ClickCountPos = 0;
                 Clicks = new BindingList<Click>();
                 Inventory = new List<Point>();
+                InventoryClicks = new List<Click>();
                 RecordClicks = false;
                 RunProgram = false;
                 RandomGenerate = new Random();
@@ -350,8 +352,6 @@ namespace AutoClicker
             this.btn_Start = new System.Windows.Forms.Button();
             this.buttonRecord = new System.Windows.Forms.Button();
             this.LogoutTimer = new System.Windows.Forms.Timer(this.components);
-            this.ClickTimer = new System.Windows.Forms.Timer(this.components);
-            this.DropTimer = new System.Windows.Forms.Timer(this.components);
             this.DrinkTimer = new System.Windows.Forms.Timer(this.components);
             this.PrayerTimer = new System.Windows.Forms.Timer(this.components);
             this.OverloadTimer = new System.Windows.Forms.Timer(this.components);
@@ -507,6 +507,7 @@ namespace AutoClicker
             this.txt_Find_Color_R = new System.Windows.Forms.TextBox();
             this.TabController = new System.Windows.Forms.TabControl();
             this.worker_Normal_Clicks = new System.ComponentModel.BackgroundWorker();
+            this.worker_Inventory_Clicks = new System.ComponentModel.BackgroundWorker();
             this.Click_Sequence = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.Click_Name = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.Click_Delay = new System.Windows.Forms.DataGridViewTextBoxColumn();
@@ -592,14 +593,6 @@ namespace AutoClicker
             // 
             this.LogoutTimer.Interval = 19800000;
             this.LogoutTimer.Tick += new System.EventHandler(this.LogoutTimer_Tick);
-            // 
-            // ClickTimer
-            // 
-            this.ClickTimer.Tick += new System.EventHandler(this.ClickTimer_Tick);
-            // 
-            // DropTimer
-            // 
-            this.DropTimer.Tick += new System.EventHandler(this.DropTimer_Tick);
             // 
             // DrinkTimer
             // 
@@ -2132,6 +2125,12 @@ namespace AutoClicker
             this.worker_Normal_Clicks.DoWork += new System.ComponentModel.DoWorkEventHandler(this.worker_Normal_Clicks_DoWork);
             this.worker_Normal_Clicks.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.worker_RunWorkerCompleted);
             // 
+            // worker_Inventory_Clicks
+            // 
+            this.worker_Inventory_Clicks.WorkerReportsProgress = true;
+            this.worker_Inventory_Clicks.WorkerSupportsCancellation = true;
+            this.worker_Inventory_Clicks.DoWork += new System.ComponentModel.DoWorkEventHandler(this.worker_Inventory_Clicks_DoWork);
+            // 
             // Click_Sequence
             // 
             this.Click_Sequence.HeaderText = "#";
@@ -2318,10 +2317,20 @@ namespace AutoClicker
                 CurrentWorker = worker_Normal_Clicks;
             }
 
+            if(worker_Inventory_Clicks.IsBusy && !CurrentWorker.IsBusy)
+            {
+                worker_Inventory_Clicks.CancelAsync();
+                return;
+            }
 
-            if (CurrentWorker == worker_Normal_Clicks && Clicks.Count < 1 && !RunProgram)
+            if (CurrentWorker == worker_Normal_Clicks && Clicks.Count < 1 && !RunProgram && !worker_Inventory_Clicks.IsBusy)
             {
                 MessageBox.Show("Need to have at least one click recored");
+                return;
+            }
+            else if(CurrentWorker == worker_Normal_Clicks && Clicks.Count < 1 && !RunProgram && worker_Inventory_Clicks.IsBusy)
+            {
+                worker_Inventory_Clicks.CancelAsync();
                 return;
             }
 
@@ -2330,7 +2339,6 @@ namespace AutoClicker
             if (RunProgram)
             {
                 UpdateButtons(CurrentWorker, true);
-                //btn_Start.Text = "Stop";
                 LogWrite("Starting Clicker");
                 SetGlobalDetails();
                 var runParams = new RunParams<string>();
@@ -2350,10 +2358,9 @@ namespace AutoClicker
             }
             else
             {
-                //UpdateButtons(CurrentWorker, false);
-                //btn_Start.Text = "Start";
                 LogWrite("Cancelling Clicker");
                 CurrentWorker.CancelAsync();
+                worker_Inventory_Clicks.CancelAsync();
             }
         }
 
@@ -2435,6 +2442,13 @@ namespace AutoClicker
                 if (SetupInventory)
                 {
                     Inventory.Add(Cursor.Position);
+                    InventoryClicks.Add(new Click()
+                    {
+                        ClickPoint = Cursor.Position,
+                        DelayAfterClick = RandomGenerate.Next(300, 600),
+                        ClickOffset = 5,
+                        ClickSequence = ++ClickCountPos
+                    });
                 }
             }
         }
@@ -2443,10 +2457,6 @@ namespace AutoClicker
         {
             if (e.KeyCode == Keys.LControlKey)
                 Ctrl = false;
-            if (e.KeyCode == Keys.LShiftKey || e.KeyCode == Keys.RShiftKey)
-            {
-                DropTimer.Stop();
-            }
         }
 
         public void MyKeyPress(object sender, KeyPressEventArgs e)
@@ -2515,65 +2525,7 @@ namespace AutoClicker
         {
             StopAutoClicker();
         }
-        private void ClickTimer_Tick(object sender, EventArgs e)
-        {
-            if (IterationCount <= 0 && !InfiniteLoop)
-            {
-                StopAutoClicker();
-                return;
-            }
-
-            //set cursor position to memorized location
-            Click currentClick = Clicks[ClickCountPos];
-            var clickPoint = currentClick.ClickPoint;
-            var mouseButton = currentClick.ClickType;
-
-            if (UseRandomTimeouts && !EndTimeoutsOnly && RandomTimeoutCount <= 0 && ClickCountPos == TimeoutPos)
-            {
-                RandomTimeoutCount = GetRandomTimeoutCount();
-                ClickTimer.Interval = GetRandomTimeout();
-                TimedOut = true;
-                TimeoutPos = RandomGenerate.Next(1, Clicks.Count - 1);
-            }
-            else if (radioCycles.Checked)
-                ClickTimer.Interval = (int)currentClick.DelayAfterClick + RandomGenerate.Next(-200, 200);
-            else if (TimedOut)
-            {
-                TimedOut = !TimedOut;
-                ClickTimer.Interval = GetInterval();
-            }
-
-
-
-            ClickCountPos++;
-            if (ClickCountPos > Clicks.Count - 1)
-            {
-                if (radioCycles.Checked)
-                    ClickTimer.Interval = GetInterval();
-                if (UseRandomTimeouts)
-                {
-                    RandomTimeoutCount--;
-                    if (RandomTimeoutCount <= 0 && EndTimeoutsOnly)
-                    {
-                        RandomTimeoutCount = GetRandomTimeoutCount();
-                        ClickTimer.Interval = GetRandomTimeout();
-                        TimedOut = true;
-                    }
-                }
-
-                ClickCountPos = 0;
-                if (!InfiniteLoop)
-                {
-                    numCount.Value = IterationCount;
-                    IterationCount--;
-                }
-
-            }
-
-            DoMouseClick(mouseButton, clickPoint);
-
-        }
-
+        
         private void NMZPrayerTimer_Tick(object sender, EventArgs e)
         {
             var delay = RandomGenerate.Next(1200, 2000);
@@ -3042,7 +2994,6 @@ namespace AutoClicker
         {
             BarbFishTimer.Stop();
             LogoutTimer.Stop();
-            ClickTimer.Stop();
             PrayerTimer.Stop();
             OverloadTimer.Stop();
             DrinkTimer.Stop();
@@ -3079,8 +3030,6 @@ namespace AutoClicker
         {
             var interval = GetInterval();
             ActiveLabel.Text = (ActiveSlider.Value / 10.0).ToString();
-            if (radioClicks.Checked)
-                ClickTimer.Interval = interval;
         }
 
         private void sliderCycles_Scroll(object sender, EventArgs e)
@@ -3097,7 +3046,6 @@ namespace AutoClicker
                 sliderClicks.Enabled = true;
                 ActiveSlider = sliderClicks;
                 ActiveLabel = lblClickSeconds;
-                ClickTimer.Interval = GetInterval();
             }
             else
             {
@@ -3160,62 +3108,155 @@ namespace AutoClicker
 
         private void ClickInventory(bool dropping)
         {
-            if (Inventory.Count < 1)
+            if (InventoryClicks.Count < 1)
             {
                 MessageBox.Show("Need to setup inventory first.");
                 return;
             }
 
-            TotalInventoryClickCount = (int)numInventoryCount.Value;
+            //TotalInventoryClickCount = (int)numInventoryCount.Value;
+
+            if (worker_Inventory_Clicks.IsBusy)
+                return;
 
 
-            if (DropInverse)
-                DropClickPos = Inventory.Count - 1;
-            else
-                DropClickPos = 0;
 
-            if (dropping)
-            {
-                Dropping = true;
-                PerformLeftClick(Inventory[DropClickPos], null);
-                Thread.Sleep(100);
-                PerformLeftClick(Inventory[DropClickPos], null);
-                Thread.Sleep(100);
-                //Keyboard.Keyboard.HoldKey(Keys.ShiftKey);
-                Keyboard.MyKeyboard.PressKey(Keyboard.MyKeyboard.VK_LSHIFT, Keyboard.MyKeyboard.SCANKEY_LSHIFT);
-            }
+            List<Click> clickOrder = BuildInventoryClickList(InventoryClicks);
 
-            DropTimer.Start();
+            var runParams = new RunParams<string>();
+            runParams.ReportProgress = new Progress<string>(value => LogWrite(value));
+            runParams.RunLimit = (int)numInventoryCount.Value;
+            runParams.ClickList = clickOrder;
+
+            worker_Inventory_Clicks.RunWorkerAsync(runParams);
         }
 
-        private void DropTimer_Tick(object sender, EventArgs e)
+        private List<Click> BuildInventoryClickList(List<Click> inventoryClicks)
         {
-            if (DropClickPos >= Inventory.Count || DropClickPos < 0 || CurrentInventoryClickCount >= TotalInventoryClickCount)
+            List<Click> returnList = new List<Click>();
+
+            var snake = RandomGenerate.Next(0, 3) > 1;
+            var reverse = RandomGenerate.Next(0, 3) > 1;
+            var byRow = RandomGenerate.Next(0, 3) > 1;
+
+            var selectedInv = (int)numInventoryCount.Value;
+            Click[] clickArray = new Click[inventoryClicks.Count];
+            var invTotal = clickArray.Count();
+            inventoryClicks.CopyTo(clickArray);
+            var invDiff = invTotal - selectedInv;
+            if (invDiff > 0)
             {
-                DropTimer.Stop();
-                //Keyboard.Keyboard.ReleaseKey(Keys.ShiftKey);
-                if (Dropping)
+                if (DropInverse)
                 {
-                    Thread.Sleep(100);
-                    Keyboard.MyKeyboard.ReleaseKey(Keyboard.MyKeyboard.VK_LSHIFT, Keyboard.MyKeyboard.SCANKEY_LSHIFT);
-                    Dropping = false;
+                    for(int i = 0; i < invDiff; i++)
+                    {
+                        clickArray[i] = null;
+                    }
                 }
-                CurrentInventoryClickCount = 0;
-                return;
+                else
+                {
+                    for (int i = clickArray.Count()-1; i >= selectedInv; i--)
+                    {
+                        clickArray[i] = null;
+                    }
+                }
             }
 
-            CurrentInventoryClickCount++;
-            //set cursor position to memorized location
-            var currentPoint = Inventory[DropClickPos];
-            if (DropInverse)
-                DropClickPos--;
-            else
-                DropClickPos++;
+            //Console.WriteLine(string.Format("ByRow: {0}    Reverse: {1}    Snake: {2}", byRow, reverse, snake));
 
-            currentPoint.X += RandomGenerate.Next(-5, 5);
-            currentPoint.Y += RandomGenerate.Next(-5, 5);
-            DoMouseClick(0, currentPoint);
-            DropTimer.Interval = RandomGenerate.Next(50, 200);
+            var step = 1;
+            var rowMove = 4;
+            var start = 0;
+            var moveRight = true;
+            var moveDown = true;
+            var invChecked = 0;
+
+            if (reverse)
+            {
+                step = -1;
+                rowMove = -4;
+                start = invTotal - 1;
+                moveRight = !moveRight;
+                moveDown = !moveDown;
+            }
+
+            //click by row
+            if (byRow)
+            {
+                for (int i = start; invChecked < invTotal;)
+                {
+                    invChecked++;
+                    if (clickArray[i] != null)
+                    {
+                        returnList.Add(clickArray[i]);
+                    }
+
+                    if (snake)
+                    {
+                        if ((moveRight && i % 4 == 3 ) || (!moveRight && i % 4 == 0))
+                        {
+                            i += rowMove;
+                            step = -step;
+                            moveRight = !moveRight;
+                        }
+                        else
+                        {
+                            i += step;
+                        }
+                    }
+                    else
+                    {
+                        i += step;
+                    }
+                }
+            }
+            else // Click by column
+            {
+                for (int i = start; invChecked < invTotal;)
+                {
+                    invChecked++;
+                    if (clickArray[i] != null)
+                    {
+                        returnList.Add(clickArray[i]);
+                    }
+
+                    if (snake)
+                    {
+                        if ((moveDown && i + rowMove >= invTotal) || (!moveDown && i + rowMove <= 0))
+                        {
+                            i += step;
+                            rowMove = -rowMove;
+                            moveDown = !moveDown;
+                        }
+                        else
+                        {
+                            i += rowMove;
+                        }
+                    }
+                    else
+                    {
+                        if((reverse && i + rowMove < 0) || (!reverse && i + rowMove >= invTotal))
+                        {
+                            if (reverse)
+                            {
+                                i = invTotal - (4 - i);
+                                i += step;
+                            }
+                            else
+                            {
+                                i = i % 4;
+                                i += step;
+                            }
+                        }
+                        else
+                        {
+                            i += rowMove;
+                        }
+                    }
+                }
+            }
+
+            return returnList;
         }
 
         private void btnSetupInventory_Click(object sender, EventArgs e)
@@ -3223,14 +3264,15 @@ namespace AutoClicker
             if (SetupInventory)
             {
                 btnSetupInventory.Text = "Setup Inventory";
-                Inventory.RemoveAt(Inventory.Count - 1);
-                lblTotalInventory.Text = Inventory.Count.ToString();
-                numInventoryCount.Value = Inventory.Count;
+                InventoryClicks.RemoveAt(InventoryClicks.Count - 1);
+                lblTotalInventory.Text = InventoryClicks.Count.ToString();
+                numInventoryCount.Value = InventoryClicks.Count;
             }
             else
             {
                 btnSetupInventory.Text = "Recording Inventory...";
-                Inventory.Clear();
+                InventoryClicks.Clear();
+                ClickCountPos = 0;
             }
 
             SetupInventory = !SetupInventory;
@@ -3350,25 +3392,33 @@ namespace AutoClicker
         {
             if (File.Exists(FilePath))
             {
-                Inventory.Clear();
+                //Inventory.Clear();
+                InventoryClicks.Clear();
 
                 string line;
                 List<int> points;
+                var count = 1;
 
-                using (System.IO.StreamReader file =
-                    new System.IO.StreamReader(FilePath, false))
+                using (System.IO.StreamReader file = new System.IO.StreamReader(FilePath, false))
                 {
                     while ((line = file.ReadLine()) != null)
                     {
                         points = line.Split(':').Select(int.Parse).ToList();
                         if (points.Count != 2)
                             continue;
-                        Inventory.Add(new Point(points[0], points[1]));
+                        //Inventory.Add(new Point(points[0], points[1]));
+                        InventoryClicks.Add(new Click()
+                        {
+                            ClickPoint = new Point(points[0], points[1]),
+                            DelayAfterClick = RandomGenerate.Next(300, 600),
+                            ClickOffset = 5,
+                            ClickSequence = count++
+                        });
                     }
                 }
 
-                lblTotalInventory.Text = Inventory.Count.ToString();
-                numInventoryCount.Value = Inventory.Count;
+                lblTotalInventory.Text = InventoryClicks.Count.ToString();
+                numInventoryCount.Value = InventoryClicks.Count;
             }
             else
             {
@@ -3390,9 +3440,9 @@ namespace AutoClicker
         private void numInventoryCount_ValueChanged(object sender, EventArgs e)
         {
             NumericUpDown counter = (NumericUpDown)sender;
-            if ((int)counter.Value > Inventory.Count)
+            if ((int)counter.Value > InventoryClicks.Count)
             {
-                counter.Value = Inventory.Count;
+                counter.Value = InventoryClicks.Count;
                 return;
             }
         }
@@ -5415,7 +5465,7 @@ namespace AutoClicker
                     }
                     else
                     {
-                        step = clickScript.GoToSequence;
+                        step = clickScript.GoToSequence - 1;
                     }
                 }
                 else
@@ -5519,6 +5569,36 @@ namespace AutoClicker
             }
 
             return false;
+        }
+
+        private void worker_Inventory_Clicks_DoWork(object sender, DoWorkEventArgs e)
+        {
+            var runParams = e.Argument as RunParams<string>;
+            var report = runParams.ReportProgress;
+            var clickList = runParams.ClickList;
+            bool result = false;
+
+            var step = 0;
+
+            report.Report("Starting Inventory Clicks Worker");
+            //report.Report("Total Runs = " + runCount);
+            Thread.Sleep(1000);
+
+
+            while (!worker_Inventory_Clicks.CancellationPending)
+            {
+               
+                result = PerformClick(clickList[step], null, report);
+
+                step++;
+
+                if (step > clickList.Count - 1)
+                {
+                    break;
+                }
+            }
+
+            report.Report("Ending Inventory Clicks Worker");
         }
 
         private void PerformLeftClick(Point point, IProgress<string> report)
