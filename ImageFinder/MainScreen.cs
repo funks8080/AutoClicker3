@@ -223,7 +223,7 @@ namespace AutoClicker.ImageFinder
         public static Point FindColorScreen(Point topLeft, Point bottomRight, Color color, int pixelSkip, int monitor)
         {
             var screenShot = MainScreen.CaptureScreen(monitor);
-            //var x = DateTime.Now.Millisecond;
+
             var imagePoint = new Point();
 
             var foundMatch = false;
@@ -245,9 +245,58 @@ namespace AutoClicker.ImageFinder
             }
             screenShot.Dispose();
 
-            //var y = DateTime.Now.Millisecond;
-            //Console.WriteLine(y + " - " + x + " = " + (y - x));
             return imagePoint;
+        }
+
+        public static Point FindColorCenterOut(Bitmap screenShot, Point topLeft, Point bottomRight, Color color, decimal colorRange, int pixelSkip, int monitor)
+        {
+            var imagePoint = new Point();
+
+            // length of current segment
+            int segment_length = 1;
+
+
+            int segment_passed = 0;
+            int NUMBER_OF_POINTS = Math.Abs(((bottomRight.X - topLeft.X) * (bottomRight.Y - topLeft.Y)) / (pixelSkip * pixelSkip));
+            // current position (i, j) and how much of current segment we passed
+            int x = (bottomRight.X + topLeft.X) / 2;
+            int y = (bottomRight.Y + topLeft.Y) / 2;
+            // (di, dj) is a vector - direction in which we move right now
+            int dx = pixelSkip;
+            int dy = 0;
+            for (int k = 0; k < NUMBER_OF_POINTS; k++)
+            {
+                if (PixelCompare(screenShot.GetPixel(x, y), color, colorRange))
+                {
+                    imagePoint.X = x;
+                    imagePoint.Y = y;
+                    //foundMatch = true;
+                    break;
+                }
+                // make a step, add 'direction' vector (di, dj) to current position (i, j)
+                x += dx;
+                y += dy;
+                segment_passed++;
+
+                if (segment_passed == segment_length)
+                {
+                    // done with current segment
+                    segment_passed = 0;
+
+                    // 'rotate' directions
+                    int buffer = dx;
+                    dx = -dy;
+                    dy = buffer;
+
+                    // increase segment length if necessary
+                    if (dy == 0)
+                    {
+                        segment_length++;
+                    }
+                }
+            }
+
+            return ModifyForMonitorPoint(imagePoint, monitor);
         }
 
         public static Point FindColorScreenCenterOut(Point topLeft, Point bottomRight, Color color, decimal colorRange, int pixelSkip, int monitor)
@@ -304,25 +353,6 @@ namespace AutoClicker.ImageFinder
                 }
             }
 
-            //for (int r = topLeft.Y; r < bottomRight.Y; r += pixelSkip)
-            //{
-            //    for (int c = topLeft.X; c < bottomRight.X; c += pixelSkip)
-            //    {
-            //        if (screenShot.GetPixel(c, r) == color)
-            //        {
-            //            imagePoint.X = c;
-            //            imagePoint.Y = r;
-            //            foundMatch = true;
-            //            break;
-            //        }
-            //    }
-            //    if (foundMatch)
-            //        break;
-            //}
-            screenShot.Dispose();
-
-            //var y = DateTime.Now.Millisecond;
-            //Console.WriteLine(y + " - " + x + " = " + (y - x));
             return ModifyForMonitorPoint(imagePoint, monitor);
         }
 

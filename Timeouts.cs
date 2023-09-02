@@ -8,10 +8,6 @@ namespace AutoClicker
 {
     public class Timeouts
     {
-        //public int ShortTimeoutMin { get; set; }
-        //public int ShortTimeoutMax { get; set; }
-        //public int LongTimeoutMin { get; set; }
-        //public int LongTimeoutMax { get; set; }
         public int TimeoutLengthMin { get; set; }
         public int TimeoutLengthMax { get; set; }
         public bool EndTimeoutsOnly { get; set; }

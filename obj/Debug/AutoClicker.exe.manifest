@@ -3,7 +3,7 @@
   <asmv1:assemblyIdentity name="AutoClicker.exe" version="2.0.0.4" publicKeyToken="0000000000000000" language="neutral" processorArchitecture="x86" type="win32" />
   <application />
   <entryPoint>
-    <assemblyIdentity name="AutoClicker" version="1.0.8571.5094" language="neutral" processorArchitecture="x86" />
+    <assemblyIdentity name="AutoClicker" version="1.0.8573.38580" language="neutral" processorArchitecture="x86" />
     <commandLine file="AutoClicker.exe" parameters="" />
   </entryPoint>
   <trustInfo>
@@ -43,13 +43,13 @@
   </dependency>
   <dependency>
     <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="AutoClicker.exe" size="1101824">
-      <assemblyIdentity name="AutoClicker" version="1.0.8571.5094" language="neutral" processorArchitecture="x86" />
+      <assemblyIdentity name="AutoClicker" version="1.0.8573.38580" language="neutral" processorArchitecture="x86" />
       <hash>
         <dsig:Transforms>
           <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
         </dsig:Transforms>
         <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
-        <dsig:DigestValue>2i9UpysSj7BPkkXopQqS0Z/Sn6AeiQucxUNRajBV374=</dsig:DigestValue>
+        <dsig:DigestValue>nYSzX9x2te06R4nKhSGDMRBFSrjIUsi2pq3vqDw8Lew=</dsig:DigestValue>
       </hash>
     </dependentAssembly>
   </dependency>
@@ -66,14 +66,14 @@
     </dependentAssembly>
   </dependency>
   <dependency>
-    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="System.Diagnostics.DiagnosticSource.dll" size="166512">
-      <assemblyIdentity name="System.Diagnostics.DiagnosticSource" version="6.0.0.0" publicKeyToken="CC7B13FFCD2DDD51" language="neutral" processorArchitecture="msil" />
+    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="System.Diagnostics.DiagnosticSource.dll" size="173232">
+      <assemblyIdentity name="System.Diagnostics.DiagnosticSource" version="7.0.0.2" publicKeyToken="CC7B13FFCD2DDD51" language="neutral" processorArchitecture="msil" />
       <hash>
         <dsig:Transforms>
           <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
         </dsig:Transforms>
         <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
-        <dsig:DigestValue>geZkiABC5FFJWhviJiSrSrXooGgD7tpb3afGnfJDmBU=</dsig:DigestValue>
+        <dsig:DigestValue>W4zN2jZIaVDeN0hMJeEzQ3ZDHlIXbDL4fdcwaQsnPjs=</dsig:DigestValue>
       </hash>
     </dependentAssembly>
   </dependency>

@@ -14,14 +14,14 @@
     <framework targetVersion="4.8" profile="Full" supportedRuntime="4.0.30319" />
   </compatibleFrameworks>
   <dependency>
-    <dependentAssembly dependencyType="install" codebase="AutoClicker.exe.manifest" size="10968">
+    <dependentAssembly dependencyType="install" codebase="AutoClicker.exe.manifest" size="10970">
       <assemblyIdentity name="AutoClicker.exe" version="2.0.0.4" publicKeyToken="0000000000000000" language="neutral" processorArchitecture="x86" type="win32" />
       <hash>
         <dsig:Transforms>
           <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
         </dsig:Transforms>
         <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
-        <dsig:DigestValue>jr+YROXHNklCbszvBYKTzCGQTLQ/Z6DlLoSMXSBOtWU=</dsig:DigestValue>
+        <dsig:DigestValue>lg/GwGkQeqXY8tkdAQuBA9d+pO4fVjKaGOwOMIP8IXk=</dsig:DigestValue>
       </hash>
     </dependentAssembly>
   </dependency>

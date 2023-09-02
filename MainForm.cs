@@ -42,16 +42,11 @@ namespace AutoClicker
         private bool HideButtons;
         private bool Ctrl;
         private bool SetupInventory;
-        private bool UseRandomTimeouts;
-        private bool EndTimeoutsOnly;
-        private bool DropInverse;
         private bool LogInfo;
         private bool RecordClicks;
         private bool SettingAlchPoint;
-        private int RandomTimeoutCount;
         private int ClickOffset;
         private int ClickCountPos;
-        private int IterationCount;
         private Stopwatch ClickStopwatch;
         private BindingList<Click> Clicks;
         private List<Click> InventoryClicks;
@@ -202,12 +197,9 @@ namespace AutoClicker
             try
             {
                 HideButtons = false;
-                RandomTimeoutCount = 0;
-                UseRandomTimeouts = false;
                 ClickOffset = 3;
                 SetupInventory = false;
                 ClickStopwatch = new Stopwatch();
-                DropInverse = false;
                 LogInfo = true;
                 Ctrl = false;
                 ClickCountPos = 0;
@@ -216,7 +208,6 @@ namespace AutoClicker
                 RecordClicks = false;
                 RunProgram = false;
                 RandomGenerate = new Random();
-                IterationCount = 0;
                 InitializeComponent();
                 this.btn_Start.Click += new System.EventHandler((sender, e) => ButtonStart(sender, e, null));
                 this.btn_Gem_Mine.Click += new System.EventHandler((sender, e) => ButtonStart(sender, e, worker_Gem_Mining));
@@ -244,8 +235,6 @@ namespace AutoClicker
             {
 
             }
-
-
         }
 
         // THIS METHOD IS MAINTAINED BY THE FORM DESIGNER
@@ -583,7 +572,6 @@ namespace AutoClicker
             this.chkTimeOut.TabIndex = 14;
             this.chkTimeOut.Text = "Use random timeouts";
             this.chkTimeOut.UseVisualStyleBackColor = true;
-            this.chkTimeOut.CheckedChanged += new System.EventHandler(this.chkTimeOut_CheckedChanged);
             // 
             // label22
             // 
@@ -624,7 +612,6 @@ namespace AutoClicker
             this.chk_End_Timeout_Only.TabIndex = 27;
             this.chk_End_Timeout_Only.Text = "Timeout end of cycle only";
             this.chk_End_Timeout_Only.UseVisualStyleBackColor = true;
-            this.chk_End_Timeout_Only.CheckedChanged += new System.EventHandler(this.chk_End_Timeout_Only_CheckedChanged);
             // 
             // txt_Long_Timeout_Max
             // 
@@ -807,7 +794,6 @@ namespace AutoClicker
             this.chkDropInverse.TabIndex = 0;
             this.chkDropInverse.Text = "Drop From Top";
             this.chkDropInverse.UseVisualStyleBackColor = true;
-            this.chkDropInverse.CheckedChanged += new System.EventHandler(this.chkDropInverse_CheckedChanged);
             // 
             // btnSetupInventory
             // 
@@ -1913,7 +1899,8 @@ namespace AutoClicker
                     TimeoutCountMin = int.Parse(txt_Timeout_Cycle_Min.Text),
                     TimeoutCountMax = int.Parse(txt_Timeout_Cycle_Max.Text),
                     TimeoutLengthMin = TimeoutLengthMin,
-                    TimeoutLengthMax = TimeoutLengthMax
+                    TimeoutLengthMax = TimeoutLengthMax,
+                    EndTimeoutsOnly = chk_End_Timeout_Only.Checked,
                 };
                 runParams.RunLimit = (int)numCount.Value;
                 runParams.ClickList = Clicks.ToList(); ;
@@ -2007,7 +1994,7 @@ namespace AutoClicker
                     InventoryClicks.Add(new Click()
                     {
                         ClickPoint = Cursor.Position,
-                        DelayAfterClick = RandomGenerate.Next(300, 600),
+                        DelayAfterClick = RandomGenerate.Next(250, 450),
                         ClickOffset = 5,
                         ClickSequence = ++ClickCountPos
                     });
@@ -2054,7 +2041,6 @@ namespace AutoClicker
                         break;
                 }
             }
-
         }
 
         public void StopAutoClicker()
@@ -2104,17 +2090,6 @@ namespace AutoClicker
                 textBox.AppendText(txt + Environment.NewLine);
                 textBox.SelectionStart = textBox.Text.Length;
             }
-
-        }
-
-        //-------------------------------------------------------------------------------------------------------
-        private void chkDropInverse_CheckedChanged(object sender, EventArgs e)
-        {
-            var checkBox = (CheckBox)sender;
-            if (checkBox.Checked)
-                DropInverse = true;
-            else
-                DropInverse = false;
         }
 
         private void ClickInventory()
@@ -2125,12 +2100,8 @@ namespace AutoClicker
                 return;
             }
 
-            //TotalInventoryClickCount = (int)numInventoryCount.Value;
-
             if (worker_Inventory_Clicks.IsBusy)
                 return;
-
-
 
             List<Click> clickOrder = BuildInventoryClickList(InventoryClicks);
 
@@ -2157,7 +2128,7 @@ namespace AutoClicker
             var invDiff = invTotal - selectedInv;
             if (invDiff > 0)
             {
-                if (DropInverse)
+                if (chkDropInverse.Checked)
                 {
                     for(int i = 0; i < invDiff; i++)
                     {
@@ -2321,28 +2292,6 @@ namespace AutoClicker
             ClickOffset = slider.Value;
         }
 
-        private void chkTimeOut_CheckedChanged(object sender, EventArgs e)
-        {
-            CheckBox chkBox = (CheckBox)sender;
-            if (chkBox.Checked)
-            {
-                UseRandomTimeouts = true;
-                RandomTimeoutCount = GetRandomTimeoutCount();
-            }
-
-            else
-                UseRandomTimeouts = false;
-        }
-
-        private int GetRandomTimeoutCount()
-        {
-            return RandomGenerate.Next(int.Parse(txt_Timeout_Cycle_Min.Text), int.Parse(txt_Timeout_Cycle_Max.Text));
-        }
-        private int GetRandomTimeout()
-        {
-            return RandomGenerate.Next(3000, 8000);
-        }
-
         private void btnHide_Click(object sender, EventArgs e)
         {
             HideButtons = !HideButtons;
@@ -2382,7 +2331,6 @@ namespace AutoClicker
                 {
                     file.WriteLine(String.Format("{0}:{1}", click.ClickPoint.X, click.ClickPoint.Y));
                 }
-
             }
         }
 
@@ -2413,7 +2361,7 @@ namespace AutoClicker
                         InventoryClicks.Add(new Click()
                         {
                             ClickPoint = new Point(points[0], points[1]),
-                            DelayAfterClick = RandomGenerate.Next(300, 600),
+                            DelayAfterClick = RandomGenerate.Next(250, 450),
                             ClickOffset = 5,
                             ClickSequence = count++
                         });
@@ -2487,7 +2435,6 @@ namespace AutoClicker
             if (runCount == 0)
                 runCount = 99999;
 
-
             report.Report("Starting Auto Attack Worker");
             report.Report("Total Runs = " + runCount);
             Thread.Sleep(3000);
@@ -2511,13 +2458,11 @@ namespace AutoClicker
                         }
                         else
                         {
-                            //Thread.Sleep(RandomGenerate.Next(3000, 3000));
                             Thread.Sleep(3000);
                         }
                     }
                     else
                     {
-                        //Thread.Sleep(RandomGenerate.Next(3000, 3000));
                         Thread.Sleep(3000);
                     }
                 }
@@ -2582,7 +2527,6 @@ namespace AutoClicker
             }
 
             return true;
-
         }
 
         private void MineRock(Bitmap screenShot, Point topLeft, Point bottomRight, decimal colorRange, IProgress<string> report)
@@ -2665,8 +2609,6 @@ namespace AutoClicker
 
             while (!workerAlch.CancellationPending && runCount > 0)
             {
-                //DoMouseClickAsync(report, 0, ClickPoint);
-
                 Mouse.Mouse.MoveTo(ClickPoint.X, ClickPoint.Y);
                 Mouse.Mouse.LeftClick();
                 runCount--;
@@ -2697,7 +2639,6 @@ namespace AutoClicker
                     sleep = RandomGenerate.Next(500, 2000);
                     tempSleep = sleep;
                 }
-
 
                 Thread.Sleep(sleep);
             }
@@ -2771,7 +2712,6 @@ namespace AutoClicker
                     if (step == 0)
                         MineRock(screenShot, TopLeft, BottomRight, ColorRange, report);
 
-
                     if (timeouts.Active)
                     {
                         timeoutCount--;
@@ -2785,8 +2725,6 @@ namespace AutoClicker
                         }
                     }
                 }
-
-
             }
 
             report.Report("Ending Gem Mining Worker");
@@ -2838,7 +2776,6 @@ namespace AutoClicker
         {
             var image = Properties.Resources.BankCloseButton;
             var point = MainScreen.FindImage(screenshot, topLeft, bottmRight, image, colorRange, SelectedMonitor);
-            //var point = MainScreen.FindColorScreenRange(screenshot, topLeft, BottomRight, SearchColor2, 8, ColorRange, SelectedMonitor);
             if (!point.IsEmpty && (point.X != 0 && point.Y != 0))
             {
                 var offsetX = RandomGenerate.Next(0, image.Width);
@@ -2971,19 +2908,6 @@ namespace AutoClicker
             ImageRange = 360m * (slider_Image_Range.Value / 100m);
         }
 
-        private void chk_End_Timeout_Only_CheckedChanged(object sender, EventArgs e)
-        {
-            CheckBox chkBox = (CheckBox)sender;
-            if (chkBox.Checked)
-            {
-                EndTimeoutsOnly = true;
-            }
-
-            else
-                EndTimeoutsOnly = false;
-        }
-
-
         private void worker_Normal_Clicks_DoWork(object sender, DoWorkEventArgs e)
         {
             var runParams = e.Argument as RunParams<string>;
@@ -3000,11 +2924,9 @@ namespace AutoClicker
 
             var step = 0;
 
-
             report.Report("Starting Normal Clicks Worker");
             report.Report("Total Runs = " + runCount);
             Thread.Sleep(3000);
-
 
             while (!worker_Normal_Clicks.CancellationPending && runCount > 0)
             {
@@ -3135,11 +3057,11 @@ namespace AutoClicker
                 {
                     using (var screenShot = MainScreen.CaptureScreen(SelectedMonitor))
                     {
-                        point = MainScreen.FindColorScreenRange(screenShot, topLeftPoint, botRigthPoint, click.ClickColor, PixelSkip, ColorRange, SelectedMonitor);
+                        point = MainScreen.FindColorCenterOut(screenShot, topLeftPoint, botRigthPoint, click.ClickColor, ColorRange, PixelSkip, SelectedMonitor);
 
                         if (point.IsEmpty && !click.ClickColor2.IsEmpty)
                         {
-                            point = MainScreen.FindColorScreenRange(screenShot, topLeftPoint, botRigthPoint, click.ClickColor2, PixelSkip, ColorRange, SelectedMonitor);
+                            point = MainScreen.FindColorCenterOut(screenShot, topLeftPoint, botRigthPoint, click.ClickColor2, ColorRange, PixelSkip, SelectedMonitor);
                         }
                     }
                 }
@@ -3197,7 +3119,7 @@ namespace AutoClicker
             var step = 0;
 
             report.Report("Starting Inventory Clicks Worker");
-            //report.Report("Total Runs = " + runCount);
+
             Thread.Sleep(1000);
 
 
@@ -3275,11 +3197,6 @@ namespace AutoClicker
             {
                 LogWrite("Saving " + sfd.FileName);
                 fileName = sfd.FileName;
-                //if ((myStream = sfd.OpenFile()) != null)
-                //{
-                //    // Code to write the stream goes here.
-                //    myStream.Close();
-                //}
                 SaveFile(fileName);
                 OpenFile = fileName;
             }
