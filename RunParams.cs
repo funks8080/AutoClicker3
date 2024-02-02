@@ -14,5 +14,7 @@ namespace AutoClicker
         public List<Click> ClickList { get; set; }
         public int ClickOffset { get; set; }
 
+        public int StartStep { get; set; }
+
     }
 }

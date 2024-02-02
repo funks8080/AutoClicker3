@@ -39,9 +39,9 @@ namespace AutoClicker
         private static string FilePath = "c:\\AppData\\AutoClicker\\Inventory.txt";
         private static string AppFolder = @"c:\AppData\AutoClicker\";
         private string OpenFile;
+        private string OpenInventoryFile;
         private bool HideButtons;
         private bool Ctrl;
-        private bool SetupInventory;
         private bool LogInfo;
         private bool RecordClicks;
         private bool SettingAlchPoint;
@@ -49,8 +49,8 @@ namespace AutoClicker
         private int ClickCountPos;
         private Stopwatch ClickStopwatch;
         private BindingList<Click> Clicks;
-        private List<Click> InventoryClicks;
         private Random RandomGenerate;
+        private Inventory InventoryInfo;
 
         private Label label1;
         private Label label2;
@@ -69,8 +69,6 @@ namespace AutoClicker
         private ToolStripMenuItem fileToolStripMenuItem;
         private ToolStripMenuItem startToolStripMenuItem;
         private ToolStripMenuItem stopToolStripMenuItem;
-        private ToolStripMenuItem saveInventoryToolStripMenuItem;
-        private ToolStripMenuItem loadInventoryToolStripMenuItem;
         private ToolStripMenuItem toggleLoggingToolStripMenuItem;
         private Label lblTotalInventory;
         private Label label8;
@@ -190,21 +188,30 @@ namespace AutoClicker
         private DataGridViewTextBoxColumn Click_Color_2;
         private DataGridViewTextBoxColumn Click_Image;
         private DataGridViewTextBoxColumn Click_Script;
+        private Label label3;
+        private TextBox txt_Step_Start;
+        private Label label5;
+        private Label label6;
+        private TextBox txt_Inv_Height;
+        private TextBox txt_Inv_Width;
+        private ToolStripMenuItem inventoryToolStripMenuItem;
+        private ToolStripMenuItem saveInventoryToolStripMenuItem;
+        private ToolStripMenuItem saveAsInventoryToolStripMenuItem;
+        private ToolStripMenuItem loadInventoryToolStripMenuItem;
         BackgroundWorker CurrentWorker;
 
         public MainForm()
         {
             try
             {
+                InventoryInfo = new Inventory();
                 HideButtons = false;
                 ClickOffset = 3;
-                SetupInventory = false;
                 ClickStopwatch = new Stopwatch();
                 LogInfo = true;
                 Ctrl = false;
                 ClickCountPos = 0;
                 Clicks = new BindingList<Click>();
-                InventoryClicks = new List<Click>();
                 RecordClicks = false;
                 RunProgram = false;
                 RandomGenerate = new Random();
@@ -229,7 +236,7 @@ namespace AutoClicker
                 dg_Clicks.Columns[9].DataPropertyName = "ClickColor2Text";
                 dg_Clicks.Columns[10].DataPropertyName = "ClickImagePath";
                 dg_Clicks.Columns[11].DataPropertyName = "ClickScript";
-                LoadInventory();
+                //LoadInventory();
             }
             catch
             {
@@ -268,6 +275,8 @@ namespace AutoClicker
             this.txt_Short_Timeout_Max = new System.Windows.Forms.TextBox();
             this.label24 = new System.Windows.Forms.Label();
             this.groupBox3 = new System.Windows.Forms.GroupBox();
+            this.label3 = new System.Windows.Forms.Label();
+            this.txt_Step_Start = new System.Windows.Forms.TextBox();
             this.lblClickOffsetNumber = new System.Windows.Forms.Label();
             this.label7 = new System.Windows.Forms.Label();
             this.lblClickOffset = new System.Windows.Forms.Label();
@@ -293,13 +302,15 @@ namespace AutoClicker
             this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.startToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.stopToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.saveInventoryToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.loadInventoryToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toggleLoggingToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.clicksToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.saveToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.saveAsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.loadToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.inventoryToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.saveInventoryToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.saveAsInventoryToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.loadInventoryToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.chkClicks = new System.Windows.Forms.CheckBox();
             this.worker_Gem_Mining = new System.ComponentModel.BackgroundWorker();
             this.worker_Auto_Attack = new System.ComponentModel.BackgroundWorker();
@@ -322,6 +333,7 @@ namespace AutoClicker
             this.Click_Image = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.Click_Script = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.Buttons = new System.Windows.Forms.TabPage();
+            this.label5 = new System.Windows.Forms.Label();
             this.groupBox11 = new System.Windows.Forms.GroupBox();
             this.slider_Image_Range = new System.Windows.Forms.TrackBar();
             this.lbl_Image_Range = new System.Windows.Forms.Label();
@@ -341,6 +353,9 @@ namespace AutoClicker
             this.btn_Monitor_1 = new System.Windows.Forms.Button();
             this.btn_Gem_Mine = new System.Windows.Forms.Button();
             this.groupBox6 = new System.Windows.Forms.GroupBox();
+            this.label6 = new System.Windows.Forms.Label();
+            this.txt_Inv_Height = new System.Windows.Forms.TextBox();
+            this.txt_Inv_Width = new System.Windows.Forms.TextBox();
             this.txt_Inv_Bot_Y = new System.Windows.Forms.TextBox();
             this.txt_Inv_Bot_X = new System.Windows.Forms.TextBox();
             this.txt_Inv_Top_Y = new System.Windows.Forms.TextBox();
@@ -660,6 +675,8 @@ namespace AutoClicker
             // 
             // groupBox3
             // 
+            this.groupBox3.Controls.Add(this.label3);
+            this.groupBox3.Controls.Add(this.txt_Step_Start);
             this.groupBox3.Controls.Add(this.lblClickOffsetNumber);
             this.groupBox3.Controls.Add(this.label7);
             this.groupBox3.Controls.Add(this.lblClickOffset);
@@ -673,6 +690,24 @@ namespace AutoClicker
             this.groupBox3.TabIndex = 8;
             this.groupBox3.TabStop = false;
             this.groupBox3.Text = "Clicks";
+            // 
+            // label3
+            // 
+            this.label3.AutoSize = true;
+            this.label3.Location = new System.Drawing.Point(78, 157);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(94, 13);
+            this.label3.TabIndex = 46;
+            this.label3.Text = "Step Start Number";
+            // 
+            // txt_Step_Start
+            // 
+            this.txt_Step_Start.Location = new System.Drawing.Point(15, 154);
+            this.txt_Step_Start.MaxLength = 6;
+            this.txt_Step_Start.Name = "txt_Step_Start";
+            this.txt_Step_Start.Size = new System.Drawing.Size(49, 20);
+            this.txt_Step_Start.TabIndex = 43;
+            this.txt_Step_Start.Text = "0";
             // 
             // lblClickOffsetNumber
             // 
@@ -790,9 +825,9 @@ namespace AutoClicker
             this.chkDropInverse.AutoSize = true;
             this.chkDropInverse.Location = new System.Drawing.Point(12, 19);
             this.chkDropInverse.Name = "chkDropInverse";
-            this.chkDropInverse.Size = new System.Drawing.Size(97, 17);
+            this.chkDropInverse.Size = new System.Drawing.Size(111, 17);
             this.chkDropInverse.TabIndex = 0;
-            this.chkDropInverse.Text = "Drop From Top";
+            this.chkDropInverse.Text = "Drop From Bottom";
             this.chkDropInverse.UseVisualStyleBackColor = true;
             // 
             // btnSetupInventory
@@ -897,7 +932,8 @@ namespace AutoClicker
             // 
             this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.fileToolStripMenuItem,
-            this.clicksToolStripMenuItem});
+            this.clicksToolStripMenuItem,
+            this.inventoryToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
             this.menuStrip1.Size = new System.Drawing.Size(1346, 24);
@@ -909,8 +945,6 @@ namespace AutoClicker
             this.fileToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.startToolStripMenuItem,
             this.stopToolStripMenuItem,
-            this.saveInventoryToolStripMenuItem,
-            this.loadInventoryToolStripMenuItem,
             this.toggleLoggingToolStripMenuItem});
             this.fileToolStripMenuItem.Name = "fileToolStripMenuItem";
             this.fileToolStripMenuItem.Size = new System.Drawing.Size(37, 20);
@@ -935,20 +969,6 @@ namespace AutoClicker
             this.stopToolStripMenuItem.ToolTipText = "Ctrl + 1";
             this.stopToolStripMenuItem.Click += new System.EventHandler(this.stopToolStripMenuItem_Click);
             // 
-            // saveInventoryToolStripMenuItem
-            // 
-            this.saveInventoryToolStripMenuItem.Name = "saveInventoryToolStripMenuItem";
-            this.saveInventoryToolStripMenuItem.Size = new System.Drawing.Size(202, 22);
-            this.saveInventoryToolStripMenuItem.Text = "Save Inventory";
-            this.saveInventoryToolStripMenuItem.Click += new System.EventHandler(this.saveInventoryToolStripMenuItem_Click);
-            // 
-            // loadInventoryToolStripMenuItem
-            // 
-            this.loadInventoryToolStripMenuItem.Name = "loadInventoryToolStripMenuItem";
-            this.loadInventoryToolStripMenuItem.Size = new System.Drawing.Size(202, 22);
-            this.loadInventoryToolStripMenuItem.Text = "Load Inventory";
-            this.loadInventoryToolStripMenuItem.Click += new System.EventHandler(this.loadInventoryToolStripMenuItem_Click);
-            // 
             // toggleLoggingToolStripMenuItem
             // 
             this.toggleLoggingToolStripMenuItem.Name = "toggleLoggingToolStripMenuItem";
@@ -970,23 +990,54 @@ namespace AutoClicker
             // saveToolStripMenuItem
             // 
             this.saveToolStripMenuItem.Name = "saveToolStripMenuItem";
-            this.saveToolStripMenuItem.Size = new System.Drawing.Size(114, 22);
+            this.saveToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.saveToolStripMenuItem.Text = "Save";
             this.saveToolStripMenuItem.Click += new System.EventHandler(this.saveToolStripMenuItem_Click);
             // 
             // saveAsToolStripMenuItem
             // 
             this.saveAsToolStripMenuItem.Name = "saveAsToolStripMenuItem";
-            this.saveAsToolStripMenuItem.Size = new System.Drawing.Size(114, 22);
+            this.saveAsToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.saveAsToolStripMenuItem.Text = "Save As";
             this.saveAsToolStripMenuItem.Click += new System.EventHandler(this.saveAsToolStripMenuItem_Click);
             // 
             // loadToolStripMenuItem
             // 
             this.loadToolStripMenuItem.Name = "loadToolStripMenuItem";
-            this.loadToolStripMenuItem.Size = new System.Drawing.Size(114, 22);
+            this.loadToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.loadToolStripMenuItem.Text = "Load";
             this.loadToolStripMenuItem.Click += new System.EventHandler(this.loadToolStripMenuItem_Click);
+            // 
+            // inventoryToolStripMenuItem
+            // 
+            this.inventoryToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.saveInventoryToolStripMenuItem,
+            this.saveAsInventoryToolStripMenuItem,
+            this.loadInventoryToolStripMenuItem});
+            this.inventoryToolStripMenuItem.Name = "inventoryToolStripMenuItem";
+            this.inventoryToolStripMenuItem.Size = new System.Drawing.Size(69, 20);
+            this.inventoryToolStripMenuItem.Text = "Inventory";
+            // 
+            // saveInventoryToolStripMenuItem
+            // 
+            this.saveInventoryToolStripMenuItem.Name = "saveInventoryToolStripMenuItem";
+            this.saveInventoryToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.saveInventoryToolStripMenuItem.Text = "Save";
+            this.saveInventoryToolStripMenuItem.Click += new System.EventHandler(this.saveInventoryToolStripMenuItem_Click);
+            // 
+            // saveAsInventoryToolStripMenuItem
+            // 
+            this.saveAsInventoryToolStripMenuItem.Name = "saveAsInventoryToolStripMenuItem";
+            this.saveAsInventoryToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.saveAsInventoryToolStripMenuItem.Text = "Save As";
+            this.saveAsInventoryToolStripMenuItem.Click += new System.EventHandler(this.saveAsInventoryToolStripMenuItem_Click);
+            // 
+            // loadInventoryToolStripMenuItem
+            // 
+            this.loadInventoryToolStripMenuItem.Name = "loadInventoryToolStripMenuItem";
+            this.loadInventoryToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.loadInventoryToolStripMenuItem.Text = "Load";
+            this.loadInventoryToolStripMenuItem.Click += new System.EventHandler(this.loadInventoryToolStripMenuItem_Click);
             // 
             // chkClicks
             // 
@@ -1159,6 +1210,7 @@ namespace AutoClicker
             // 
             // Buttons
             // 
+            this.Buttons.Controls.Add(this.label5);
             this.Buttons.Controls.Add(this.groupBox11);
             this.Buttons.Controls.Add(this.groupBox10);
             this.Buttons.Controls.Add(this.groupBox7);
@@ -1182,6 +1234,15 @@ namespace AutoClicker
             this.Buttons.TabIndex = 2;
             this.Buttons.Text = "Buttons";
             this.Buttons.UseVisualStyleBackColor = true;
+            // 
+            // label5
+            // 
+            this.label5.AutoSize = true;
+            this.label5.Location = new System.Drawing.Point(526, 210);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(38, 13);
+            this.label5.TabIndex = 13;
+            this.label5.Text = "Height";
             // 
             // groupBox11
             // 
@@ -1365,6 +1426,9 @@ namespace AutoClicker
             // 
             // groupBox6
             // 
+            this.groupBox6.Controls.Add(this.label6);
+            this.groupBox6.Controls.Add(this.txt_Inv_Height);
+            this.groupBox6.Controls.Add(this.txt_Inv_Width);
             this.groupBox6.Controls.Add(this.txt_Inv_Bot_Y);
             this.groupBox6.Controls.Add(this.txt_Inv_Bot_X);
             this.groupBox6.Controls.Add(this.txt_Inv_Top_Y);
@@ -1377,6 +1441,33 @@ namespace AutoClicker
             this.groupBox6.TabIndex = 32;
             this.groupBox6.TabStop = false;
             this.groupBox6.Text = "Inventory Coords";
+            // 
+            // label6
+            // 
+            this.label6.AutoSize = true;
+            this.label6.Location = new System.Drawing.Point(131, 24);
+            this.label6.Name = "label6";
+            this.label6.Size = new System.Drawing.Size(35, 13);
+            this.label6.TabIndex = 39;
+            this.label6.Text = "Width";
+            // 
+            // txt_Inv_Height
+            // 
+            this.txt_Inv_Height.Location = new System.Drawing.Point(134, 89);
+            this.txt_Inv_Height.MaxLength = 5;
+            this.txt_Inv_Height.Name = "txt_Inv_Height";
+            this.txt_Inv_Height.Size = new System.Drawing.Size(49, 20);
+            this.txt_Inv_Height.TabIndex = 12;
+            this.txt_Inv_Height.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.txt_Number_Only_KeyPress);
+            // 
+            // txt_Inv_Width
+            // 
+            this.txt_Inv_Width.Location = new System.Drawing.Point(134, 40);
+            this.txt_Inv_Width.MaxLength = 5;
+            this.txt_Inv_Width.Name = "txt_Inv_Width";
+            this.txt_Inv_Width.Size = new System.Drawing.Size(49, 20);
+            this.txt_Inv_Width.TabIndex = 11;
+            this.txt_Inv_Width.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.txt_Number_Only_KeyPress);
             // 
             // txt_Inv_Bot_Y
             // 
@@ -1900,10 +1991,11 @@ namespace AutoClicker
                     TimeoutCountMax = int.Parse(txt_Timeout_Cycle_Max.Text),
                     TimeoutLengthMin = TimeoutLengthMin,
                     TimeoutLengthMax = TimeoutLengthMax,
-                    EndTimeoutsOnly = chk_End_Timeout_Only.Checked,
+                    EndTimeoutsOnly = chk_End_Timeout_Only.Checked
                 };
                 runParams.RunLimit = (int)numCount.Value;
-                runParams.ClickList = Clicks.ToList(); ;
+                runParams.ClickList = Clicks.ToList();
+                runParams.StartStep = int.Parse(txt_Step_Start.Text);
                 CurrentWorker.RunWorkerAsync(runParams);
             }
             else
@@ -1987,17 +2079,6 @@ namespace AutoClicker
                     AlchPoint = Cursor.Position;
                     SettingAlchPoint = false;
                     btnSetAlch.BackColor = Color.Transparent;
-                }
-
-                if (SetupInventory)
-                {
-                    InventoryClicks.Add(new Click()
-                    {
-                        ClickPoint = Cursor.Position,
-                        DelayAfterClick = RandomGenerate.Next(250, 450),
-                        ClickOffset = 5,
-                        ClickSequence = ++ClickCountPos
-                    });
                 }
             }
         }
@@ -2094,7 +2175,7 @@ namespace AutoClicker
 
         private void ClickInventory()
         {
-            if (InventoryClicks.Count < 1)
+            if (InventoryInfo.InventoryClicks.Count < 1)
             {
                 MessageBox.Show("Need to setup inventory first.");
                 return;
@@ -2103,7 +2184,7 @@ namespace AutoClicker
             if (worker_Inventory_Clicks.IsBusy)
                 return;
 
-            List<Click> clickOrder = BuildInventoryClickList(InventoryClicks);
+            List<Click> clickOrder = BuildInventoryClickList(InventoryInfo.InventoryClicks);
 
             var runParams = new RunParams<string>();
             runParams.ReportProgress = new Progress<string>(value => LogWrite(value));
@@ -2111,6 +2192,44 @@ namespace AutoClicker
             runParams.ClickList = clickOrder;
 
             worker_Inventory_Clicks.RunWorkerAsync(runParams);
+        }
+
+        private void BuildInventoryClicks()
+        {
+            InventoryInfo.InventoryClicks.Clear();
+
+            InventoryInfo.TopLeftX = int.Parse(txt_Inv_Top_X.Text);
+            InventoryInfo.TopLeftY = int.Parse(txt_Inv_Top_Y.Text);
+            InventoryInfo.BottomRightX = int.Parse(txt_Inv_Bot_X.Text);
+            InventoryInfo.BottomRightY = int.Parse(txt_Inv_Bot_Y.Text);
+            InventoryInfo.InventoryWidth = int.Parse(txt_Inv_Width.Text);
+            InventoryInfo.InventoryHeight = int.Parse(txt_Inv_Height.Text);
+
+            var totalPixelWidth = Math.Abs(InventoryInfo.BottomRightX - InventoryInfo.TopLeftX);
+            var totalPixelHeight = Math.Abs(InventoryInfo.BottomRightY - InventoryInfo.TopLeftY);
+
+            var invSpaceWidth = totalPixelWidth / InventoryInfo.InventoryWidth;
+            var invSpaceHeight = totalPixelHeight / InventoryInfo.InventoryHeight;
+            var halfWidth = invSpaceWidth / 2;
+            var halfHeight = invSpaceHeight / 2;
+
+            var clickSequence = 0;
+            for(var j = 0; j < InventoryInfo.InventoryHeight; j++)
+            {
+                for(var i = 0; i < InventoryInfo.InventoryWidth; i++)
+                {
+                    InventoryInfo.InventoryClicks.Add(new Click()
+                    {
+                        ClickPoint = new Point(InventoryInfo.TopLeftX + halfWidth + (invSpaceWidth * i), InventoryInfo.TopLeftY + halfHeight + (invSpaceHeight * j)),
+                        DelayAfterClick = RandomGenerate.Next(250, 450),
+                        ClickOffset = (halfWidth / 2),
+                        ClickSequence = ++clickSequence
+                    });
+                }
+            }
+
+            lblTotalInventory.Text = InventoryInfo.InventoryClicks.Count.ToString();
+            numInventoryCount.Value = InventoryInfo.InventoryClicks.Count;
         }
 
         private List<Click> BuildInventoryClickList(List<Click> inventoryClicks)
@@ -2243,21 +2362,23 @@ namespace AutoClicker
 
         private void btnSetupInventory_Click(object sender, EventArgs e)
         {
-            if (SetupInventory)
-            {
-                btnSetupInventory.Text = "Setup Inventory";
-                InventoryClicks.RemoveAt(InventoryClicks.Count - 1);
-                lblTotalInventory.Text = InventoryClicks.Count.ToString();
-                numInventoryCount.Value = InventoryClicks.Count;
-            }
-            else
-            {
-                btnSetupInventory.Text = "Recording Inventory...";
-                InventoryClicks.Clear();
-                ClickCountPos = 0;
-            }
+            //if (SetupInventory)
+            //{
+            //    btnSetupInventory.Text = "Setup Inventory";
+            //    InventoryClicks.RemoveAt(InventoryClicks.Count - 1);
+            //    lblTotalInventory.Text = InventoryClicks.Count.ToString();
+            //    numInventoryCount.Value = InventoryClicks.Count;
+            //}
+            //else
+            //{
+            //    btnSetupInventory.Text = "Recording Inventory...";
+            //    InventoryClicks.Clear();
+            //    ClickCountPos = 0;
+            //}
 
-            SetupInventory = !SetupInventory;
+            //SetupInventory = !SetupInventory;
+
+            BuildInventoryClicks();
         }
 
         private void DisableAll()
@@ -2322,73 +2443,12 @@ namespace AutoClicker
             btn_Start.PerformClick();
         }
 
-        private void saveInventoryToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            using (System.IO.StreamWriter file =
-                new System.IO.StreamWriter(FilePath, false))
-            {
-                foreach (var click in InventoryClicks)
-                {
-                    file.WriteLine(String.Format("{0}:{1}", click.ClickPoint.X, click.ClickPoint.Y));
-                }
-            }
-        }
-
-        private void loadInventoryToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            LoadInventory();
-        }
-
-        private void LoadInventory()
-        {
-            if (File.Exists(FilePath))
-            {
-                //Inventory.Clear();
-                InventoryClicks.Clear();
-
-                string line;
-                List<int> points;
-                var count = 1;
-
-                using (System.IO.StreamReader file = new System.IO.StreamReader(FilePath, false))
-                {
-                    while ((line = file.ReadLine()) != null)
-                    {
-                        points = line.Split(':').Select(int.Parse).ToList();
-                        if (points.Count != 2)
-                            continue;
-                        //Inventory.Add(new Point(points[0], points[1]));
-                        InventoryClicks.Add(new Click()
-                        {
-                            ClickPoint = new Point(points[0], points[1]),
-                            DelayAfterClick = RandomGenerate.Next(250, 450),
-                            ClickOffset = 5,
-                            ClickSequence = count++
-                        });
-                    }
-                }
-
-                lblTotalInventory.Text = InventoryClicks.Count.ToString();
-                numInventoryCount.Value = InventoryClicks.Count;
-            }
-            else
-            {
-                (new FileInfo(FilePath)).Directory.Create();
-
-                using (System.IO.StreamWriter file =
-                    new System.IO.StreamWriter(FilePath, false))
-                {
-                    file.Write("");
-                }
-            }
-        }
-
         private void numInventoryCount_ValueChanged(object sender, EventArgs e)
         {
             NumericUpDown counter = (NumericUpDown)sender;
-            if ((int)counter.Value > InventoryClicks.Count)
+            if ((int)counter.Value > InventoryInfo.InventoryClicks.Count)
             {
-                counter.Value = InventoryClicks.Count;
+                counter.Value = InventoryInfo.InventoryClicks.Count;
                 return;
             }
         }
@@ -2924,6 +2984,9 @@ namespace AutoClicker
 
             var step = 0;
 
+            if(runParams.StartStep != 0)
+                step = runParams.StartStep;
+
             report.Report("Starting Normal Clicks Worker");
             report.Report("Total Runs = " + runCount);
             Thread.Sleep(3000);
@@ -3044,7 +3107,15 @@ namespace AutoClicker
             if (click.ClickType == 3)
             {
                 if (click.ClickScript != null && click.ClickScript.PressKey != Keys.None)
-                    SendKeys.SendWait(click.ClickScript.PressKey.ToString());
+                {
+                    var keys = "";
+                    if (click.ClickScript.Uppercase)
+                        keys = click.ClickScript.PressKey.ToString();
+                    else
+                        keys = click.ClickScript.PressKey.ToString().ToLower();
+                    SendKeys.SendWait(keys);
+                }
+                    
                 report.Report(string.Format("Step {0} : Key pressed: {1} ", click.ClickSequence, click.ClickScript.PressKey.ToString()));
 
                 Thread.Sleep(RandomGenerate.Next((int)click.DelayAfterClick - 200, (int)click.DelayAfterClick + 200));
@@ -3242,7 +3313,12 @@ namespace AutoClicker
                     ResultAction = Action.EMPTY,
                     GoToSequence = 2,
                     PressKey = Keys.D3,
-                    CheckOnlyNoClick = false
+                    CheckOnlyNoClick = false,
+                    ClickOptions = new ClickOptions()
+                    {
+                        SearchAreaTopLeft = new Point(0, 0),
+                        SearchAreaBottomRight = new Point(0, 0)
+                    }
                 }
             }) ;
         }
@@ -3316,6 +3392,16 @@ namespace AutoClicker
             }
         }
 
+        private void SaveInventoryFile(string filename)
+        {
+            using (StreamWriter myStream = new StreamWriter(filename, false))
+            {
+                var data = ToXML(InventoryInfo);
+                myStream.Write(data);
+                myStream.Close();
+            }
+        }
+
         private static T FromXML<T>(string xml)
         {
             using (StringReader stringReader = new StringReader(xml))
@@ -3343,6 +3429,74 @@ namespace AutoClicker
         private void slider_Image_Range_Scroll(object sender, EventArgs e)
         {
             lbl_Image_Range.Text = (100 - slider_Image_Range.Value).ToString() + "%";
+        }
+
+        private void loadInventoryToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            var fileName = "";
+            var fd = new OpenFileDialog();
+            fd.Title = "Open File Dialog";
+            fd.InitialDirectory = AppFolder;
+            fd.Filter = "All files (*.*)|*.*|xml files (*.xml)|*.xml";
+            fd.FilterIndex = 2;
+            fd.RestoreDirectory = false;
+
+            if (fd.ShowDialog() == DialogResult.OK)
+            {
+                LogWrite("Loading " + fd.FileName);
+                fileName = fd.FileName;
+                using (StreamReader reader = new StreamReader(fileName))
+                {
+                    var data = reader.ReadToEnd();
+                    InventoryInfo = FromXML<Inventory>(data);
+                }
+
+                OpenInventoryFile = fileName;
+            }
+
+            txt_Inv_Top_X.Text = InventoryInfo.TopLeftX.ToString();
+            txt_Inv_Top_Y.Text = InventoryInfo.TopLeftY.ToString();
+            txt_Inv_Bot_X.Text = InventoryInfo.BottomRightX.ToString();
+            txt_Inv_Bot_Y.Text = InventoryInfo.BottomRightY.ToString();
+            txt_Inv_Width.Text = InventoryInfo.InventoryWidth.ToString();
+            txt_Inv_Height.Text = InventoryInfo.InventoryHeight.ToString();
+        }
+
+        private void saveAsInventoryToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            var fileName = "";
+            SaveFileDialog sfd = new SaveFileDialog();
+
+            sfd.Title = "Save File Dialog";
+            sfd.InitialDirectory = AppFolder;
+            sfd.Filter = "All files (*.*)|*.*|xml files (*.xml)|*.xml";
+            sfd.FilterIndex = 2;
+            sfd.RestoreDirectory = false;
+
+            if (sfd.ShowDialog() == DialogResult.OK)
+            {
+                LogWrite("Saving " + sfd.FileName);
+                fileName = sfd.FileName;
+                SaveInventoryFile(fileName);
+                OpenInventoryFile = fileName;
+            }
+        }
+
+        private void saveInventoryToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (string.IsNullOrEmpty(OpenInventoryFile))
+            {
+                saveAsInventoryToolStripMenuItem.PerformClick();
+                return;
+            }
+            else
+            {
+                var fileName = Path.GetFileName(OpenInventoryFile);
+                if (MessageBox.Show(string.Format("Overwrite current file '{0}' ?", fileName), "Overwrite", MessageBoxButtons.YesNo) == DialogResult.No)
+                    return;
+
+                SaveInventoryFile(OpenInventoryFile);
+            }
         }
     }
 }

@@ -125,6 +125,12 @@ namespace AutoClicker.ImageFinder
             }
             corner = null;
             screenShot = null;
+            if (!imagePoint.IsEmpty)
+            {
+                imagePoint.X += image.Width / 2;
+                imagePoint.Y += image.Height / 2;
+            }
+            
             return ModifyForMonitorPoint(imagePoint, monitor);
         }
 
@@ -607,6 +613,9 @@ namespace AutoClicker.ImageFinder
 
         public static Point ModifyForMonitorPoint(Point point, int monitor)
         {
+            if(point.IsEmpty)
+                return point;
+
             int xSize = Screen.PrimaryScreen.Bounds.Width;
 
 

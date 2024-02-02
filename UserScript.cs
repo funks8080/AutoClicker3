@@ -28,6 +28,7 @@ namespace AutoClicker
         public Action ResultAction { get; set; }
         public int GoToSequence { get; set; }
         public Keys PressKey { get; set; }
+        public bool Uppercase { get; set; }
         public ClickOptions ClickOptions { get; set; }
         public bool CheckOnlyNoClick { get; set; }
     }
